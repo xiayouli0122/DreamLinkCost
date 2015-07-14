@@ -1,0 +1,314 @@
+package com.yuri.dreamlinkcost;
+
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.model.Cost;
+
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
+
+import cn.bmob.v3.listener.SaveListener;
+
+@EActivity(R.layout.activity_addnew)
+public class AddNewActivity extends AppCompatActivity {
+
+    @ViewById
+    TextView tvDatePicker;
+    @ViewById
+    Button btnDatePicker;
+    @ViewById
+    EditText etTitle;
+    @ViewById
+    Spinner spinnerTitleSelector;
+    @ViewById
+    EditText etTotalPrice;
+    @ViewById
+    EditText etLiucheng;
+    @ViewById
+    Spinner spinnerLc;
+    @ViewById
+    EditText etXiaofei;
+    @ViewById
+    Spinner spinnerXf;
+    @ViewById
+    EditText etYuri;
+    @ViewById
+    Spinner spinnerYuri;
+    @ViewById
+    LinearLayout itemPriceView;
+    @ViewById(R.id.rg_pay_way)
+    RadioGroup mPayWayRG;
+    @ViewById(R.id.rg_pay_person)
+    RadioGroup mPayPersonRG;
+
+    private SharedPreferences mSharedPrefences;
+    private int mAuthor;
+
+    private int mPayWay = -1;
+    private static final int PAY_WAY_AVERAGE = 0;
+    private static final int PAY_WAY_CUSTOM = 1;
+
+    private PayPerson mPayPerson;
+    enum PayPerson{
+        LiuCheng, XiaoFei, Yuri
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //可省略
+        //setContentView(R.layout.activity_addnew);
+        //tvDatePicker.setText("");  报错，空指针异常
+        //因为在onCreate()被调用的时候，@ViewById还没有被set，也就是都为null
+        //所以如果你要对组件进行一定的初始化，那么你要用@AfterViews注解
+        setResult(RESULT_CANCELED);
+    }
+
+    @AfterViews
+    public void init(){
+        mSharedPrefences = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
+        mAuthor = mSharedPrefences.getInt(Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        String[] titles = getResources().getStringArray(R.array.title_arrays);
+        String[] operators = getResources().getStringArray(R.array.operator_arrays);
+
+        ArrayAdapter adapter;
+        adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, titles);
+        Log.d("Yuri", "spinnerTitleSelector:" + spinnerTitleSelector);
+        spinnerTitleSelector.setAdapter(adapter);
+
+        spinnerTitleSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                etTitle.setText(spinnerTitleSelector.getSelectedItem() + "");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, operators);
+        spinnerLc.setPrompt(operators[0]);
+        spinnerXf.setPrompt(operators[0]);
+        spinnerYuri.setPrompt(operators[0]);
+
+        spinnerLc.setAdapter(adapter);
+        spinnerXf.setAdapter(adapter);
+        spinnerYuri.setAdapter(adapter);
+
+        itemPriceView.setVisibility(View.GONE);
+        mPayWayRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int id) {
+                if (id == R.id.rb_average) {
+                    itemPriceView.setVisibility(View.GONE);
+                    mPayWay = PAY_WAY_AVERAGE;
+                } else {
+                    itemPriceView.setVisibility(View.VISIBLE);
+                    mPayWay = PAY_WAY_CUSTOM;
+                }
+            }
+        });
+        mPayPersonRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int id) {
+                switch (id) {
+                    case R.id.rb_liucheng:
+                        spinnerLc.setSelection(1);
+                        spinnerXf.setSelection(0);
+                        spinnerYuri.setSelection(0);
+                        mPayPerson = PayPerson.LiuCheng;
+                        break;
+                    case R.id.rb_xiaofei:
+                        spinnerLc.setSelection(0);
+                        spinnerXf.setSelection(1);
+                        spinnerYuri.setSelection(0);
+                        mPayPerson = PayPerson.XiaoFei;
+                        break;
+                    case R.id.rb_yuri:
+                        spinnerLc.setSelection(0);
+                        spinnerXf.setSelection(0);
+                        spinnerYuri.setSelection(1);
+                        mPayPerson = PayPerson.Yuri;
+                        break;
+                }
+            }
+        });
+
+        tvDatePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getApplicationContext(), "Not support.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void doComplete() {
+        if (TextUtils.isEmpty(etTitle.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), "Title cannot be empty." ,Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(etTotalPrice.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty." ,Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (mPayWay == -1) {
+            Toast.makeText(getApplicationContext(), "You must confirm how pay." ,Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (mPayPerson == null) {
+            Toast.makeText(getApplicationContext(), "You must confirm who pay." ,Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (mPayWay == PAY_WAY_CUSTOM) {
+            if (TextUtils.isEmpty(etLiucheng.getText().toString().trim())) {
+                Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty." ,Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (TextUtils.isEmpty(etXiaofei.getText().toString().trim())) {
+                Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty." ,Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (TextUtils.isEmpty(etYuri.getText().toString().trim())) {
+                Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty." ,Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        final Cost cost = new Cost();
+        cost.createDate = System.currentTimeMillis();
+        cost.totalPay = Float.parseFloat(etTotalPrice.getText().toString());
+        cost.title = etTitle.getText().toString().trim();
+        cost.author = mAuthor;
+        if (mPayWay == PAY_WAY_AVERAGE) {
+            switch (mPayPerson) {
+                case LiuCheng:
+                    cost.payLC = cost.totalPay * (float) (2.0 / 3.0);
+                    cost.payXF = -cost.totalPay / 3;
+                    cost.payYuri = -cost.totalPay / 3;
+                    break;
+                case XiaoFei:
+                    cost.payXF = cost.totalPay * (float) (2.0 / 3.0);
+                    cost.payLC = -cost.totalPay / 3;
+                    cost.payYuri = -cost.totalPay / 3;
+                    break;
+                case Yuri:
+                    cost.payYuri = cost.totalPay * (float) (2.0 / 3.0);
+                    cost.payXF = -cost.totalPay / 3;
+                    cost.payLC = -cost.totalPay / 3;
+                    break;
+            }
+        } else {
+            float payLc = Float.parseFloat(etLiucheng.getText().toString().trim());
+            float payXf = Float.parseFloat(etXiaofei.getText().toString().trim());
+            float payYuri = Float.parseFloat(etYuri.getText().toString().trim());
+            switch (mPayPerson) {
+                case LiuCheng:
+                    cost.payLC = payLc;
+                    cost.payXF = -payXf;
+                    cost.payYuri = -payYuri;
+                    break;
+                case XiaoFei:
+                    cost.payXF = payXf;
+                    cost.payLC = -payLc;
+                    cost.payYuri = -payYuri;
+                    break;
+                case Yuri:
+                    cost.payYuri = payYuri;
+                    cost.payLC = -payLc;
+                    cost.payXF = -payXf;
+                    break;
+            }
+        }
+        if ((cost.payLC + cost.payXF + cost.payYuri) != 0) {
+            Toast.makeText(this, "Error.LC:" + cost.payLC + ",XF:" + cost.payXF + ",Yuri:" + cost.payYuri, Toast.LENGTH_SHORT).show();
+        } else {
+            setResult(RESULT_OK);
+            new AlertDialog.Builder(this)
+                    .setTitle("Show Result")
+                    .setMessage(cost.toString())
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Commit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int which) {
+                            final BmobCost bmobCost = cost.getCostBean();
+                            bmobCost.save(getApplicationContext(), new SaveListener() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Toast.makeText(getApplicationContext(), "upload success.", Toast.LENGTH_SHORT).show();
+                                            cost.status = Constant.STATUS_COMMIT_SUCCESS;
+                                            cost.objectId = bmobCost.getObjectId();
+                                            cost.save();
+                                            Log.d("Yuri", cost.toString());
+                                            AddNewActivity.this.finish();
+                                        }
+
+                                        @Override
+                                        public void onFailure(int i, String s) {
+                                            cost.save();
+                                            Toast.makeText(getApplicationContext(), "upload failure.errorCode:" + i
+                                                    + ",msg:" + s, Toast.LENGTH_SHORT).show();
+                                            AddNewActivity.this.finish();
+                                        }
+                                    }
+                            );
+                        }
+                    })
+                    .create().show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_addnew, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_complete) {
+            doComplete();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+}

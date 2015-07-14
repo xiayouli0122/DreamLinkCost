@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.yuri.dreamlinkcost.MainActivity">
+    <item android:id="@+id/action_totalPay" android:title="All Total Pay"
+        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/action_liucheng_pay" android:title="All LiuCheg Pay"
+        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/action_xiaofei_pay" android:title="All XiaoFei Pay"
+        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/action_Yuri_pay" android:title="All Yuri Pay"
+        android:orderInCategory="100" app:showAsAction="never" />
+</menu>
