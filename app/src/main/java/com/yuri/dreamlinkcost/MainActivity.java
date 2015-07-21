@@ -1,6 +1,7 @@
 package com.yuri.dreamlinkcost;
 
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -23,6 +24,7 @@ import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
 import com.yuri.dreamlinkcost.model.Cost;
+import com.yuri.dreamlinkcost.model.Title;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -55,9 +57,14 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    @ViewById(R.id.emptyView)
+    protected TextView mEmptyView;
+
     private LinearLayoutManager mLayoutManager;
 
     private CardViewAdapter mAdapter;
+
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,23 @@ public class MainActivity extends AppCompatActivity {
 
         mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("同步中...");
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+        List<Title> titles = new Select().from(Title.class).execute();
+        if (titles == null || titles.size() == 0) {
+            String[] titleArrays = getResources().getStringArray(R.array.title_arrays);
+            Title title;
+            for (int i = 0; i < titleArrays.length; i++) {
+                title = new Title();
+                title.mTitle = titleArrays[i];
+                title.save();
+            }
+        }
     }
 
     @AfterViews
@@ -75,48 +99,26 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mRecyclerView.setLayoutManager(mLayoutManager);
-        List<Cost> costList = new Select().from(Cost.class).execute();
+        mRecyclerView.setItemAnimator(new CustomItemAnimator());
+        List<Cost> costList = new Select().from(Cost.class).where("clear=?", false)
+                .orderBy("id desc").execute();
+        mRecyclerView.setVisibility(View.VISIBLE);
         mAdapter = new CardViewAdapter(costList, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.theme_accent));
-//        mSwipeRefreshLayout.setRefreshing(true);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                BmobQuery<BmobCost> bmobQuery = new BmobQuery<>("cost");
-                bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobCost>() {
-                    @Override
-                    public void onSuccess(List<BmobCost> list) {
-                        int count = 0;
-                        String objectId;
-                        for (BmobCost bmobcost: list) {
-                            objectId = bmobcost.getObjectId();
-                            Cost cost = new Select().from(Cost.class).where("objectId=?", objectId).executeSingle();
-                            if (cost == null) {
-                                cost = bmobcost.getCost();
-                                cost.save();
-                                count ++;
-                            }
-                        }
-                        if (count == 0) {
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            return;
-                        }
-                        List<Cost> costList = new Select().from(Cost.class).execute();
-                        mAdapter.setmCostList(costList);
-                        mAdapter.notifyDataSetChanged();
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onError(int i, String s) {
-                        Log.d("Yuri", "onError.errorCode:" + i + ",errorMsg:" + s);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+                doGetDataFromNet();
             }
         });
+
+        if (costList == null || costList.size() == 0) {
+            mProgressDialog.show();
+            doGetDataFromNet();
+        }
+
         mProgressBar.setVisibility(View.GONE);
 
         mDrawerToggle  = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
@@ -124,8 +126,65 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         FragmentManager fm = getFragmentManager();
-        LeftMenuFragment leftMenuFragment = LeftMenuFragment.newInstance("","");
+        LeftMenuFragment leftMenuFragment = LeftMenuFragment.newInstance("", "");
         fm.beginTransaction().replace(R.id.left_menu_container, leftMenuFragment).commit();
+    }
+
+    private void doGetDataFromLocal() {
+        List<Cost> costList = new Select().from(Cost.class).orderBy("id desc").execute();
+        if (costList == null || costList.size() <= 0) {
+            mEmptyView.setVisibility(View.VISIBLE);
+            mEmptyView.setText("Empty");
+        } else {
+            mEmptyView.setVisibility(View.GONE);
+            mAdapter.setmCostList(costList);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void doGetDataFromNet() {
+        BmobQuery<BmobCost> bmobQuery = new BmobQuery<>("cost");
+        bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobCost>() {
+            @Override
+            public void onSuccess(List<BmobCost> list) {
+                int count = 0;
+                String objectId;
+                for (BmobCost bmobcost : list) {
+                    objectId = bmobcost.getObjectId();
+                    Cost cost = new Select().from(Cost.class).where("objectId=?", objectId).executeSingle();
+                    if (cost == null) {
+                        cost = bmobcost.getCost();
+                        cost.save();
+                        count++;
+                    }
+                }
+                if (count == 0) {
+                    if (mProgressDialog != null) {
+                        mProgressDialog.cancel();
+                    }
+                    mEmptyView.setVisibility(View.VISIBLE);
+                    mEmptyView.setText("Empty");
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    return;
+                }
+                doGetDataFromLocal();
+                mSwipeRefreshLayout.setRefreshing(false);
+                if (mProgressDialog != null) {
+                    mProgressDialog.cancel();
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.d("Yuri", "onError.errorCode:" + i + ",errorMsg:" + s);
+                mEmptyView.setVisibility(View.VISIBLE);
+                mEmptyView.setText(s + "\n" + "请下拉重试");
+                mSwipeRefreshLayout.setRefreshing(false);
+                if (mProgressDialog != null) {
+                    mProgressDialog.cancel();
+                }
+            }
+        });
     }
 
     @Click(R.id.fab_button)
@@ -172,10 +231,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             author = "UNKNOWN";
         }
-        String message = "TotalPay:" + cost.totalPay + "\n"
-                + "LiuCheng:" + cost.payLC + "\n"
-                + "XiaoFei:" + cost.payXF + "\n"
-                + "Yuri:" + cost.payYuri + "\n\n"
+        String message = "TotalPay(¥):" + cost.totalPay + "\n"
+                + "LiuCheng(¥):" + cost.payLC + "\n"
+                + "XiaoFei(¥):" + cost.payXF + "\n"
+                + "Yuri(¥):" + cost.payYuri + "\n\n"
                 + "Status:" +  status + "\n"
                 + "Date:"  + Utils.getDate(cost.createDate) + "\n"
                 + "Author:" + author;
@@ -230,33 +289,34 @@ public class MainActivity extends AppCompatActivity {
         List<Cost> list = mAdapter.getmCostList();
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_totalPay:
+            case R.id.action_statistics:
                 float totalPay = 0;
-                for (Cost cos : list) {
-                    totalPay += cos.totalPay;
-                }
-                showDialog("All Total Pay", "$" + totalPay);
-                break;
-            case R.id.action_liucheng_pay:
                 float liuchengPay = 0;
-                for (Cost cos : list) {
-                    liuchengPay += cos.payLC;
-                }
-                showDialog("All LiuCheng Pay", "$" + liuchengPay);
-                break;
-            case R.id.action_xiaofei_pay:
                 float xiaofeiPay = 0;
-                for (Cost cos : list) {
-                    xiaofeiPay += cos.payXF;
-                }
-                showDialog("All XiaoFei Pay", "$" + xiaofeiPay);
-                break;
-            case R.id.action_Yuri_pay:
                 float yuriPay = 0;
                 for (Cost cos : list) {
-                    yuriPay += cos.totalPay;
+                    totalPay += cos.totalPay;
+                    liuchengPay += cos.payLC;
+                    xiaofeiPay += cos.payXF;
+                    yuriPay += cos.payYuri;
                 }
-                showDialog("All Yuri Pay", "$" + yuriPay);
+
+                String startTime = Utils.getDate(list.get(list.size() - 1).createDate);
+                String endTime = Utils.getDate(list.get(0).createDate);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("StartDate:" + startTime + "\n");
+                sb.append("EndDate:" + endTime + "\n\n");
+                sb.append("TotalPay:" + " ¥" + totalPay + "\n");
+                sb.append("LiuCheng:" + " ¥" + liuchengPay + "\n");
+                sb.append("XiaoFei:" + " ¥" + xiaofeiPay + "\n");
+                sb.append("Yuri:" + " ¥" + yuriPay);
+                showDialog("Statistics", sb.toString());
+                break;
+            case R.id.action_about:
+                String title = "About";
+                String message = "Version:" + Utils.getAppVersion(this);
+                showDialog(title, message);
                 break;
         }
 

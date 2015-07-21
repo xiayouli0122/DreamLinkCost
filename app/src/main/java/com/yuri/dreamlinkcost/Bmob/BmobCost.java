@@ -20,6 +20,8 @@ public class BmobCost extends BmobObject{
     public float payXF;
     public float payYuri;
 
+    public boolean clear;
+
     public long createDate;
 
     public Cost getCost() {
@@ -33,6 +35,7 @@ public class BmobCost extends BmobObject{
         cost.payYuri = this.payYuri;
         cost.title = this.title;
         cost.totalPay = this.totalPay;
+        cost.clear = this.clear;
         return cost;
     }
 
@@ -45,6 +48,8 @@ public class BmobCost extends BmobObject{
                 ", payLC=" + payLC +
                 ", payXF=" + payXF +
                 ", payYuri=" + payYuri +
+                ", clear=" + clear +
+                ", createDate=" + createDate +
                 '}';
     }
 }

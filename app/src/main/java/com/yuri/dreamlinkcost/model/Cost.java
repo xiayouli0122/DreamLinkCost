@@ -35,6 +35,9 @@ public class Cost extends Model {
     @Column(name = "author")
     public int author = Constant.Author.YURI;
 
+    @Column(name = "clear")
+    public boolean clear = false;
+
     @Override
     public String toString() {
         return "Cost{" +
@@ -47,6 +50,7 @@ public class Cost extends Model {
                 ", status=" + status +
                 ", createDate=" + createDate +
                 ", author=" + author +
+                ", clear=" + clear +
                 '}';
     }
 
@@ -59,6 +63,7 @@ public class Cost extends Model {
         costBean.payYuri = this.payYuri;
         costBean.author = this.author;
         costBean.createDate = this.createDate;
+        costBean.clear = this.clear;
         return costBean;
     }
 }

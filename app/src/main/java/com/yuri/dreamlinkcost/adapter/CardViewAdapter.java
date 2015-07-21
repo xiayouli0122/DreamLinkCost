@@ -48,7 +48,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         final Cost cost = mCostList.get(position);
         viewHolder.titleView.setText(cost.title);
-        viewHolder.totalPayView.setText("$" + cost.totalPay);
+        viewHolder.totalPayView.setText("¥" + cost.totalPay);
         if (Constant.STATUS_COMMIT_SUCCESS == cost.status) {
             viewHolder.commitStatusView.setText("Commited");
             viewHolder.commitStatusView.setTextColor(Color.GREEN);
