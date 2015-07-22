@@ -39,4 +39,25 @@ public class Utils {
         }
         return version;
     }
+
+    /**
+     * 获取当前时间，并格式化
+     * @return 当前时间格式化后的字符
+     */
+    public static String getTime() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+        Date date = new Date(System.currentTimeMillis());
+        return format.format(date);
+    }
+
+    /**
+     * 获取当前时间，并格式化
+     * @return 当前时间格式化后的字符
+     */
+    public static String getDate() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date(System.currentTimeMillis());
+        return format.format(date);
+    }
+
 }

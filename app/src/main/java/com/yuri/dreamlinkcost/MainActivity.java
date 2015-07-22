@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         mProgressDialog.setCancelable(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
+        doGetTitleFromNet();
         List<Title> titles = new Select().from(Title.class).execute();
         if (titles == null || titles.size() == 0) {
             String[] titleArrays = getResources().getStringArray(R.array.title_arrays);
@@ -142,6 +144,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void doGetTitleFromNet() {
+        BmobQuery<BmobTitle> bmobQuery = new BmobQuery<>();
+        bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobTitle>() {
+            @Override
+            public void onSuccess(List<BmobTitle> list) {
+                String objectId;
+                for (BmobTitle bmobTitle : list) {
+                    objectId = bmobTitle.getObjectId();
+                    Title title = new Select().from(Title.class).where("objectId=?", objectId).executeSingle();
+                    if (title != null) {
+                        //
+                    } else {
+                        title = bmobTitle.getTitle();
+                        title.save();
+                    }
+                }
+            }
+
+            @Override
+            public void onError(int i, String s) {
+
+            }
+        });
+    }
+
     private void doGetDataFromNet() {
         BmobQuery<BmobCost> bmobQuery = new BmobQuery<>("cost");
         bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobCost>() {
@@ -162,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
                     if (mProgressDialog != null) {
                         mProgressDialog.cancel();
                     }
-                    mEmptyView.setVisibility(View.VISIBLE);
-                    mEmptyView.setText("Empty");
                     mSwipeRefreshLayout.setRefreshing(false);
                     return;
                 }
@@ -307,10 +332,10 @@ public class MainActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
                 sb.append("StartDate:" + startTime + "\n");
                 sb.append("EndDate:" + endTime + "\n\n");
-                sb.append("TotalPay:" + " ¥" + totalPay + "\n");
-                sb.append("LiuCheng:" + " ¥" + liuchengPay + "\n");
-                sb.append("XiaoFei:" + " ¥" + xiaofeiPay + "\n");
-                sb.append("Yuri:" + " ¥" + yuriPay);
+                sb.append("TotalPay(¥):" + totalPay + "\n");
+                sb.append("LiuCheng(¥):"+ liuchengPay + "\n");
+                sb.append("XiaoFei(¥):" + xiaofeiPay + "\n");
+                sb.append("Yuri(¥):" + yuriPay);
                 showDialog("Statistics", sb.toString());
                 break;
             case R.id.action_about:

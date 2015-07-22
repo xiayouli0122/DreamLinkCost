@@ -20,4 +20,8 @@ public class Constant {
     public static class Extra {
         public static final String KEY_LOGIN = "login";
     }
+
+    public static class NotificationID {
+        public static final int VERSION_UPDAET = 10;
+    }
 }

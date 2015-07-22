@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background"
+    android:orientation="vertical"
     tools:context="com.yuri.dreamlinkcost.LeftMenuFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -17,10 +18,35 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/left_menu_recycler_view"
-        android:layout_below="@+id/textview"
         android:clipToPadding="false"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         />
 
-</RelativeLayout>
+    <LinearLayout
+        android:id="@+id/ll_check_new_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="horizontal"
+        android:background="@drawable/item_background"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="检查更新"
+            />
+
+        <TextView
+            android:id="@+id/tv_version_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"
+            android:text="New"
+            android:visibility="gone"
+            />
+    </LinearLayout>
+
+</LinearLayout>

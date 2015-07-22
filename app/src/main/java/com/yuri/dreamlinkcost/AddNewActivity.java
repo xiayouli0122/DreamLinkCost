@@ -30,6 +30,7 @@ import com.activeandroid.query.Select;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
 
@@ -311,9 +312,24 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         if (!TextUtils.isEmpty(titleStr)) {
             Title title = new Select().from(Title.class).where("title=?", titleStr).executeSingle();
             if (title == null) {
-                title = new Title();
-                title.mTitle = titleStr;
-                title.save();
+                final  Title title2 = new Title();
+                title2.mTitle = titleStr;
+                title2.mHasCommited = false;
+                title2.save();
+
+                BmobTitle bmobTitle = title2.getBmobTitle();
+                bmobTitle.save(getApplicationContext(), new SaveListener() {
+                    @Override
+                    public void onSuccess() {
+                        title2.mHasCommited = true;
+                        title2.save();
+                    }
+
+                    @Override
+                    public void onFailure(int i, String s) {
+
+                    }
+                });
             }
         }
         int selectCount = 0;
