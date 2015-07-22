@@ -47,11 +47,20 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
 
     private OnFragmentInteractionListener mListener;
 
+    private static final int MSG_UPDATE_VERSION_VIEW = 0;
+    private static final int MSG_NO_VERSION_UPDATE = 1;
     private Handler mUIHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            mNewVersionView.setVisibility(View.VISIBLE);
+            switch (msg.what) {
+                case MSG_NO_VERSION_UPDATE:
+                    Toast.makeText(getActivity(), "已经是最新版本了", Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_UPDATE_VERSION_VIEW:
+                    mNewVersionView.setVisibility(View.VISIBLE);
+                    break;
+            }
         }
     };
 
@@ -101,10 +110,10 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         adapter.setOnItemClickListener(this);
 
         //checkUpdate
-        checkUpdate();
+        checkUpdate(false);
     }
 
-    private void checkUpdate() {
+    private void checkUpdate(final boolean byuser) {
         BmobQuery<Version> bmobQuery = new BmobQuery();
         bmobQuery.findObjects(getActivity(), new FindListener<Version>() {
             @Override
@@ -113,7 +122,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                     String serverVersion = list.get(0).version;
                     String currentVersion = Utils.getAppVersion(getActivity());
                     if (!currentVersion.equals(serverVersion)) {
-                        mUIHandler.sendMessage(mUIHandler.obtainMessage(0));
+                        mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_UPDATE_VERSION_VIEW));
                         String url = list.get(0).apkUrl;
                         //has new version
                         NotificationBuilder builder = MMNotificationManager.getInstance(getActivity()).load();
@@ -138,6 +147,10 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                                 new Intent(NotificationReceiver.ACTION_NOTIFICATION_CLICK_INTENT), PendingIntent.FLAG_UPDATE_CURRENT), true);
 
                         builder.getSimpleNotification().build(true);
+                    } else {
+                        if (byuser) {
+                            mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_NO_VERSION_UPDATE));
+                        }
                     }
                 }
             }
@@ -185,7 +198,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.ll_check_new_version:
-                checkUpdate();
+                checkUpdate(true);
                 break;
         }
     }
