@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yuri.dreamlinkcost.Constant;
-import com.yuri.dreamlinkcost.MainActivity;
+import com.yuri.dreamlinkcost.MainFragment;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.model.Cost;
@@ -23,18 +23,29 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
 
     private List<Cost> mCostList = new ArrayList<>();
 
-    private MainActivity mainActivity;
+    private MainFragment mainFragment;
 
-    public CardViewAdapter(List<Cost> list, MainActivity mainActivity) {
+    public CardViewAdapter(List<Cost> list, MainFragment mainFragment) {
         this.mCostList = list;
-        this.mainActivity = mainActivity;
+        this.mainFragment = mainFragment;
     }
 
     public void setmCostList(List<Cost> list) {
         mCostList = list;
     }
 
-    public List<Cost> getmCostList() {
+    public void addCostList(List<Cost> list) {
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        mCostList.addAll(list);
+        notifyItemRangeInserted(0, list.size() - 1);
+    }
+
+    public List<Cost> getCostList() {
         return this.mCostList;
     }
 
@@ -75,7 +86,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.checkItem(cost);
+                mainFragment.checkItem(cost);
             }
         });
 
@@ -83,7 +94,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
             @Override
             public boolean onLongClick(View view) {
                 if (cost.status == Constant.STATUS_COMMIT_FAILURE) {
-                    mainActivity.doCommit(cost.getId());
+                    mainFragment.doCommit(cost.getId());
                     return true;
                 }
                 return false;

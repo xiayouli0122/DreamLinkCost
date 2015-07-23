@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
+import com.yuri.dreamlinkcost.log.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class CustomItemAnimator extends RecyclerView.ItemAnimator {
 
     @Override
     public void runPendingAnimations() {
+        Log.d();
         int animationDuration = 300;
         if (!mPendingAdd.isEmpty()) {
             for (final RecyclerView.ViewHolder viewHolder : mPendingAdd) {

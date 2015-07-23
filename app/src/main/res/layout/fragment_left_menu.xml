@@ -6,12 +6,13 @@
     android:orientation="vertical"
     tools:context="com.yuri.dreamlinkcost.LeftMenuFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/textview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
+        android:focusable="true"
+        android:clickable="true"
         android:padding="12dp"
         android:textSize="18sp"
         android:text="Select Date" />

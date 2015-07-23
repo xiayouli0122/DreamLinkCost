@@ -105,6 +105,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         LeftMenuAdapter adapter = new LeftMenuAdapter();
         mRecyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
