@@ -35,14 +35,27 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     }
 
     public void addCostList(List<Cost> list) {
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        mCostList.addAll(list);
-        notifyItemRangeInserted(0, list.size() - 1);
+        for (int i = 0; i < list.size(); i++) {
+            addItem(i, list.get(i));
+        }
+//        mCostList.addAll(list);
+//        notifyItemRangeInserted(0, mCostList.size() - 1);
+    }
+
+    public void addItem(int position, Cost cost) {
+        mCostList.add(position, cost);
+        notifyItemInserted(position);
+    }
+
+    public void remove(int position) {
+        if (position == -1 && getItemCount() > 0) {
+            position = getItemCount() - 1;
+        }
+
+        if (position > -1 && position < getItemCount()) {
+            mCostList.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 
     public List<Cost> getCostList() {

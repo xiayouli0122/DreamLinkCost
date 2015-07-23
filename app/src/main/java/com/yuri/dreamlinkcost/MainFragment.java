@@ -109,8 +109,8 @@ public class MainFragment extends Fragment {
 
             mAdapter.addCostList(costList);
         }
-
         mProgressBar.setVisibility(View.GONE);
+
     }
 
     private void doGetDataFromLocal() {
