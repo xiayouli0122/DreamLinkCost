@@ -1,7 +1,6 @@
 package com.yuri.dreamlinkcost.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,6 @@ public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.ViewHo
      */
     @Override
     public LeftMenuAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d("Yuri", "onCreateViewHolder");
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.left_menu_item, parent, false);
         return new ViewHolder(v);
     }
@@ -70,7 +68,6 @@ public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.ViewHo
      */
     @Override
     public void onBindViewHolder(LeftMenuAdapter.ViewHolder holder, final int position) {
-        Log.d("Yuri", "onBindViewHolder.position:" + position);
         switch (position) {
             case 0:
                 holder.textView.setText("LIU CHENG");

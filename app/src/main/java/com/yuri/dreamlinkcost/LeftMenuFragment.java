@@ -49,6 +49,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
 
     private static final int MSG_UPDATE_VERSION_VIEW = 0;
     private static final int MSG_NO_VERSION_UPDATE = 1;
+    private static final int MSG_SHOW_UPDATE_NOTIFICATION = 2;
     private Handler mUIHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -59,6 +60,11 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                     break;
                 case MSG_UPDATE_VERSION_VIEW:
                     mNewVersionView.setVisibility(View.VISIBLE);
+                    break;
+                case MSG_SHOW_UPDATE_NOTIFICATION:
+                    String version = msg.getData().getString("version");
+                    String url = msg.getData().getString("url");
+                    showUpdateNotification(version, url);
                     break;
             }
         }
@@ -122,32 +128,19 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                 if (list != null && list.size() > 0) {
                     String serverVersion = list.get(0).version;
                     String currentVersion = Utils.getAppVersion(getActivity());
+                    Log.d("serverVersion:" + serverVersion + ",currentVersion:" + currentVersion);
                     if (!currentVersion.equals(serverVersion)) {
+                        Log.d("Need to update");
                         mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_UPDATE_VERSION_VIEW));
                         String url = list.get(0).apkUrl;
                         //has new version
-                        NotificationBuilder builder = MMNotificationManager.getInstance(getActivity()).load();
-                        builder.setNotificationId(Constant.NotificationID.VERSION_UPDAET);
-                        builder.setContentTitle("有新版本了:" + serverVersion);
-                        ClickPendingIntentBroadCast cancelBroadcast = new ClickPendingIntentBroadCast(
-                                NotificationReceiver.ACTION_NOTIFICATION_CANCEL);
+                        Message message = new Message();
                         Bundle bundle = new Bundle();
-                        bundle.putInt("id", Constant.NotificationID.VERSION_UPDAET);
-                        cancelBroadcast.setBundle(bundle);
-
-                        ClickPendingIntentBroadCast downloadBroadcast = new ClickPendingIntentBroadCast(NotificationReceiver.ACTION_NOTIFICATION_VERSION_UPDATE);
-                        Bundle bundle1 = new Bundle();
-                        bundle1.putString("versionUrl", url);
-                        downloadBroadcast.setBundle(bundle1);
-                        builder.setProfit(NotificationCompat.PRIORITY_MAX);
-                        builder.setOnClickBroadCast(null);
-                        builder.addAction(R.mipmap.ic_cancel, "稍后查看", cancelBroadcast);
-                        builder.addAction(R.mipmap.ic_download, "立即下载", downloadBroadcast);
-
-                        builder.setFullScreenIntent(PendingIntent.getBroadcast(getActivity(), 0,
-                                new Intent(NotificationReceiver.ACTION_NOTIFICATION_CLICK_INTENT), PendingIntent.FLAG_UPDATE_CURRENT), true);
-
-                        builder.getSimpleNotification().build(true);
+                        bundle.putString("version", serverVersion);
+                        bundle.putString("url", url);
+                        message.setData(bundle);
+                        message.what = MSG_SHOW_UPDATE_NOTIFICATION;
+                        mUIHandler.sendMessage(message);
                     } else {
                         if (byuser) {
                             mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_NO_VERSION_UPDATE));
@@ -161,6 +154,31 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
 
             }
         });
+    }
+
+    private void showUpdateNotification(String serverVersion,  String url) {
+        NotificationBuilder builder = MMNotificationManager.getInstance(getActivity()).load();
+        builder.setNotificationId(Constant.NotificationID.VERSION_UPDAET);
+        builder.setContentTitle("有新版本了:" + serverVersion);
+        ClickPendingIntentBroadCast cancelBroadcast = new ClickPendingIntentBroadCast(
+                NotificationReceiver.ACTION_NOTIFICATION_CANCEL);
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", Constant.NotificationID.VERSION_UPDAET);
+        cancelBroadcast.setBundle(bundle);
+
+        ClickPendingIntentBroadCast downloadBroadcast = new ClickPendingIntentBroadCast(NotificationReceiver.ACTION_NOTIFICATION_VERSION_UPDATE);
+        Bundle bundle1 = new Bundle();
+        bundle1.putString("versionUrl", url);
+        downloadBroadcast.setBundle(bundle1);
+        builder.setProfit(NotificationCompat.PRIORITY_MAX);
+        builder.setOnClickBroadCast(null);
+        builder.addAction(R.mipmap.ic_cancel, "稍后查看", cancelBroadcast);
+        builder.addAction(R.mipmap.ic_download, "立即下载", downloadBroadcast);
+
+        builder.setFullScreenIntent(PendingIntent.getBroadcast(getActivity(), 0,
+                new Intent(NotificationReceiver.ACTION_NOTIFICATION_CLICK_INTENT), PendingIntent.FLAG_UPDATE_CURRENT), true);
+
+        builder.getSimpleNotification().build(true);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

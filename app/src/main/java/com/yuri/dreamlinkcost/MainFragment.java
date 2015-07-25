@@ -3,14 +3,16 @@ package com.yuri.dreamlinkcost;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
+import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 
@@ -36,9 +39,9 @@ import cn.bmob.v3.listener.SaveListener;
 
 
 @EFragment(R.layout.fragment_main)
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements RecyclerViewClickListener {
     @ViewById(R.id.my_recycler_view)
-    RecyclerView mRecyclerView;
+    ContextMenuRecyclerView mRecyclerView;
 
     @ViewById(R.id.swipe_container)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -90,6 +93,7 @@ public class MainFragment extends Fragment {
 //        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mAdapter = new CardViewAdapter(new ArrayList<Cost>(), this);
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.setOnItemClickListener(this);
 
         mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.theme_accent));
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -111,6 +115,7 @@ public class MainFragment extends Fragment {
         }
         mProgressBar.setVisibility(View.GONE);
 
+        registerForContextMenu(mRecyclerView);
     }
 
     private void doGetDataFromLocal() {
@@ -120,8 +125,8 @@ public class MainFragment extends Fragment {
             mEmptyView.setText("Empty");
         } else {
             mEmptyView.setVisibility(View.GONE);
-            mAdapter.setmCostList(costList);
-            mAdapter.notifyDataSetChanged();
+            mAdapter.clearList();
+            mAdapter.addCostList(costList);
         }
     }
 
@@ -157,7 +162,7 @@ public class MainFragment extends Fragment {
 
             @Override
             public void onError(int i, String s) {
-                Log.d("Yuri", "onError.errorCode:" + i + ",errorMsg:" + s);
+                Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
                 mEmptyView.setVisibility(View.VISIBLE);
                 mEmptyView.setText(s + "\n" + "请下拉重试");
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -243,8 +248,7 @@ public class MainFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (Activity.RESULT_OK == resultCode) {
             List<Cost> costList = new Select().from(Cost.class).execute();
-            mAdapter.setmCostList(costList);
-            mAdapter.notifyDataSetChanged();
+            mAdapter.addCostList(costList);
         }
     }
 
@@ -252,7 +256,6 @@ public class MainFragment extends Fragment {
         if (mAdapter != null) {
             return mAdapter.getCostList();
         }
-
         return  null;
     }
 
@@ -284,6 +287,61 @@ public class MainFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        Cost cost = mAdapter.getItem(position);
+        checkItem(cost);
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        ContextMenuRecyclerView.RecyclerContextMenuInfo adapterContextMenuInfo = (ContextMenuRecyclerView.RecyclerContextMenuInfo) menuInfo;
+        Log.d("adapterContextMenuInfo:" + adapterContextMenuInfo);
+        //获取弹出菜单时，用户选择的ListView的位置
+        int position = adapterContextMenuInfo.position;
+        Cost cost = mAdapter.getItem(position);
+        if (cost.status == Constant.STATUS_COMMIT_FAILURE) {
+            getActivity().getMenuInflater().inflate(R.menu.menu_main_context2, menu);
+        } else {
+            getActivity().getMenuInflater().inflate(R.menu.menu_main_context, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ContextMenuRecyclerView.RecyclerContextMenuInfo menuInfo = (ContextMenuRecyclerView.RecyclerContextMenuInfo) item.getMenuInfo();
+        final int position = menuInfo.position;
+        final Cost cost = mAdapter.getItem(position);
+        switch (item.getItemId()) {
+            case R.id.action_delete_local:
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(cost.title)
+                        .setMessage("将从本地数据移除")
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                cost.delete();
+                                mAdapter.remove(position);
+                            }
+                        })
+                        .create().show();
+                break;
+            case R.id.action_delete_all:
+                break;
+            case R.id.action_commit:
+                doCommit(cost.getId());
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 
     /**

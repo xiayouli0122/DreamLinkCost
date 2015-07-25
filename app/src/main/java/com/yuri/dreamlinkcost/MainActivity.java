@@ -2,6 +2,7 @@ package com.yuri.dreamlinkcost;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,7 +15,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.activeandroid.query.Select;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
 
@@ -53,6 +56,19 @@ public class MainActivity extends AppCompatActivity {
         // 启动推送服务
         BmobPush.startWork(this, Constant.BMOB_APP_ID);
 
+        //Bugly
+        Log.d();
+//        CrashReport.initCrashReport(getApplicationContext(), "900005722", true);
+        SharedPreferences mSharedPreference = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
+        int author = mSharedPreference.getInt(Constant.Extra.KEY_LOGIN, -1);
+        if (author == Constant.Author.LIUCHENG) {
+            CrashReport.setUserId("LiuCheng");
+        } else if (author == Constant.Author.XIAOFEI) {
+            CrashReport.setUserId("XiaoFei");
+        } else {
+            CrashReport.setUserId("Yuri");
+        }
+
         doGetTitleFromNet();
         List<Title> titles = new Select().from(Title.class).execute();
         if (titles == null || titles.size() == 0) {
@@ -89,10 +105,8 @@ public class MainActivity extends AppCompatActivity {
         bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobTitle>() {
             @Override
             public void onSuccess(List<BmobTitle> list) {
-                String objectId;
                 for (BmobTitle bmobTitle : list) {
-                    objectId = bmobTitle.getObjectId();
-                    Title title = new Select().from(Title.class).where("objectId=?", objectId).executeSingle();
+                    Title title = new Select().from(Title.class).where("title=?", bmobTitle.title).executeSingle();
                     if (title != null) {
                         //
                     } else {
@@ -177,6 +191,14 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .create().show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (mainFragment != null) {
+            mainFragment.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
