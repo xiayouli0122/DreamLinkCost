@@ -11,6 +11,8 @@ import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.MainFragment;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;
+import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
+import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 
 import java.util.ArrayList;
@@ -25,13 +27,24 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
 
     private MainFragment mainFragment;
 
+    private RecyclerViewClickListener mListener;
+
     public CardViewAdapter(List<Cost> list, MainFragment mainFragment) {
         this.mCostList = list;
         this.mainFragment = mainFragment;
     }
 
-    public void setmCostList(List<Cost> list) {
-        mCostList = list;
+    public void clearList() {
+        int size = mCostList.size();
+        if (size <= 0) {
+            return;
+        }
+
+        for (int i = 0; i < size; i++) {
+            mCostList.remove(0);
+        }
+
+        this.notifyItemRangeRemoved(0, size);
     }
 
     public void addCostList(List<Cost> list) {
@@ -48,6 +61,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     }
 
     public void remove(int position) {
+        Log.d("position:" + position);
         if (position == -1 && getItemCount() > 0) {
             position = getItemCount() - 1;
         }
@@ -56,6 +70,15 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
             mCostList.remove(position);
             notifyItemRemoved(position);
         }
+    }
+
+    public void setOnItemClickListener(RecyclerViewClickListener listener) {
+        mListener = listener;
+    }
+
+    public Cost getItem(int position) {
+        Log.d("position:" + position);
+        return mCostList.get(position);
     }
 
     public List<Cost> getCostList() {
@@ -69,7 +92,8 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+        Log.d("position:" + position);
         final Cost cost = mCostList.get(position);
         viewHolder.titleView.setText(cost.title);
         viewHolder.totalPayView.setText("¥" + cost.totalPay);
@@ -99,17 +123,19 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainFragment.checkItem(cost);
+                if (mListener != null) {
+                    mListener.onItemClick(view, position);
+                }
             }
         });
 
         viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (cost.status == Constant.STATUS_COMMIT_FAILURE) {
-                    mainFragment.doCommit(cost.getId());
-                    return true;
-                }
+////                if (cost.status == Constant.STATUS_COMMIT_FAILURE) {
+//                    mListener.onItemLongClick(view, position);
+////                    return true;
+////                }
                 return false;
             }
         });
