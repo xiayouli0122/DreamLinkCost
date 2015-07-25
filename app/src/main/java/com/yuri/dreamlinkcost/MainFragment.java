@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 
@@ -336,6 +337,31 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                         .create().show();
                 break;
             case R.id.action_delete_all:
+                if (mProgressDialog != null) {
+                    mProgressDialog.setMessage("删除中...");
+                    mProgressDialog.show();
+                }
+                BmobCost bmobCost = new BmobCost();
+                bmobCost.setObjectId(cost.objectId);
+                bmobCost.delete(getActivity(), new DeleteListener() {
+                    @Override
+                    public void onSuccess() {
+                        cost.delete();
+                        mAdapter.remove(position);
+                        Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_SHORT).show();
+                        if (mProgressDialog != null) {
+                            mProgressDialog.cancel();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int i, String s) {
+                        Toast.makeText(getActivity(), "删除失败", Toast.LENGTH_SHORT).show();
+                        if (mProgressDialog != null) {
+                            mProgressDialog.cancel();
+                        }
+                    }
+                });
                 break;
             case R.id.action_commit:
                 doCommit(cost.getId());
