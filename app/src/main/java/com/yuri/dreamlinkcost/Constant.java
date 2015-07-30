@@ -23,5 +23,6 @@ public class Constant {
 
     public static class NotificationID {
         public static final int VERSION_UPDAET = 10;
+        public static final int DOWNLOAD_APK = 11;
     }
 }

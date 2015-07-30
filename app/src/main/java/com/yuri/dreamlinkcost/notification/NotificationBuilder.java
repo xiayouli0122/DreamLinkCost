@@ -361,6 +361,11 @@ public class NotificationBuilder {
         this.mBuilder.setPriority(priority);
         return this;
     }
+
+    public NotificationBuilder setProgress(int max, int progress) {
+        this.mBuilder.setProgress(max, progress, false);
+        return this;
+    }
     
     /**
      * 设置通知点击跳转事件
@@ -390,6 +395,11 @@ public class NotificationBuilder {
         }
         this.mBuilder.setContentIntent(broadCast.onSettingPendingIntent());
         return this;
+    }
+
+    public NotificationBuilder setOnClickBroadCast(PendingIntentNotification intent) {
+        this.mBuilder.setContentIntent(intent.onSettingPendingIntent());
+        return  this;
     }
 
     /**

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,6 +67,15 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         // Required empty public constructor
     }
 
+    private static final int MSG_GET_LOCAL_DATA = 0;
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            doGetDataFromLocal();
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +102,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         // Handle Toolbar
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new CustomItemAnimator());
-//        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mAdapter = new CardViewAdapter(new ArrayList<Cost>(), this);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
@@ -100,38 +110,43 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                doGetDataFromNet();
+                doGetDataFromNet(false);
             }
         });
 
-        List<Cost> costList = new Select().from(Cost.class).where("clear=?", false)
-                .orderBy("id desc").execute();
-        if (costList == null || costList.size() == 0) {
-            mProgressDialog.show();
-            doGetDataFromNet();
-        } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-
-            mAdapter.addCostList(costList);
-        }
+        mProgressDialog.show();
+//        List<Cost> costs = new Select().from(Cost.class).execute();
+//        BmobCost bmobCost;
+//        for (Cost cost : costs ) {
+//            bmobCost = cost.getCostBean();
+//            bmobCost.setObjectId(cost.objectId);
+//            bmobCost.update(getActivity());
+//        }
+        doGetDataFromNet(true);
         mProgressBar.setVisibility(View.GONE);
 
         registerForContextMenu(mRecyclerView);
     }
 
-    private void doGetDataFromLocal() {
-        List<Cost> costList = new Select().from(Cost.class).orderBy("id desc").execute();
-        if (costList == null || costList.size() <= 0) {
+    public void doGetDataFromLocal() {
+        Log.d();
+        mAdapter.clearList();
+        List<Cost> costList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
+        if (costList == null) {
+            costList = new ArrayList<>();
+        }
+        if (costList.size() <= 0) {
             mEmptyView.setVisibility(View.VISIBLE);
             mEmptyView.setText("Empty");
+            mAdapter.notifyDataSetChanged();
         } else {
             mEmptyView.setVisibility(View.GONE);
-            mAdapter.clearList();
+            mRecyclerView.setVisibility(View.VISIBLE);
             mAdapter.addCostList(costList);
         }
     }
 
-    private void doGetDataFromNet() {
+    private void doGetDataFromNet(final boolean getLocal) {
         BmobQuery<BmobCost> bmobQuery = new BmobQuery<>("cost");
         bmobQuery.findObjects(getActivity().getApplicationContext(), new FindListener<BmobCost>() {
             @Override
@@ -140,6 +155,9 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                 String objectId;
                 for (BmobCost bmobcost : list) {
                     objectId = bmobcost.getObjectId();
+                    if (bmobcost.clear) {
+                        continue;
+                    }
                     Cost cost = new Select().from(Cost.class).where("objectId=?", objectId).executeSingle();
                     if (cost == null) {
                         cost = bmobcost.getCost();
@@ -147,7 +165,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                         count++;
                     }
                 }
-                if (count == 0) {
+
+                if (count == 0 && !getLocal) {
                     if (mProgressDialog != null) {
                         mProgressDialog.cancel();
                     }
@@ -187,6 +206,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                     Log.d("Yuri", "upload success:" + cost.title);
                     cost.status = Constant.STATUS_COMMIT_SUCCESS;
                     cost.save();
+                    mHandler.sendMessage(mHandler.obtainMessage(MSG_GET_LOCAL_DATA));
                 }
 
                 @Override
@@ -198,7 +218,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     }
 
     public void checkItem(Cost cost) {
-        Log.d("Yuri", "checkItem.:" + cost.toString());
+        Log.d(cost.toString());
         String title = cost.title;
         String status = (cost.status == Constant.STATUS_COMMIT_SUCCESS) ? "Commited" : "unCommited";
         String author;
@@ -228,12 +248,11 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         bmobCost.save(getActivity().getApplicationContext(), new SaveListener() {
             @Override
             public void onSuccess() {
-                Log.d("Yuri", "upload success:" + cost.title);
+                Log.d("upload success:" + cost.title);
                 Toast.makeText(getActivity().getApplicationContext(), "upload success", Toast.LENGTH_SHORT).show();
                 cost.status = Constant.STATUS_COMMIT_SUCCESS;
                 cost.objectId = bmobCost.getObjectId();
                 cost.save();
-                Log.d("Yuri", cost.toString());
             }
 
             @Override
@@ -248,8 +267,15 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (Activity.RESULT_OK == resultCode) {
-            List<Cost> costList = new Select().from(Cost.class).execute();
-            mAdapter.addCostList(costList);
+            long id = data.getLongExtra("id", -1);
+            if (id == -1) {
+                Log.d("ignore");
+            } else {
+                Cost cost = Cost.load(Cost.class, id);
+                if (cost != null) {
+                    mAdapter.addItem(cost);
+                }
+            }
         }
     }
 
@@ -288,6 +314,14 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mHandler.hasMessages(MSG_GET_LOCAL_DATA)) {
+            mHandler.removeMessages(MSG_GET_LOCAL_DATA);
+        }
     }
 
     @Override
@@ -382,7 +416,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Uri uri);
     }
 
 }

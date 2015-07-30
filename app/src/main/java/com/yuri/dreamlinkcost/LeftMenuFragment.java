@@ -3,7 +3,10 @@ package com.yuri.dreamlinkcost;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,12 +14,16 @@ import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bmob.BTPFileResponse;
+import com.bmob.BmobProFile;
+import com.bmob.btp.callback.UploadListener;
 import com.yuri.dreamlinkcost.Bmob.Version;
 import com.yuri.dreamlinkcost.adapter.LeftMenuAdapter;
 import com.yuri.dreamlinkcost.log.Log;
@@ -44,6 +51,8 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
     private RecyclerView mRecyclerView;
     private View mCheckNewVersionView;
     private TextView mNewVersionView;
+
+    private SharedPreferences mSharedPrefences;
 
     private OnFragmentInteractionListener mListener;
 
@@ -90,6 +99,8 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        mSharedPrefences = getActivity().getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -101,6 +112,12 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         mCheckNewVersionView = rootView.findViewById(R.id.ll_check_new_version);
         mCheckNewVersionView.setOnClickListener(this);
         mNewVersionView = (TextView) rootView.findViewById(R.id.tv_version_new);
+
+        int mAuthor = mSharedPrefences.getInt(Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+        if (mAuthor == Constant.Author.YURI) {
+            rootView.findViewById(R.id.upload_apk).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.upload_apk).setOnClickListener(this);
+        }
         return rootView;
     }
 
@@ -127,9 +144,10 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
             public void onSuccess(List<Version> list) {
                 if (list != null && list.size() > 0) {
                     String serverVersion = list.get(0).version;
+                    Log.d("getActivity():" + getActivity());
                     String currentVersion = Utils.getAppVersion(getActivity());
                     Log.d("serverVersion:" + serverVersion + ",currentVersion:" + currentVersion);
-                    if (!currentVersion.equals(serverVersion)) {
+                    if (!TextUtils.isEmpty(currentVersion) && !currentVersion.equals(serverVersion)) {
                         Log.d("Need to update");
                         mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_UPDATE_VERSION_VIEW));
                         String url = list.get(0).apkUrl;
@@ -157,7 +175,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
     }
 
     private void showUpdateNotification(String serverVersion,  String url) {
-        NotificationBuilder builder = MMNotificationManager.getInstance(getActivity()).load();
+        NotificationBuilder builder = MMNotificationManager.getInstance(getActivity().getApplicationContext()).load();
         builder.setNotificationId(Constant.NotificationID.VERSION_UPDAET);
         builder.setContentTitle("有新版本了:" + serverVersion);
         ClickPendingIntentBroadCast cancelBroadcast = new ClickPendingIntentBroadCast(
@@ -171,7 +189,6 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         bundle1.putString("versionUrl", url);
         downloadBroadcast.setBundle(bundle1);
         builder.setProfit(NotificationCompat.PRIORITY_MAX);
-        builder.setOnClickBroadCast(null);
         builder.addAction(R.mipmap.ic_cancel, "稍后查看", cancelBroadcast);
         builder.addAction(R.mipmap.ic_download, "立即下载", downloadBroadcast);
 
@@ -194,7 +211,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
-            Log.e("Yuri", activity.toString()
+            Log.d(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -218,6 +235,39 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         switch (view.getId()) {
             case R.id.ll_check_new_version:
                 checkUpdate(true);
+                break;
+            case R.id.upload_apk:
+                String filePath = "/sdcard/DreamLinkCost_3.0.apk";
+                final ProgressDialog progressDialog  = new ProgressDialog(getActivity());
+                progressDialog.setMessage("上传文件中...");
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.setCancelable(false);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progressDialog.setProgress(0);
+                progressDialog.setMax(100);
+                progressDialog.show();
+                BTPFileResponse response = BmobProFile.getInstance(getActivity()).upload(filePath, new UploadListener() {
+                    @Override
+                    public void onSuccess(String s, String s1) {
+                        Log.d("success.name:" + s + ",url:" + s1);
+                        progressDialog.setProgress(100);
+                        progressDialog.setMessage("上传完成");
+                        progressDialog.cancel();
+                    }
+
+                    @Override
+                    public void onProgress(int i) {
+                        Log.d("progress：" + i);
+                        progressDialog.setProgress(i);
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        Log.d("error:" + s);
+                        progressDialog.setMessage("上传失败:" + s);
+                        progressDialog.cancel();
+                    }
+                });
                 break;
         }
     }

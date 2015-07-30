@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import com.yuri.dreamlinkcost.log.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -36,6 +38,7 @@ public class Utils {
                     context.getPackageName(), 0);
             version = packInfo.versionName;
         }catch(Exception e){
+            Log.e(e.toString());
         }
         return version;
     }

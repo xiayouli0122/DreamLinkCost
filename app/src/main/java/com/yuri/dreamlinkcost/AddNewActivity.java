@@ -2,6 +2,7 @@ package com.yuri.dreamlinkcost;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -522,7 +523,6 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                         public void onClick(DialogInterface dialogInterface, int which) {
                             if (mProgressDialog != null) {
                                 mProgressDialog.show();
-                                ;
                             }
                             final BmobCost bmobCost = cost.getCostBean();
                             bmobCost.save(getApplicationContext(), new SaveListener() {
@@ -535,6 +535,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                                             cost.status = Constant.STATUS_COMMIT_SUCCESS;
                                             cost.objectId = bmobCost.getObjectId();
                                             cost.save();
+                                            Intent intent = new Intent();
+                                            intent.putExtra("id", cost.getId());
+                                            setResult(RESULT_OK, intent);
                                             Log.d("Yuri", cost.toString());
                                             AddNewActivity.this.finish();
                                         }
@@ -545,6 +548,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                                                 mProgressDialog.cancel();
                                             }
                                             cost.save();
+                                            Intent intent = new Intent();
+                                            intent.putExtra("id", cost.getId());
+                                            setResult(RESULT_OK, intent);
                                             Toast.makeText(getApplicationContext(), "upload failure.errorCode:" + i
                                                     + ",msg:" + s, Toast.LENGTH_SHORT).show();
                                             AddNewActivity.this.finish();

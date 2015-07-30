@@ -3,8 +3,11 @@ package com.yuri.dreamlinkcost;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 
 import com.activeandroid.ActiveAndroid;
+import com.bmob.BmobConfiguration;
+import com.bmob.BmobPro;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.log.Log;
 
@@ -32,6 +35,10 @@ public class AppApplication extends Application {
 
                 //Bugly
                 CrashReport.initCrashReport(getApplicationContext(), "900005722", true);
+
+                BmobConfiguration config = new BmobConfiguration.Builder(getApplicationContext())
+                        .customExternalCacheDir(Environment.DIRECTORY_DOWNLOADS).build();
+                BmobPro.getInstance(getApplicationContext()).initConfig(config);
             }
         }
     }

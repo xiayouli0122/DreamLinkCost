@@ -25,6 +25,16 @@
         android:layout_weight="1"
         />
 
+    <TextView
+        android:id="@+id/upload_apk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/item_background"
+        android:padding="16dp"
+        android:text="新版本上传"
+        android:visibility="gone"
+        />
+
     <LinearLayout
         android:id="@+id/ll_check_new_version"
         android:layout_width="match_parent"

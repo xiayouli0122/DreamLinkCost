@@ -3,12 +3,16 @@ package com.yuri.dreamlinkcost.notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.bmob.BmobProFile;
+import com.bmob.btp.callback.DownloadListener;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.log.Log;
+import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
 
 /**
  * 监听通知栏被点击，请清除
@@ -18,6 +22,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     public static final String ACTION_NOTIFICATION_CLICK_INTENT = "com.dreamlink.cost.click.intent";
     public static final String ACTION_NOTIFICATION_VERSION_UPDATE = "com.dreamlink.cost.version.update";
     public static final String ACTION_NOTIFICATION_CANCEL = "com.dreamlink.cost.cancel";
+    public static final String ACTION_NOTIFICATION_INSTALL_APP = "com.dreamlink.cost.install.app";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -49,8 +54,56 @@ public class NotificationReceiver extends BroadcastReceiver {
                 url = bundle.getString("versionUrl");
             }
             MMNotificationManager.getInstance(context).cancel(Constant.NotificationID.VERSION_UPDAET);
-            lanuchWebIntent(context, url);
+//            lanuchWebIntent(context, url);
+            downloadApk(context, url);
+        } else if (ACTION_NOTIFICATION_INSTALL_APP.equals(action)) {
+            Log.d("install APP");
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
+            String path = sharedPreferences.getString("apkPath", null);
+            Log.d("path:" + path);
+            if (path != null) {
+                Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                installIntent.setDataAndType(Uri.parse("file://" + path), "application/vnd.android.package-archive");
+                context.startActivity(installIntent);
+            }
         }
+    }
+
+    private void downloadApk(final Context context, String fileName){
+        Log.d(fileName);
+        ClickPendingIntentBroadCast installApp = new ClickPendingIntentBroadCast(
+                NotificationReceiver.ACTION_NOTIFICATION_INSTALL_APP);
+        final NotificationBuilder builder = MMNotificationManager.getInstance(context).load();
+        builder.setNotificationId(Constant.NotificationID.DOWNLOAD_APK);
+        builder.setContentTitle("Apk下载中...");
+        builder.setOnClickBroadCast(installApp);
+        builder.setProgress(100, 0);
+        builder.getSimpleNotification().build(true);
+        BmobProFile.getInstance(context).download(fileName, new DownloadListener() {
+            @Override
+            public void onSuccess(String s) {
+                Log.d("path:" + s);
+                builder.setContentTitle("下载完成，点击按钮");
+                builder.getSimpleNotification().build(true);
+                SharedPreferences sharedPreferences = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("apkPath", s);
+                editor.apply();
+            }
+
+            @Override
+            public void onProgress(String s, int i) {
+                Log.d("path:" + s + ",progress:" + i);
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.d("error:" + s);
+                builder.setContentTitle("下载失败:" + s);
+                builder.getSimpleNotification().build(true);
+            }
+        });
     }
 
     /**
@@ -61,27 +114,6 @@ public class NotificationReceiver extends BroadcastReceiver {
         Log.d("Yuri", "localPage:" + localPage);
         Intent intent = new Intent();
         Bundle bundle = null;
-//        switch (localPage){
-//            case LocalPage.ANNOUNCEMENT:
-//                intent.setClass(context, AnnouncementActivity.class);
-//                bundle = new Bundle();
-//                bundle.putBoolean(AnnouncementActivity.EXTRA_IS_FROM_NOTIFICATION, true);
-//                break;
-//            case LocalPage.PROMOTION:
-//                intent.setClass(context, MainActivity.class);
-//                bundle = new Bundle();
-//                bundle.putInt(MainActivity.JUMP_POSITION, LocalPage.PROMOTION);
-//                break;
-//            case LocalPage.REWARD:
-//                intent.setClass(context, MainActivity.class);
-//                bundle = new Bundle();
-//                bundle.putInt(MainActivity.JUMP_POSITION, LocalPage.REWARD);
-//                break;
-//            default:
-//                //默认跳转到主页
-//                intent.setClass(context, MainActivity.class);
-//                break;
-//        }
         if (bundle != null) {
             intent.putExtras(bundle);
         }

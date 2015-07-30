@@ -35,6 +35,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     }
 
     public void clearList() {
+        Log.d();
         int size = mCostList.size();
         if (size <= 0) {
             return;
@@ -58,6 +59,10 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     public void addItem(int position, Cost cost) {
         mCostList.add(position, cost);
         notifyItemInserted(position);
+    }
+
+    public void addItem(Cost cost) {
+        addItem(0, cost);
     }
 
     public void remove(int position) {
@@ -93,7 +98,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Log.d("position:" + position);
+//        Log.d("position:" + position);
         final Cost cost = mCostList.get(position);
         viewHolder.titleView.setText(cost.title);
         viewHolder.totalPayView.setText("¥" + cost.totalPay);
@@ -132,10 +137,6 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
         viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-////                if (cost.status == Constant.STATUS_COMMIT_FAILURE) {
-//                    mListener.onItemLongClick(view, position);
-////                    return true;
-////                }
                 return false;
             }
         });

@@ -45,6 +45,7 @@
         android:text="+"
         android:textColor="@android:color/white"
         android:textSize="30sp"
-        android:transitionName="fab" />
+        android:transitionName="fab"
+        />
 
 </RelativeLayout>
