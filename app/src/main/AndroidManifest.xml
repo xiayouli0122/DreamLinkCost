@@ -42,7 +42,7 @@
             android:value="com.yuri.dreamlinkcost.model.Cost,com.yuri.dreamlinkcost.model.Title" />
 
         <activity
-            android:name=".LoginActivity_"
+            android:name=".LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,11 +51,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddNewActivity_"
+            android:name=".AddNewActivity"
             android:label="@string/title_activity_addnew" >
         </activity>
         <activity
-            android:name=".MainActivity_"
+            android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name" />
 

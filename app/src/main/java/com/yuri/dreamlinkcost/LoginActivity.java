@@ -7,32 +7,32 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.activeandroid.query.Select;
+import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
-@EActivity(R.layout.activity_login)
-public class LoginActivity extends AppCompatActivity {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-    @ViewById(R.id.tv_liucheng)
+public class LoginActivity extends AppCompatActivity {
+    @Bind(R.id.tv_liucheng)
     TextView mLiuChengView;
-    @ViewById(R.id.tv_xiaofei)
+    @Bind(R.id.tv_xiaofei)
     TextView mXiaoFeiView;
-    @ViewById(R.id.tv_yuri)
+    @Bind(R.id.tv_yuri)
     TextView mYuriView;
 
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
-
+        setContentView(R.layout.activity_login);
+        Log.d();
+        ButterKnife.bind(this);
+        init();
     }
 
-    @AfterViews
     public void init() {
         int currentVersionCode = Utils.getVersionCode(this);
         int versionCode = SharedPreferencesManager.get(this, Constant.Extra.KEY_VERSION_CODE, -1);
@@ -67,27 +67,28 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @Click(value = R.id.tv_liucheng)
+    @OnClick(R.id.tv_liucheng)
     public void doLiuChengLogin() {
         SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.LIUCHENG);
         goToMain();
     }
 
-    @Click(value = R.id.tv_xiaofei)
+    @OnClick(R.id.tv_xiaofei)
     public void doXiaoFeiLogin() {
         SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.XIAOFEI);
         goToMain();
     }
 
-    @Click(value = R.id.tv_yuri)
+    @OnClick(R.id.tv_yuri)
     public void doYuriLogin() {
         SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
         goToMain();
     }
 
     public void goToMain() {
+        Log.d();
         Intent intent = new Intent();
-        intent.setClass(this, MainActivity_.class);
+        intent.setClass(this, MainActivity.class);
         startActivity(intent);
         this.finish();
     }

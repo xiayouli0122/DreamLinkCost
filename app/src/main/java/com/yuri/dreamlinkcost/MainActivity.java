@@ -28,14 +28,12 @@ import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobInstallation;
@@ -46,13 +44,12 @@ import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 
 
-@EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener {
 
-    @ViewById(R.id.fab_button)
+    @Bind(R.id.fab_button)
     TextView mFabButton;
 
-    @ViewById(R.id.drawerLayout)
+    @Bind(R.id.drawerLayout)
     DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -60,11 +57,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     ProgressDialog progressDialog;
 
-    private Toolbar mToolBar;
+    @Bind(R.id.toolbar)
+    Toolbar mToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         Bmob.initialize(this, Constant.BMOB_APP_ID);
         // 使用推送服务时的初始化操作
         BmobInstallation.getCurrentInstallation(this).save();
@@ -83,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             CrashReport.setUserId("Yuri");
         }
 
+        init();
+
         doGetTitleFromNet();
         List<Title> titles = new Select().from(Title.class).execute();
         if (titles == null || titles.size() == 0) {
@@ -97,10 +100,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    @AfterViews
     public void init() {
         // Handle Toolbar
-        mToolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolBar);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolBar, R.string.app_name, R.string.app_name);
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         LeftMenuFragment leftMenuFragment = LeftMenuFragment.newInstance("", "");
         fm.beginTransaction().replace(R.id.left_menu_container, leftMenuFragment).commit();
 
-        mainFragment = new MainFragment_();
+        mainFragment = new MainFragment();
         fm.beginTransaction().replace(R.id.content_view, mainFragment).commit();
     }
 
@@ -138,10 +139,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         });
     }
 
-    @Click(R.id.fab_button)
+    @OnClick(R.id.fab_button)
     void doAddNew() {
         Intent intent = new Intent();
-        intent.setClass(this, AddNewActivity_.class);
+        intent.setClass(this, AddNewActivity.class);
         startActivityForResult(intent, 11);
     }
 

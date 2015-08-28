@@ -34,67 +34,64 @@ import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import cn.bmob.v3.listener.SaveListener;
 
-@EActivity(R.layout.activity_addnew)
 public class AddNewActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
-    @ViewById
+    @Bind(R.id.tv_date_picker)
     TextView tvDatePicker;
-    @ViewById
+    @Bind(R.id.btn_date_picker)
     Button btnDatePicker;
-    @ViewById
+    @Bind(R.id.et_title)
     EditText etTitle;
-    @ViewById
+    @Bind(R.id.spinner_title_selector)
     Spinner spinnerTitleSelector;
-    @ViewById
+    @Bind(R.id.et_total_price)
     EditText etTotalPrice;
-    @ViewById
+    @Bind(R.id.et_liucheng)
     EditText etLiucheng;
-    @ViewById
+    @Bind(R.id.spinner_lc)
     Spinner spinnerLc;
-    @ViewById
+    @Bind(R.id.et_xiaofei)
     EditText etXiaofei;
-    @ViewById
+    @Bind(R.id.spinner_xf)
     Spinner spinnerXf;
-    @ViewById
+    @Bind(R.id.et_yuri)
     EditText etYuri;
-    @ViewById
+    @Bind(R.id.spinner_yuri)
     Spinner spinnerYuri;
-    @ViewById
+    @Bind(R.id.item_price_view)
     LinearLayout itemPriceView;
-    @ViewById(R.id.rg_pay_way)
+    @Bind(R.id.rg_pay_way)
     RadioGroup mPayWayRG;
-    @ViewById(R.id.rg_pay_person)
+    @Bind(R.id.rg_pay_person)
     RadioGroup mPayPersonRG;
-    @ViewById(R.id.rb_liucheng)
+    @Bind(R.id.rb_liucheng)
     RadioButton mLiuChengRB;
-    @ViewById(R.id.rb_xiaofei)
+    @Bind(R.id.rb_xiaofei)
     RadioButton mXiaoFeiRB;
-    @ViewById(R.id.rb_yuri)
+    @Bind(R.id.rb_yuri)
     RadioButton mYuriRB;
 
-    @ViewById(R.id.cb_liucheng)
+    @Bind(R.id.cb_liucheng)
     CheckBox mLiuChengCB;
-    @ViewById(R.id.cb_xiaofei)
+    @Bind(R.id.cb_xiaofei)
     CheckBox mXiaoFeiCB;
-    @ViewById(R.id.cb_yuri)
+    @Bind(R.id.cb_yuri)
     CheckBox mYuriCB;
 
-    @ViewById(R.id.ll_liucheng_price)
+    @Bind(R.id.ll_liucheng_price)
     View mLiuChengPriceView;
-    @ViewById(R.id.ll_xiaofei_price)
+    @Bind(R.id.ll_xiaofei_price)
     View mXiaoFeiPriceView;
-    @ViewById(R.id.ll_yuri_price)
+    @Bind(R.id.ll_yuri_price)
     View mYuriPriceView;
 
     private SharedPreferences mSharedPrefences;
@@ -123,6 +120,10 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_addnew);
+        ButterKnife.bind(this);
+
+        init();
         //可省略
         //setContentView(R.layout.activity_addnew);
         //tvDatePicker.setText("");  报错，空指针异常
@@ -143,7 +144,6 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
     }
 
-    @AfterViews
     public void init(){
         mSharedPrefences = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
         mAuthor = mSharedPrefences.getInt(Constant.Extra.KEY_LOGIN, Constant.Author.YURI);

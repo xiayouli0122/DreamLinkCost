@@ -27,31 +27,28 @@ import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
 
 
-@EFragment(R.layout.fragment_main)
 public class MainFragment extends Fragment implements RecyclerViewClickListener {
-    @ViewById(R.id.my_recycler_view)
+    @Bind(R.id.my_recycler_view)
     ContextMenuRecyclerView mRecyclerView;
 
-    @ViewById(R.id.swipe_container)
+    @Bind(R.id.swipe_container)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    @ViewById(R.id.progressBar)
+    @Bind(R.id.progressBar)
     ProgressBar mProgressBar;
 
-    @ViewById(R.id.emptyView)
+    @Bind(R.id.emptyView)
     protected TextView mEmptyView;
 
     private LinearLayoutManager mLayoutManager;
@@ -59,7 +56,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     private CardViewAdapter mAdapter;
 
     private ProgressDialog mProgressDialog;
-
 
     private OnMainFragmentListener mListener;
 
@@ -95,10 +91,17 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return null;
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        ButterKnife.bind(this, rootView);
+        return rootView;
     }
 
-    @AfterViews
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        init();
+    }
+
     public void init() {
         Log.d();
         // Handle Toolbar

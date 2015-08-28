@@ -21,8 +21,7 @@ public class AppApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("Yuri", "AppApplication");
-
+        Log.d();
         //避免调用多次onCreate()时，执行多次初始化
         String processName = getProcessName(this, android.os.Process.myPid());
         Log.d(processName);
