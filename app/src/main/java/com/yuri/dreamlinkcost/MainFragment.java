@@ -125,13 +125,13 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
     private void doGetDataFromNet() {
         Log.d();
-        mAdapter.clearList();
         BmobQuery<BmobCost> bmobQuery = new BmobQuery<>();
         bmobQuery.addWhereEqualTo("clear", false);
         bmobQuery.order("-createDate");//按日期倒序排序
         bmobQuery.findObjects(getActivity().getApplicationContext(), new FindListener<BmobCost>() {
             @Override
             public void onSuccess(List<BmobCost> list) {
+                mAdapter.clearList();
                 Log.d("serverSize=" + list.size());
                 List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
                 Log.d("localSize=" + localList.size());
