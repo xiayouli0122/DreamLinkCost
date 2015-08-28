@@ -11,7 +11,8 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <com.yuri.dreamlinkcost.ContextMenuRecyclerView
             android:id="@+id/my_recycler_view"

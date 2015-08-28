@@ -2,14 +2,12 @@ package com.yuri.dreamlinkcost;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +30,7 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
 
@@ -165,7 +164,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
         ArrayAdapter adapter;
         adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, titleArrays);
-        Log.d("Yuri", "spinnerTitleSelector:" + spinnerTitleSelector);
+        Log.d("spinnerTitleSelector:" + spinnerTitleSelector);
         spinnerTitleSelector.setAdapter(adapter);
 
         spinnerTitleSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -532,12 +531,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                                                 mProgressDialog.cancel();
                                             }
                                             Toast.makeText(getApplicationContext(), "upload success.", Toast.LENGTH_SHORT).show();
-                                            cost.status = Constant.STATUS_COMMIT_SUCCESS;
-                                            cost.objectId = bmobCost.getObjectId();
-                                            cost.save();
-                                            Intent intent = new Intent();
-                                            intent.putExtra("id", cost.getId());
-                                            setResult(RESULT_OK, intent);
+                                            setResult(RESULT_OK);
                                             Log.d("Yuri", cost.toString());
                                             AddNewActivity.this.finish();
                                         }
@@ -548,9 +542,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                                                 mProgressDialog.cancel();
                                             }
                                             cost.save();
-                                            Intent intent = new Intent();
-                                            intent.putExtra("id", cost.getId());
-                                            setResult(RESULT_OK, intent);
+                                            setResult(RESULT_OK);
                                             Toast.makeText(getApplicationContext(), "upload failure.errorCode:" + i
                                                     + ",msg:" + s, Toast.LENGTH_SHORT).show();
                                             AddNewActivity.this.finish();
@@ -584,5 +576,18 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setMessage("放弃本次编辑？")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        AddNewActivity.this.finish();
+                    }
+                }).create().show();
     }
 }

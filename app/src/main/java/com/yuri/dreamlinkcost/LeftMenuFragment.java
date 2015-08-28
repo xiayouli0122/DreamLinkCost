@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -54,7 +53,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
 
     private SharedPreferences mSharedPrefences;
 
-    private OnFragmentInteractionListener mListener;
+    private OnLeftMenuFragmentListener mListener;
 
     private static final int MSG_UPDATE_VERSION_VIEW = 0;
     private static final int MSG_NO_VERSION_UPDATE = 1;
@@ -198,21 +197,14 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         builder.getSimpleNotification().build(true);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnLeftMenuFragmentListener) activity;
         } catch (ClassCastException e) {
             Log.d(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnMainFragmentListener");
         }
     }
 
@@ -282,9 +274,8 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnLeftMenuFragmentListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
     }
 
 }

@@ -4,6 +4,8 @@
     tools:context="com.yuri.dreamlinkcost.MainActivity">
     <item android:id="@+id/action_statistics" android:title="结算"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_commit" android:title="一键提交"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_about" android:title="关于"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

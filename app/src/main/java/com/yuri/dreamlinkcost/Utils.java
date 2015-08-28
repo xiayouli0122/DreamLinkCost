@@ -16,6 +16,7 @@ public class Utils {
 
     /**
      * 获取当前时间，并格式化
+     *
      * @return 当前时间格式化后的字符
      */
     public static String getDate(long time) {
@@ -26,25 +27,38 @@ public class Utils {
 
     /**
      * 获取应用版本号
+     *
      * @param context
      * @return 当前版本号
      * @throws PackageManager.NameNotFoundException
      */
-    public static String getAppVersion(Context context){
+    public static String getAppVersion(Context context) {
         String version = "";
-        try{
+        try {
             PackageManager packageManager = context.getPackageManager();
             PackageInfo packInfo = packageManager.getPackageInfo(
                     context.getPackageName(), 0);
             version = packInfo.versionName;
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.e(e.toString());
         }
         return version;
     }
 
+    public static int getVersionCode(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return packInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     /**
      * 获取当前时间，并格式化
+     *
      * @return 当前时间格式化后的字符
      */
     public static String getTime() {
@@ -55,6 +69,7 @@ public class Utils {
 
     /**
      * 获取当前时间，并格式化
+     *
      * @return 当前时间格式化后的字符
      */
     public static String getDate() {
