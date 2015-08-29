@@ -2,9 +2,7 @@ package com.yuri.dreamlinkcost;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
 
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.log.Log;
@@ -12,23 +10,15 @@ import com.yuri.dreamlinkcost.model.Cost;
 
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity {
-    @Bind(R.id.tv_liucheng)
-    TextView mLiuChengView;
-    @Bind(R.id.tv_xiaofei)
-    TextView mXiaoFeiView;
-    @Bind(R.id.tv_yuri)
-    TextView mYuriView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Log.d();
         ButterKnife.bind(this);
         init();
     }
