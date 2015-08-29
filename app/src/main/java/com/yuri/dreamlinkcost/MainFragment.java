@@ -61,6 +61,11 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
     private DecimalFormat mDecimalFormat = new DecimalFormat(".00");
 
+    /**云端列表*/
+    private List<BmobCost> mNetCostList = new ArrayList<>();
+    /**本地列表*/
+    private List<Cost> mLocalCostList = new ArrayList<>();
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -142,21 +147,18 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                     mProgressDialog.cancel();
                 }
 
+                mNetCostList = list;
+                mLocalCostList = localList;
+
                 mSwipeRefreshLayout.setRefreshing(false);
 
                 if (list.size() + localList.size() == 0) {
                     mEmptyView.setVisibility(View.VISIBLE);
                 } else {
                     mRecyclerView.setVisibility(View.VISIBLE);
-//                    mAdapter.addLocalCostList(localList);
-//                    mAdapter.addCostList(list);
-                    mAdapter.setCostList(localList, list);
-                    //这个方法有Bug
-                    //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder{2f92781d position=16 id=-1, oldPos=0, pLpos:0 scrap tmpDetached not recyclable(1) no parent}
-//                    mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount() - 1);
-                    mAdapter.notifyDataSetChanged();
+                    showAll();
 
-                //统计一下
+                    //统计一下
                     float liuchengPay = 0;
                     float xiaofeiPay = 0;
                     float yuriPay = 0;
@@ -439,6 +441,79 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
     public interface OnMainFragmentListener {
         void onUpdateMoney(String detail);
+    }
+
+    public void showAll() {
+//      mAdapter.addLocalCostList(localList);
+//      mAdapter.addCostList(list);
+        mAdapter.setCostList(mLocalCostList, mNetCostList);
+        //这个方法有Bug
+        //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder{2f92781d position=16 id=-1, oldPos=0, pLpos:0 scrap tmpDetached not recyclable(1) no parent}
+//                    mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount() - 1);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public void showAuthor(int author) {
+        List<Cost> localList = getItemLocalList(author);
+        List<BmobCost> list = getNetItemList(author);
+        mAdapter.setCostList(localList, list);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    public List<Cost> getItemLocalList(int author) {
+        List<Cost> itemList = new ArrayList<>();
+        if (mLocalCostList.size() == 0) {
+            return itemList;
+        }
+
+        for (Cost cost: mLocalCostList) {
+            switch (author) {
+                case Constant.Author.LIUCHENG:
+                    if (cost.payLC > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+                case Constant.Author.XIAOFEI:
+                    if (cost.payXF > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+                case Constant.Author.YURI:
+                    if (cost.payYuri > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+            }
+        }
+        return  itemList;
+    }
+
+    public List<BmobCost> getNetItemList(int author) {
+        List<BmobCost> itemList = new ArrayList<>();
+        if (mNetCostList.size() == 0) {
+            return itemList;
+        }
+
+        for (BmobCost cost: mNetCostList) {
+            switch (author) {
+                case Constant.Author.LIUCHENG:
+                    if (cost.payLC > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+                case Constant.Author.XIAOFEI:
+                    if (cost.payXF > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+                case Constant.Author.YURI:
+                    if (cost.payYuri > 0) {
+                        itemList.add(cost);
+                    }
+                    break;
+            }
+        }
+        return  itemList;
     }
 
 }

@@ -216,10 +216,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
 
     @Override
     public void onItemClick(int position) {
-        Toast.makeText(getActivity(), "Not Finished.", Toast.LENGTH_SHORT).show();
-        switch (position) {
-
-        }
+        mListener.onLeftMenuItemClick(position);
     }
 
     @Override
@@ -264,18 +261,8 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnLeftMenuFragmentListener {
-        // TODO: Update argument type and name
+        void onLeftMenuItemClick(int position);
     }
 
 }

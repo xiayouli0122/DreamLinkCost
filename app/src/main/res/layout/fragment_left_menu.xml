@@ -15,7 +15,7 @@
         android:clickable="true"
         android:padding="12dp"
         android:textSize="18sp"
-        android:text="Select Date" />
+        android:text="选择付款人" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/left_menu_recycler_view"

@@ -44,7 +44,7 @@ import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener, LeftMenuFragment.OnLeftMenuFragmentListener {
 
     @Bind(R.id.fab_button)
     TextView mFabButton;
@@ -216,6 +216,25 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onLeftMenuItemClick(int position) {
+        mDrawerLayout.closeDrawer(Gravity.LEFT);
+        switch (position) {
+            case 0:
+                mainFragment.showAll();
+                break;
+            case 1:
+                mainFragment.showAuthor(Constant.Author.LIUCHENG);
+                break;
+            case 2:
+                mainFragment.showAuthor(Constant.Author.XIAOFEI);
+                break;
+            case 3:
+                mainFragment.showAuthor(Constant.Author.YURI);
+                break;
+        }
     }
 
     private class CommitTask extends AsyncTask<List<Cost>, Void, Void> {
