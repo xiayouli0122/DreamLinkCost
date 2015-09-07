@@ -226,7 +226,7 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                 checkUpdate(true);
                 break;
             case R.id.upload_apk:
-                String filePath = "/sdcard/DreamLinkCost_3.0.apk";
+                String filePath = "/sdcard/DreamLinkCost.apk";
                 final ProgressDialog progressDialog  = new ProgressDialog(getActivity());
                 progressDialog.setMessage("上传文件中...");
                 progressDialog.setCanceledOnTouchOutside(false);

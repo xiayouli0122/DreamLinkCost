@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
-import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
@@ -108,12 +107,12 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Log.d("position:" + position);
+//        Log.d("position:" + position);
         Object object = getItem(position);
         if (object instanceof BmobCost) {
             BmobCost bmobCost = (BmobCost) object;
             viewHolder.titleView.setText(bmobCost.title);
-            Log.d("title:" + bmobCost.title);
+//            Log.d("title:" + bmobCost.title);
             String detail = "L:" + (bmobCost.payLC == 0 ? bmobCost.payLC + "" : mDecimalFormat.format(bmobCost.payLC))
                     + ", X:" + (bmobCost.payXF == 0 ? bmobCost.payXF + "" : mDecimalFormat.format(bmobCost.payXF))
                     + ", Y:" + (bmobCost.payYuri == 0 ? bmobCost.payYuri + "" : mDecimalFormat.format(bmobCost.payYuri));
@@ -124,19 +123,15 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
 
             viewHolder.dateView.setText(Utils.getDate(bmobCost.createDate));
 
-            switch (bmobCost.author) {
-                case Constant.Author.LIUCHENG:
-                    viewHolder.headerView.setText("L");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
-                    break;
-                case Constant.Author.XIAOFEI:
-                    viewHolder.headerView.setText("X");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
-                    break;
-                case Constant.Author.YURI:
-                    viewHolder.headerView.setText("Y");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
-                    break;
+            if (bmobCost.payLC > 0) {
+                viewHolder.headerView.setText("L");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
+            } else if (bmobCost.payXF > 0) {
+                viewHolder.headerView.setText("X");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
+            } else {
+                viewHolder.headerView.setText("Y");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
             }
         } else {
             Cost cost = (Cost) object;
@@ -150,19 +145,15 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
             viewHolder.commitStatusView.setTextColor(Color.RED);
             viewHolder.dateView.setText(Utils.getDate(cost.createDate));
 
-            switch (cost.author) {
-                case Constant.Author.LIUCHENG:
-                    viewHolder.headerView.setText("L");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
-                    break;
-                case Constant.Author.XIAOFEI:
-                    viewHolder.headerView.setText("X");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
-                    break;
-                case  Constant.Author.YURI:
-                    viewHolder.headerView.setText("Y");
-                    viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
-                    break;
+            if (cost.payLC > 0) {
+                viewHolder.headerView.setText("L");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
+            } else if (cost.payXF > 0) {
+                viewHolder.headerView.setText("X");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
+            } else {
+                viewHolder.headerView.setText("Y");
+                viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
             }
         }
 
