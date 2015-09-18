@@ -4,9 +4,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,6 +24,7 @@ import com.bmob.BmobProFile;
 import com.bmob.btp.callback.UploadListener;
 import com.yuri.dreamlinkcost.Bmob.Version;
 import com.yuri.dreamlinkcost.adapter.LeftMenuAdapter;
+import com.yuri.dreamlinkcost.databinding.LeftMenuBinder;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.notification.MMNotificationManager;
 import com.yuri.dreamlinkcost.notification.NotificationBuilder;
@@ -38,20 +38,10 @@ import cn.bmob.v3.listener.FindListener;
 
 
 public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItemClickListener, View.OnClickListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private RecyclerView mRecyclerView;
     private View mCheckNewVersionView;
     private TextView mNewVersionView;
-
-    private SharedPreferences mSharedPrefences;
 
     private OnLeftMenuFragmentListener mListener;
 
@@ -78,13 +68,8 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
         }
     };
 
-    public static LeftMenuFragment newInstance(String param1, String param2) {
-        LeftMenuFragment fragment = new LeftMenuFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static LeftMenuFragment newInstance() {
+        return new LeftMenuFragment();
     }
 
     public LeftMenuFragment() {
@@ -94,12 +79,6 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-        mSharedPrefences = getActivity().getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -107,15 +86,16 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_left_menu, container, false);
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.left_menu_recycler_view);
-        mCheckNewVersionView = rootView.findViewById(R.id.ll_check_new_version);
+        LeftMenuBinder binder = DataBindingUtil.bind(rootView);
+        mRecyclerView = binder.leftMenuRecyclerView;
+        mCheckNewVersionView = binder.llCheckNewVersion;
         mCheckNewVersionView.setOnClickListener(this);
-        mNewVersionView = (TextView) rootView.findViewById(R.id.tv_version_new);
+        mNewVersionView = binder.tvVersionNew;
 
-        int mAuthor = mSharedPrefences.getInt(Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+        int mAuthor = SharedPreferencesManager.get(getActivity(), Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
         if (mAuthor == Constant.Author.YURI) {
-            rootView.findViewById(R.id.upload_apk).setVisibility(View.VISIBLE);
-            rootView.findViewById(R.id.upload_apk).setOnClickListener(this);
+            binder.uploadApk.setVisibility(View.VISIBLE);
+            binder.uploadApk.setOnClickListener(this);
         }
         return rootView;
     }

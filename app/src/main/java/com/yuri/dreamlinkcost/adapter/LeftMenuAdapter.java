@@ -1,14 +1,29 @@
 package com.yuri.dreamlinkcost.adapter;
 
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import com.yuri.dreamlinkcost.BR;
 import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.model.User;
 
-public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.ViewHolder>{
+import java.util.ArrayList;
+import java.util.List;
+
+public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.BindingHolder>{
+
+    public List<User> list = new ArrayList<>();
+
+    public LeftMenuAdapter() {
+        list.add(new User("All"));
+        list.add(new User("LIU CHENG"));
+        list.add(new User("XIAOFEI"));
+        list.add(new User("YURI"));
+    }
 
     private OnItemClickListener mListener;
     public interface OnItemClickListener {
@@ -20,27 +35,20 @@ public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.ViewHo
     }
 
     @Override
-    public LeftMenuAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.left_menu_item, parent, false);
-        return new ViewHolder(v);
+    public BindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ViewDataBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                R.layout.left_menu_item,
+                parent,
+                false);
+        BindingHolder holder = new BindingHolder(binding.getRoot());
+        holder.setBinding(binding);
+        return holder;
     }
 
     @Override
-    public void onBindViewHolder(LeftMenuAdapter.ViewHolder holder, final int position) {
-        switch (position) {
-            case 0:
-                holder.textView.setText("ALL");
-                break;
-            case 1:
-                holder.textView.setText("LIU CHENG");
-                break;
-            case 2:
-                holder.textView.setText("XIAO FEI");
-                break;
-            case 3:
-                holder.textView.setText("YURI");
-                break;
-        }
+    public void onBindViewHolder(BindingHolder holder, final int position) {
+        User user = list.get(position);
+        holder.getBinding().setVariable(BR.user, user);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,24 +57,27 @@ public class LeftMenuAdapter extends RecyclerView.Adapter<LeftMenuAdapter.ViewHo
                 }
             }
         });
+        holder.getBinding().executePendingBindings();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textView;
+    public static class BindingHolder extends RecyclerView.ViewHolder {
+        private ViewDataBinding binding;
 
-        public ViewHolder(View itemView) {
+        public BindingHolder(View itemView) {
             super(itemView);
-            textView = (TextView) itemView.findViewById(R.id.left_menu_textview);
+        }
+
+        public ViewDataBinding getBinding() {
+            return binding;
+        }
+
+        public void setBinding(ViewDataBinding binding) {
+            this.binding = binding;
         }
     }
 
-    /**
-     * Returns the total number of items in the data set hold by the adapter.
-     *
-     * @return The total number of items in this adapter.
-     */
     @Override
     public int getItemCount() {
-        return 4;
+        return list.size();
     }
 }

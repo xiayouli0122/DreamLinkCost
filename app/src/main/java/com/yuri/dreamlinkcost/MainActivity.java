@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         FragmentManager fm = getFragmentManager();
-        LeftMenuFragment leftMenuFragment = LeftMenuFragment.newInstance("", "");
+        LeftMenuFragment leftMenuFragment = LeftMenuFragment.newInstance();
         fm.beginTransaction().replace(R.id.left_menu_container, leftMenuFragment).commit();
 
         mainFragment = new MainFragment();
@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
