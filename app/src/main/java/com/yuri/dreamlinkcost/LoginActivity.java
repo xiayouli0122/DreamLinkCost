@@ -1,25 +1,26 @@
 package com.yuri.dreamlinkcost;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.activeandroid.query.Select;
+import com.yuri.dreamlinkcost.databinding.LoginBinder;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class LoginActivity extends AppCompatActivity {
+    private LoginBinder mLoginBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
+        mLoginBinder = DataBindingUtil.setContentView(this, R.layout.activity_login);
         init();
     }
 
@@ -45,6 +46,11 @@ public class LoginActivity extends AppCompatActivity {
         if (author != -1) {
             goToMain();
         }
+
+        mLoginBinder.tvLiucheng.setOnClickListener(this);
+        mLoginBinder.tvXiaofei.setOnClickListener(this);
+        mLoginBinder.tvYuri.setOnClickListener(this);
+
     }
 
     private void doVersion40Change() {
@@ -57,29 +63,27 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.tv_liucheng)
-    public void doLiuChengLogin() {
-        SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.LIUCHENG);
-        goToMain();
-    }
-
-    @OnClick(R.id.tv_xiaofei)
-    public void doXiaoFeiLogin() {
-        SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.XIAOFEI);
-        goToMain();
-    }
-
-    @OnClick(R.id.tv_yuri)
-    public void doYuriLogin() {
-        SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
-        goToMain();
-    }
-
     public void goToMain() {
         Log.d();
         Intent intent = new Intent();
         intent.setClass(this, MainActivity.class);
         startActivity(intent);
         this.finish();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_liucheng:
+                SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.LIUCHENG);
+                break;
+            case R.id.tv_xiaofei:
+                SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.XIAOFEI);
+                break;
+            case R.id.tv_yuri:
+                SharedPreferencesManager.put(this, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+                break;
+        }
+        goToMain();
     }
 }
