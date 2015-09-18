@@ -9,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,25 +40,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
     private SharedPreferences mSharedPrefences;
     private int mAuthor;
 
-    private int mPayWay = -1;
-    private static final int PAY_WAY_AVERAGE = 0;
-    private static final int PAY_WAY_CUSTOM = 1;
-
-    private PayPerson mPayPerson;
-
-    private SparseBooleanArray mCheckedArray;
-
-    private static  final int LIUCHENG = 0;
-    public static final int XIAOFEI = 1;
-    public static final int  YURI =  2;
-
     private Calendar mCalendar;
 
     private ProgressDialog mProgressDialog;
-
-    enum PayPerson{
-        LiuCheng, XiaoFei, Yuri
-    }
 
     private AddNewerBinder mBinding;
     private AddNewModel mAddNewModel;
@@ -77,11 +60,6 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         init();
 
         setResult(RESULT_CANCELED);
-
-        mCheckedArray = new SparseBooleanArray(3);
-        mCheckedArray.put(LIUCHENG, true);
-        mCheckedArray.put(XIAOFEI, true);
-        mCheckedArray.put(YURI, true);
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("Commiting...");
@@ -127,9 +105,6 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             }
         });
 
-//        mEditTextBinder.title = "dddddddddddd";
-//        mEditTextBinder.totalPrice = "33333333333";
-
         adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, operators);
         mBinding.spinnerLc.setPrompt(operators[0]);
         mBinding.spinnerXf.setPrompt(operators[0]);
@@ -154,14 +129,23 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                     case R.id.rb_liucheng:
                         Log.d("rgPayPerson:rb_liucheng");
                         mAddNewModel.whichOnePay.set(0);
+                        mBinding.spinnerLc.setSelection(1);
+                        mBinding.spinnerXf.setSelection(0);
+                        mBinding.spinnerYuri.setSelection(0);
                         break;
                     case R.id.rb_xiaofei:
                         Log.d("rgPayPerson:rb_xiaofei");
                         mAddNewModel.whichOnePay.set(1);
+                        mBinding.spinnerLc.setSelection(0);
+                        mBinding.spinnerXf.setSelection(1);
+                        mBinding.spinnerYuri.setSelection(0);
                         break;
                     case R.id.rb_yuri:
                         Log.d("rgPayPerson:rb_yuri");
                         mAddNewModel.whichOnePay.set(2);
+                        mBinding.spinnerLc.setSelection(0);
+                        mBinding.spinnerXf.setSelection(0);
+                        mBinding.spinnerYuri.setSelection(1);
                         break;
                 }
             }
@@ -177,8 +161,8 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                     @Override
                     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
                         mBinding.tvDatePicker.setText("Date:" + year + "-" + (month + 1) + "-" + day);
-                        String monthStr = "00";
-                        String dayStr = "00";
+                        String monthStr;
+                        String dayStr;
                         if (month < 9) {
                             monthStr = "0" + (month + 1);
                         } else {
@@ -230,36 +214,26 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
     }
 
     public void doComplete() {
-//        String titleStr = etTitle.getText().toString().trim();
         String titleStr = mAddNewModel.title;
-        if (!TextUtils.isEmpty(titleStr)) {
-            Title title = new Select().from(Title.class).where("title=?", titleStr).executeSingle();
-            if (title == null) {
-                final  Title title2 = new Title();
-                title2.mTitle = titleStr;
-                title2.mHasCommited = false;
-                title2.save();
-
-                BmobTitle bmobTitle = title2.getBmobTitle();
-                bmobTitle.save(getApplicationContext(), new SaveListener() {
-                    @Override
-                    public void onSuccess() {
-                        title2.mHasCommited = true;
-                        title2.save();
-                    }
-
-                    @Override
-                    public void onFailure(int i, String s) {
-
-                    }
-                });
-            }
+        Log.d("titleStr:" + titleStr);
+        if (TextUtils.isEmpty(titleStr)) {
+            Toast.makeText(getApplicationContext(), "标题不能为空", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        saveNewTitle(titleStr);
+
         int selectCount = 0;
-        for (int i = 0; i < mCheckedArray.size(); i++) {
-            if (mCheckedArray.valueAt(i)) {
-                selectCount++;
-            }
+        if (mAddNewModel.isLiuChengIn.get()) {
+            selectCount ++;
+        }
+
+        if (mAddNewModel.isXiaoFeiIn.get()) {
+            selectCount ++;
+        }
+
+        if (mAddNewModel.isYuriIn.get()) {
+            selectCount ++;
         }
 
         if (selectCount <= 1) {
@@ -267,49 +241,35 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             return;
         }
 
-//        if (TextUtils.isEmpty(etTitle.getText().toString().trim())) {
-//            Toast.makeText(getApplicationContext(), "Title cannot be empty.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        if (TextUtils.isEmpty(etTotalPrice.getText().toString().trim())) {
-//            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-        if (mPayWay == -1) {
-            Toast.makeText(getApplicationContext(), "You must confirm how pay.", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(mAddNewModel.totalPrice)) {
+            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (mPayPerson == null) {
+        if (mAddNewModel.whichOnePay.get() == -1) {
             Toast.makeText(getApplicationContext(), "You must confirm who pay.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        boolean hasLiuCheng = mCheckedArray.get(LIUCHENG);
-        boolean hasXiaoFei = mCheckedArray.get(XIAOFEI);
-        boolean hasYuri = mCheckedArray.get(YURI);
+        boolean hasLiuCheng = mAddNewModel.isLiuChengIn.get();
+        boolean hasXiaoFei = mAddNewModel.isXiaoFeiIn.get();
+        boolean hasYuri = mAddNewModel.isYuriIn.get();
 
-        if (mPayWay == PAY_WAY_CUSTOM) {
-//            mLiuChengPriceView.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
-//            mXiaoFeiPriceView.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
-//            mYuriPriceView.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
+        if (!mAddNewModel.isAverageUserChecked.get()) {
+            if (hasLiuCheng && TextUtils.isEmpty(mAddNewModel.liucheng)) {
+                Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-//            if (hasLiuCheng && TextUtils.isEmpty(etLiucheng.getText().toString().trim())) {
-//                Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            if (hasXiaoFei && TextUtils.isEmpty(etXiaofei.getText().toString().trim())) {
-//                Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            if (hasYuri && TextUtils.isEmpty(etYuri.getText().toString().trim())) {
-//                Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
+            if (hasXiaoFei && TextUtils.isEmpty(mAddNewModel.xiaofei)) {
+                Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (hasYuri && TextUtils.isEmpty(mAddNewModel.yuri)) {
+                Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         final Cost cost = new Cost();
@@ -318,62 +278,63 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         } else {
             cost.createDate = System.currentTimeMillis();
         }
-//        cost.totalPay = Float.parseFloat(etTotalPrice.getText().toString());
-//        cost.title = etTitle.getText().toString().trim();
+
+        cost.totalPay = Float.parseFloat(mAddNewModel.totalPrice);
+        cost.title = mAddNewModel.title;
         cost.author = mAuthor;
-        if (mPayWay == PAY_WAY_AVERAGE) {
+        if (mAddNewModel.isAverageUserChecked.get()) {
             if (hasLiuCheng && hasXiaoFei && hasYuri) {
-                switch (mPayPerson) {
-                    case LiuCheng:
+                switch (mAddNewModel.whichOnePay.get()) {
+                    case 0:
                         cost.payLC = cost.totalPay * (float) (2.0 / 3.0);
                         cost.payXF = -cost.totalPay / 3;
                         cost.payYuri = -cost.totalPay / 3;
                         break;
-                    case XiaoFei:
+                    case 1:
                         cost.payXF = cost.totalPay * (float) (2.0 / 3.0);
                         cost.payLC = -cost.totalPay / 3;
                         cost.payYuri = -cost.totalPay / 3;
                         break;
-                    case Yuri:
+                    case 2:
                         cost.payYuri = cost.totalPay * (float) (2.0 / 3.0);
                         cost.payXF = -cost.totalPay / 3;
                         cost.payLC = -cost.totalPay / 3;
                         break;
                 }
             } else if (hasLiuCheng && hasXiaoFei && !hasYuri) {
-                switch (mPayPerson) {
-                    case LiuCheng:
+                switch (mAddNewModel.whichOnePay.get()) {
+                    case 0:
                         cost.payLC = cost.totalPay / 2;
                         cost.payXF = -cost.totalPay / 2;
                         cost.payYuri = 0;
                         break;
-                    case XiaoFei:
+                    case 1:
                         cost.payXF = cost.totalPay / 2;
                         cost.payLC = -cost.totalPay / 2;
                         cost.payYuri = 0;
                         break;
                 }
             } else if (!hasLiuCheng && hasXiaoFei && hasYuri) {
-                switch (mPayPerson) {
-                    case Yuri:
+                switch (mAddNewModel.whichOnePay.get()) {
+                    case 2:
                         cost.payYuri = cost.totalPay / 2;
                         cost.payXF = -cost.totalPay / 2;
                         cost.payLC = 0;
                         break;
-                    case XiaoFei:
+                    case 1:
                         cost.payXF = cost.totalPay / 2;
                         cost.payYuri = -cost.totalPay / 2;
                         cost.payLC = 0;
                         break;
                 }
             } else if (hasLiuCheng && !hasXiaoFei && hasYuri) {
-                switch (mPayPerson) {
-                    case Yuri:
+                switch (mAddNewModel.whichOnePay.get()) {
+                    case 1:
                         cost.payYuri = cost.totalPay / 2;
                         cost.payLC = -cost.totalPay / 2;
                         cost.payXF = 0;
                         break;
-                    case LiuCheng:
+                    case 0:
                         cost.payLC = cost.totalPay / 2;
                         cost.payYuri = -cost.totalPay / 2;
                         cost.payXF = 0;
@@ -386,36 +347,36 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             float payXf = 0;
             float payYuri = 0;
             if (hasLiuCheng) {
-//                payLc = Float.parseFloat(etLiucheng.getText().toString().trim());
+                payLc = Float.parseFloat(mAddNewModel.liucheng);
             }
 
             if (hasXiaoFei) {
-//                payXf = Float.parseFloat(etXiaofei.getText().toString().trim());
+                payXf = Float.parseFloat(mAddNewModel.xiaofei);
             }
 
             if (hasYuri) {
-//                payYuri = Float.parseFloat(etYuri.getText().toString().trim());
+                payYuri = Float.parseFloat(mAddNewModel.yuri);
             }
 
-            switch (mPayPerson) {
-                case LiuCheng:
+            switch (mAddNewModel.whichOnePay.get()) {
+                case 0:
                     cost.payLC = payLc;
                     cost.payXF = -payXf;
                     cost.payYuri = -payYuri;
                     break;
-                case XiaoFei:
+                case 1:
                     cost.payXF = payXf;
                     cost.payLC = -payLc;
                     cost.payYuri = -payYuri;
                     break;
-                case Yuri:
+                case 2:
                     cost.payYuri = payYuri;
                     cost.payLC = -payLc;
                     cost.payXF = -payXf;
                     break;
             }
         }
-        if (mPayWay == PAY_WAY_CUSTOM && (cost.payLC + cost.payXF + cost.payYuri) != 0) {
+        if (!mAddNewModel.isAverageUserChecked.get() && (cost.payLC + cost.payXF + cost.payYuri) != 0) {
             Toast.makeText(this, "Error.LC:" + cost.payLC + ",XF:" + cost.payXF + ",Yuri:" + cost.payYuri, Toast.LENGTH_SHORT).show();
         } else {
             setResult(RESULT_OK);
@@ -507,5 +468,29 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                         AddNewActivity.this.finish();
                     }
                 }).create().show();
+    }
+
+    private void saveNewTitle(String titleStr) {
+        Title title = new Select().from(Title.class).where("title=?", titleStr).executeSingle();
+        if (title == null) {
+            final  Title title2 = new Title();
+            title2.mTitle = titleStr;
+            title2.mHasCommited = false;
+            title2.save();
+
+            BmobTitle bmobTitle = title2.getBmobTitle();
+            bmobTitle.save(getApplicationContext(), new SaveListener() {
+                @Override
+                public void onSuccess() {
+                    title2.mHasCommited = true;
+                    title2.save();
+                }
+
+                @Override
+                public void onFailure(int i, String s) {
+
+                }
+            });
+        }
     }
 }
