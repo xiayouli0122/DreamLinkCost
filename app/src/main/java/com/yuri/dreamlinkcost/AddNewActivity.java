@@ -127,21 +127,21 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 switch (id) {
                     case R.id.rb_liucheng:
                         Log.d("rgPayPerson:rb_liucheng");
-                        mAddNewModel.whichOnePay.set(0);
+                        mAddNewModel.whichOnePay.set(AddNewModel.LIUCHENG);
                         mBinding.spinnerLc.setSelection(1);
                         mBinding.spinnerXf.setSelection(0);
                         mBinding.spinnerYuri.setSelection(0);
                         break;
                     case R.id.rb_xiaofei:
                         Log.d("rgPayPerson:rb_xiaofei");
-                        mAddNewModel.whichOnePay.set(1);
+                        mAddNewModel.whichOnePay.set(AddNewModel.XIAOFEI);
                         mBinding.spinnerLc.setSelection(0);
                         mBinding.spinnerXf.setSelection(1);
                         mBinding.spinnerYuri.setSelection(0);
                         break;
                     case R.id.rb_yuri:
                         Log.d("rgPayPerson:rb_yuri");
-                        mAddNewModel.whichOnePay.set(2);
+                        mAddNewModel.whichOnePay.set(AddNewModel.YURI);
                         mBinding.spinnerLc.setSelection(0);
                         mBinding.spinnerXf.setSelection(0);
                         mBinding.spinnerYuri.setSelection(1);
@@ -255,17 +255,17 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         boolean hasYuri = mAddNewModel.isYuriIn.get();
 
         if (!mAddNewModel.isAverageUserChecked.get()) {
-            if (hasLiuCheng && TextUtils.isEmpty(mAddNewModel.liucheng)) {
+            if (hasLiuCheng && TextUtils.isEmpty(mBinding.etLiucheng.getText().toString().trim())) {
                 Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (hasXiaoFei && TextUtils.isEmpty(mAddNewModel.xiaofei)) {
+            if (hasXiaoFei && TextUtils.isEmpty(mBinding.etXiaofei.getText().toString().trim())) {
                 Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (hasYuri && TextUtils.isEmpty(mAddNewModel.yuri)) {
+            if (hasYuri && TextUtils.isEmpty(mBinding.etYuri.getText().toString().trim())) {
                 Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -281,80 +281,49 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         cost.totalPay = Float.parseFloat(mBinding.etTotalPrice.getText().toString().trim());
         cost.title = titleStr;
         cost.author = mAuthor;
-        if (mAddNewModel.isAverageUserChecked.get()) {
-            if (hasLiuCheng && hasXiaoFei && hasYuri) {
-                switch (mAddNewModel.whichOnePay.get()) {
-                    case 0:
-                        cost.payLC = cost.totalPay * (float) (2.0 / 3.0);
-                        cost.payXF = -cost.totalPay / 3;
-                        cost.payYuri = -cost.totalPay / 3;
-                        break;
-                    case 1:
-                        cost.payXF = cost.totalPay * (float) (2.0 / 3.0);
-                        cost.payLC = -cost.totalPay / 3;
-                        cost.payYuri = -cost.totalPay / 3;
-                        break;
-                    case 2:
-                        cost.payYuri = cost.totalPay * (float) (2.0 / 3.0);
-                        cost.payXF = -cost.totalPay / 3;
-                        cost.payLC = -cost.totalPay / 3;
-                        break;
-                }
-            } else if (hasLiuCheng && hasXiaoFei && !hasYuri) {
-                switch (mAddNewModel.whichOnePay.get()) {
-                    case 0:
-                        cost.payLC = cost.totalPay / 2;
-                        cost.payXF = -cost.totalPay / 2;
-                        cost.payYuri = 0;
-                        break;
-                    case 1:
-                        cost.payXF = cost.totalPay / 2;
-                        cost.payLC = -cost.totalPay / 2;
-                        cost.payYuri = 0;
-                        break;
-                }
-            } else if (!hasLiuCheng && hasXiaoFei && hasYuri) {
-                switch (mAddNewModel.whichOnePay.get()) {
-                    case 2:
-                        cost.payYuri = cost.totalPay / 2;
-                        cost.payXF = -cost.totalPay / 2;
-                        cost.payLC = 0;
-                        break;
-                    case 1:
-                        cost.payXF = cost.totalPay / 2;
-                        cost.payYuri = -cost.totalPay / 2;
-                        cost.payLC = 0;
-                        break;
-                }
-            } else if (hasLiuCheng && !hasXiaoFei && hasYuri) {
-                switch (mAddNewModel.whichOnePay.get()) {
-                    case 1:
-                        cost.payYuri = cost.totalPay / 2;
-                        cost.payLC = -cost.totalPay / 2;
-                        cost.payXF = 0;
-                        break;
-                    case 0:
-                        cost.payLC = cost.totalPay / 2;
-                        cost.payYuri = -cost.totalPay / 2;
-                        cost.payXF = 0;
-                        break;
-                }
-            }
 
+        if (mAddNewModel.isAverageUserChecked.get()) {
+            float bili1;
+            float bili2;
+            if (selectCount == 2) {
+                bili1 = (float) (1.0 / 2);
+                bili2 = (float) (1.0 / 2);
+            } else {
+                bili1 = (float) (2.0 / 3);
+                bili2 = (float) (1.0 / 3);
+            }
+            Log.d("bili1:" + bili1 + ",bili2:" + bili2);
+            switch (mAddNewModel.whichOnePay.get()) {
+                case AddNewModel.LIUCHENG:
+                    cost.payLC = cost.totalPay * bili1;
+                    cost.payXF = hasXiaoFei ? -cost.totalPay * bili2 : 0;
+                    cost.payYuri = hasYuri ? -cost.totalPay * bili2 : 0;
+                    break;
+                case AddNewModel.XIAOFEI:
+                    cost.payXF = cost.totalPay * bili1;
+                    cost.payLC = hasLiuCheng ? -cost.totalPay * bili2 : 0;
+                    cost.payYuri = hasYuri ? -cost.totalPay * bili2 : 0;
+                    break;
+                case AddNewModel.YURI:
+                    cost.payYuri = cost.totalPay * bili1;
+                    cost.payLC = hasLiuCheng ? -cost.totalPay * bili2 : 0;
+                    cost.payXF = hasXiaoFei ? -cost.totalPay * bili2 : 0;
+                    break;
+            }
         } else {
             float payLc = 0;
             float payXf = 0;
             float payYuri = 0;
             if (hasLiuCheng) {
-                payLc = Float.parseFloat(mAddNewModel.liucheng);
+                payLc = Float.parseFloat(mBinding.etLiucheng.getText().toString().trim());
             }
 
             if (hasXiaoFei) {
-                payXf = Float.parseFloat(mAddNewModel.xiaofei);
+                payXf = Float.parseFloat(mBinding.etXiaofei.getText().toString().trim());
             }
 
             if (hasYuri) {
-                payYuri = Float.parseFloat(mAddNewModel.yuri);
+                payYuri = Float.parseFloat(mBinding.etYuri.getText().toString().trim());
             }
 
             switch (mAddNewModel.whichOnePay.get()) {
@@ -379,7 +348,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             Toast.makeText(this, "Error.LC:" + cost.payLC + ",XF:" + cost.payXF + ",Yuri:" + cost.payYuri, Toast.LENGTH_SHORT).show();
         } else {
             setResult(RESULT_OK);
-            String author = "";
+            String author;
             if (cost.author == Constant.Author.LIUCHENG) {
                 author = "LiuCheng";
             } else if (cost.author == Constant.Author.XIAOFEI) {

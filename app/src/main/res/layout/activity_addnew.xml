@@ -223,7 +223,9 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="@{addNewModel.whichOnePay == 0}"
-                            android:text="LiuCheng" />
+                            android:text="LiuCheng"
+                            android:visibility="@{addNewModel.itemLiuChengPayVisiblity}"
+                            />
 
 
                         <RadioButton
@@ -232,6 +234,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="@{addNewModel.whichOnePay == 1}"
+                            android:visibility="@{addNewModel.itemXiaoFeiPayVisiblity}"
                             android:text="XiaoFei" />
 
 
@@ -241,6 +244,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="@{addNewModel.whichOnePay == 2}"
+                            android:visibility="@{addNewModel.itemYuriPayVisiblity}"
                             android:text="Yuri" />
 
                     </RadioGroup>
@@ -273,7 +277,7 @@
                             android:imeOptions="actionNext"
                             android:inputType="numberDecimal"
                             android:singleLine="true"
-                            android:text="@{addNewModel.liucheng}" />
+                            />
 
                         <Spinner
                             android:id="@+id/spinner_lc"
@@ -301,7 +305,7 @@
                             android:imeOptions="actionNext"
                             android:inputType="numberDecimal"
                             android:singleLine="true"
-                            android:text="@{addNewModel.xiaofei}" />
+                            />
 
                         <Spinner
                             android:id="@+id/spinner_xf"
@@ -329,7 +333,7 @@
                             android:imeOptions="actionNext"
                             android:inputType="numberDecimal"
                             android:singleLine="true"
-                            android:text="@{addNewModel.yuri}" />
+                            />
 
                         <Spinner
                             android:id="@+id/spinner_yuri"
