@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.activeandroid.query.Select;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
@@ -46,10 +48,7 @@ import cn.bmob.v3.listener.UpdateListener;
 
 public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener, LeftMenuFragment.OnLeftMenuFragmentListener {
 
-    @Bind(R.id.fab_button)
     TextView mFabButton;
-
-    @Bind(R.id.drawerLayout)
     DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -63,7 +62,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mFabButton = binding.fabButton;
+        mDrawerLayout = binding.drawerLayout;
+
         ButterKnife.bind(this);
 
         Bmob.initialize(this, Constant.BMOB_APP_ID);

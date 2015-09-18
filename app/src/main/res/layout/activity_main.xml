@@ -1,51 +1,60 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.yuri.dreamlinkcost.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
-    <include layout="@layout/toolbar" />
+    <data>
 
-    <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawerLayout"
+    </data>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar">
+        tools:context="com.yuri.dreamlinkcost.MainActivity">
 
-        <FrameLayout
-            android:id="@+id/content_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <include layout="@layout/toolbar"
+            />
 
-        <FrameLayout
-            android:id="@+id/left_menu_container"
+        <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start" />
+            android:layout_below="@id/toolbar">
 
-    </android.support.v4.widget.DrawerLayout>
+            <FrameLayout
+                android:id="@+id/content_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <FrameLayout
+                android:id="@+id/left_menu_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="start" />
+
+        </android.support.v4.widget.DrawerLayout>
 
 
-    <TextView
-        android:id="@+id/fab_button"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="38dp"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:background="@drawable/button_round"
-        android:clickable="true"
-        android:elevation="8dp"
-        android:gravity="center"
-        android:scaleType="fitCenter"
-        android:stateListAnimator="@anim/fab_anim"
-        android:text="+"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:transitionName="fab"
-        />
+        <TextView
+            android:id="@+id/fab_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="38dp"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="@drawable/button_round"
+            android:clickable="true"
+            android:elevation="8dp"
+            android:gravity="center"
+            android:scaleType="fitCenter"
+            android:stateListAnimator="@anim/fab_anim"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="30sp"
+            android:transitionName="fab" />
 
-</RelativeLayout>
+    </RelativeLayout>
+</layout>
