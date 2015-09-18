@@ -28,7 +28,7 @@ public class AddNewModel {
 //    //个人价格编辑框隐藏与现实
     public final ObservableField<Integer> itemPriceBlockVisiblity = new ObservableField<>();
     //付款人
-//    public final ObservableField<Integer> whichOnePay = new ObservableField<>();
+    public final ObservableField<Integer> whichOnePay = new ObservableField<>();
     //liucheng价格模块隐藏于显示
     public final ObservableField<Integer> itemLiuChengPriceBlockVisiblity = new ObservableField<>();
     //xiaofei价格模块隐藏于显示
@@ -39,7 +39,7 @@ public class AddNewModel {
 
     public AddNewModel() {
         isAverageUserChecked.set(true);
-//        whichOnePay.set(-1);
+        whichOnePay.set(-1);
         isLiuChengIn.set(true);
         isXiaoFeiIn.set(true);
         isYuriIn.set(true);
@@ -64,7 +64,7 @@ public class AddNewModel {
                 if (isAverageUserChecked.get()) {
                     return;
                 }
-//                itemLiuChengPriceBlockVisiblity.set(isLiuChengIn.get() ? View.VISIBLE : View.GONE);
+                itemLiuChengPriceBlockVisiblity.set(isLiuChengIn.get() ? View.VISIBLE : View.GONE);
             }
         });
         isXiaoFeiIn.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -74,7 +74,7 @@ public class AddNewModel {
                 if (isAverageUserChecked.get()) {
                     return;
                 }
-//                itemXiaoFeiPriceBlockVisiblity.set(isXiaoFeiIn.get() ? View.VISIBLE : View.GONE);
+                itemXiaoFeiPriceBlockVisiblity.set(isXiaoFeiIn.get() ? View.VISIBLE : View.GONE);
             }
         });
         isYuriIn.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
@@ -84,7 +84,14 @@ public class AddNewModel {
                 if (isAverageUserChecked.get()) {
                     return;
                 }
-//                itemYuriPriceBlockVisiblity.set(isYuriIn.get() ? View.VISIBLE : View.GONE);
+                itemYuriPriceBlockVisiblity.set(isYuriIn.get() ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        whichOnePay.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable sender, int propertyId) {
+                Log.d();
             }
         });
     }

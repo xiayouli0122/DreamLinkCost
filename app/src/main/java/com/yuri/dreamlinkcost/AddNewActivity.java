@@ -152,16 +152,18 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 Log.d();
                 switch (id) {
                     case R.id.rb_liucheng:
-//                        mAddNewModel.whichOnePay.set(0);
+                        Log.d("rgPayPerson:rb_liucheng");
+                        mAddNewModel.whichOnePay.set(0);
                         break;
                     case R.id.rb_xiaofei:
-//                        mAddNewModel.whichOnePay.set(1);
+                        Log.d("rgPayPerson:rb_xiaofei");
+                        mAddNewModel.whichOnePay.set(1);
                         break;
                     case R.id.rb_yuri:
-//                        mAddNewModel.whichOnePay.set(2);
+                        Log.d("rgPayPerson:rb_yuri");
+                        mAddNewModel.whichOnePay.set(2);
                         break;
                 }
-                mAddNewModel.updateItemPriceBlock();
             }
         });
 

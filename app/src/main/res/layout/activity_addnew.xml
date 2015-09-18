@@ -220,27 +220,27 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-
+                            android:checked="@{addNewModel.whichOnePay == 0}"
                             android:text="LiuCheng" />
-                        <!--android:checked="@{addNewModel.whichOnePay == 0}"-->
+
 
                         <RadioButton
                             android:id="@+id/rb_xiaofei"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-
+                            android:checked="@{addNewModel.whichOnePay == 1}"
                             android:text="XiaoFei" />
-                        <!--android:checked="@{addNewModel.whichOnePay == 1}"-->
+
 
                         <RadioButton
                             android:id="@+id/rb_yuri"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-
+                            android:checked="@{addNewModel.whichOnePay == 2}"
                             android:text="Yuri" />
-                        <!--android:checked="@{addNewModel.whichOnePay == 2}"-->
+
                     </RadioGroup>
                 </LinearLayout>
 
