@@ -95,8 +95,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 Log.d();
-//                etTitle.setText(spinnerTitleSelector.getSelectedItem() + "");
-                mAddNewModel.title = mBinding.spinnerTitleSelector.getSelectedItem() + "";
+                mBinding.etTitle.setText(mBinding.spinnerTitleSelector.getSelectedItem() + "");
             }
 
             @Override
@@ -160,7 +159,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(new OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
-                        mBinding.tvDatePicker.setText("Date:" + year + "-" + (month + 1) + "-" + day);
+                        mAddNewModel.dateStr.set("Date:" + year + "-" + (month + 1) + "-" + day);
                         String monthStr;
                         String dayStr;
                         if (month < 9) {
@@ -214,7 +213,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
     }
 
     public void doComplete() {
-        String titleStr = mAddNewModel.title;
+        String titleStr = mBinding.etTitle.getText().toString().trim();
         Log.d("titleStr:" + titleStr);
         if (TextUtils.isEmpty(titleStr)) {
             Toast.makeText(getApplicationContext(), "标题不能为空", Toast.LENGTH_SHORT).show();
@@ -241,7 +240,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             return;
         }
 
-        if (TextUtils.isEmpty(mAddNewModel.totalPrice)) {
+        if (TextUtils.isEmpty(mBinding.etTotalPrice.getText().toString().trim())) {
             Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -279,8 +278,8 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             cost.createDate = System.currentTimeMillis();
         }
 
-        cost.totalPay = Float.parseFloat(mAddNewModel.totalPrice);
-        cost.title = mAddNewModel.title;
+        cost.totalPay = Float.parseFloat(mBinding.etTotalPrice.getText().toString().trim());
+        cost.title = titleStr;
         cost.author = mAuthor;
         if (mAddNewModel.isAverageUserChecked.get()) {
             if (hasLiuCheng && hasXiaoFei && hasYuri) {

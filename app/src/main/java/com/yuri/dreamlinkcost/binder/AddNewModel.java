@@ -4,6 +4,7 @@ import android.databinding.Observable;
 import android.databinding.ObservableField;
 import android.view.View;
 
+import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.log.Log;
 
 /**
@@ -11,11 +12,13 @@ import com.yuri.dreamlinkcost.log.Log;
  */
 public class AddNewModel {
 
-    public String title;
-    public String totalPrice;
+//    public ObservableField<String> title = new ObservableField<>();
+//    public ObservableField<Integer> totalPrice = new ObservableField<>();
     public String liucheng;
     public String xiaofei;
     public String yuri;
+
+    public ObservableField<String> dateStr = new ObservableField<>();
 
     //谁参加了
 //    public boolean isLiuChengIn,isXiaoFeiIn,isYuriIn;
@@ -38,6 +41,7 @@ public class AddNewModel {
 
 
     public AddNewModel() {
+        dateStr.set("Date:" + Utils.getDate(System.currentTimeMillis()));
         isAverageUserChecked.set(true);
         whichOnePay.set(-1);
         isLiuChengIn.set(true);
