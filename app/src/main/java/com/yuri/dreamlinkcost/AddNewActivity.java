@@ -3,6 +3,7 @@ package com.yuri.dreamlinkcost;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,15 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
@@ -30,6 +24,8 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.binder.AddNewModel;
+import com.yuri.dreamlinkcost.databinding.AddNewerBinder;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
 import com.yuri.dreamlinkcost.model.Title;
@@ -39,61 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import cn.bmob.v3.listener.SaveListener;
 
 public class AddNewActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
-
-    @Bind(R.id.tv_date_picker)
-    TextView tvDatePicker;
-    @Bind(R.id.btn_date_picker)
-    Button btnDatePicker;
-    @Bind(R.id.et_title)
-    EditText etTitle;
-    @Bind(R.id.spinner_title_selector)
-    Spinner spinnerTitleSelector;
-    @Bind(R.id.et_total_price)
-    EditText etTotalPrice;
-    @Bind(R.id.et_liucheng)
-    EditText etLiucheng;
-    @Bind(R.id.spinner_lc)
-    Spinner spinnerLc;
-    @Bind(R.id.et_xiaofei)
-    EditText etXiaofei;
-    @Bind(R.id.spinner_xf)
-    Spinner spinnerXf;
-    @Bind(R.id.et_yuri)
-    EditText etYuri;
-    @Bind(R.id.spinner_yuri)
-    Spinner spinnerYuri;
-    @Bind(R.id.item_price_view)
-    LinearLayout itemPriceView;
-    @Bind(R.id.rg_pay_way)
-    RadioGroup mPayWayRG;
-    @Bind(R.id.rg_pay_person)
-    RadioGroup mPayPersonRG;
-    @Bind(R.id.rb_liucheng)
-    RadioButton mLiuChengRB;
-    @Bind(R.id.rb_xiaofei)
-    RadioButton mXiaoFeiRB;
-    @Bind(R.id.rb_yuri)
-    RadioButton mYuriRB;
-
-    @Bind(R.id.cb_liucheng)
-    CheckBox mLiuChengCB;
-    @Bind(R.id.cb_xiaofei)
-    CheckBox mXiaoFeiCB;
-    @Bind(R.id.cb_yuri)
-    CheckBox mYuriCB;
-
-    @Bind(R.id.ll_liucheng_price)
-    View mLiuChengPriceView;
-    @Bind(R.id.ll_xiaofei_price)
-    View mXiaoFeiPriceView;
-    @Bind(R.id.ll_yuri_price)
-    View mYuriPriceView;
-
     private SharedPreferences mSharedPrefences;
     private int mAuthor;
 
@@ -117,18 +61,21 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         LiuCheng, XiaoFei, Yuri
     }
 
+    private AddNewerBinder mBinding;
+    private AddNewModel mAddNewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addnew);
-        ButterKnife.bind(this);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_addnew);
+        mBinding.setToolbarTitle("新增数据");
+        mBinding.setToolbarSubTitle("手动输入数据");
+
+        mAddNewModel = new AddNewModel();
+        mBinding.setAddNewModel(mAddNewModel);
 
         init();
-        //可省略
-        //setContentView(R.layout.activity_addnew);
-        //tvDatePicker.setText("");  报错，空指针异常
-        //因为在onCreate()被调用的时候，@ViewById还没有被set，也就是都为null
-        //所以如果你要对组件进行一定的初始化，那么你要用@AfterViews注解
+
         setResult(RESULT_CANCELED);
 
         mCheckedArray = new SparseBooleanArray(3);
@@ -164,13 +111,14 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
         ArrayAdapter adapter;
         adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, titleArrays);
-        Log.d("spinnerTitleSelector:" + spinnerTitleSelector);
-        spinnerTitleSelector.setAdapter(adapter);
+        mBinding.spinnerTitleSelector.setAdapter(adapter);
 
-        spinnerTitleSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mBinding.spinnerTitleSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                etTitle.setText(spinnerTitleSelector.getSelectedItem() + "");
+                Log.d();
+//                etTitle.setText(spinnerTitleSelector.getSelectedItem() + "");
+                mAddNewModel.title = mBinding.spinnerTitleSelector.getSelectedItem() + "";
             }
 
             @Override
@@ -179,59 +127,46 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             }
         });
 
+//        mEditTextBinder.title = "dddddddddddd";
+//        mEditTextBinder.totalPrice = "33333333333";
+
         adapter= new ArrayAdapter(getApplicationContext(), R.layout.simple_spinner_item, operators);
-        spinnerLc.setPrompt(operators[0]);
-        spinnerXf.setPrompt(operators[0]);
-        spinnerYuri.setPrompt(operators[0]);
+        mBinding.spinnerLc.setPrompt(operators[0]);
+        mBinding.spinnerXf.setPrompt(operators[0]);
+        mBinding.spinnerYuri.setPrompt(operators[0]);
 
-        spinnerLc.setAdapter(adapter);
-        spinnerXf.setAdapter(adapter);
-        spinnerYuri.setAdapter(adapter);
+        mBinding.spinnerLc.setAdapter(adapter);
+        mBinding.spinnerXf.setAdapter(adapter);
+        mBinding.spinnerYuri.setAdapter(adapter);
 
-        itemPriceView.setVisibility(View.GONE);
-        mPayWayRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        mBinding.rbAverage.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int id) {
-                if (id == R.id.rb_average) {
-                    itemPriceView.setVisibility(View.GONE);
-                    mPayWay = PAY_WAY_AVERAGE;
-                } else {
-                    itemPriceView.setVisibility(View.VISIBLE);
-                    mPayWay = PAY_WAY_CUSTOM;
-                    mLiuChengPriceView.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
-                    mXiaoFeiPriceView.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
-                    mYuriPriceView.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
-                }
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mAddNewModel.isAverageUserChecked.set(b);
             }
         });
-        mPayPersonRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+        mBinding.rgPayPerson.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
+                Log.d();
                 switch (id) {
                     case R.id.rb_liucheng:
-                        spinnerLc.setSelection(1);
-                        spinnerXf.setSelection(0);
-                        spinnerYuri.setSelection(0);
-                        mPayPerson = PayPerson.LiuCheng;
+//                        mAddNewModel.whichOnePay.set(0);
                         break;
                     case R.id.rb_xiaofei:
-                        spinnerLc.setSelection(0);
-                        spinnerXf.setSelection(1);
-                        spinnerYuri.setSelection(0);
-                        mPayPerson = PayPerson.XiaoFei;
+//                        mAddNewModel.whichOnePay.set(1);
                         break;
                     case R.id.rb_yuri:
-                        spinnerLc.setSelection(0);
-                        spinnerXf.setSelection(0);
-                        spinnerYuri.setSelection(1);
-                        mPayPerson = PayPerson.Yuri;
+//                        mAddNewModel.whichOnePay.set(2);
                         break;
                 }
+                mAddNewModel.updateItemPriceBlock();
             }
         });
 
-        tvDatePicker.setText("Date:" + Utils.getDate(System.currentTimeMillis()));
-        btnDatePicker.setOnClickListener(new View.OnClickListener() {
+        mBinding.tvDatePicker.setText("Date:" + Utils.getDate(System.currentTimeMillis()));
+        mBinding.btnDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("Yuri", "tvDatePicker");
@@ -239,7 +174,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(new OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
-                        tvDatePicker.setText("Date:" + year + "-" + (month+1) + "-" + day);
+                        mBinding.tvDatePicker.setText("Date:" + year + "-" + (month + 1) + "-" + day);
                         String monthStr = "00";
                         String dayStr = "00";
                         if (month < 9) {
@@ -253,9 +188,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                         } else {
                             dayStr = day + "";
                         }
-                        String dateTime = year + monthStr + dayStr+ "000000";
+                        String dateTime = year + monthStr + dayStr + "000000";
                         Log.d("Yuri", "dateTime:" + dateTime);
-                        mCalendar= Calendar.getInstance();
+                        mCalendar = Calendar.getInstance();
                         try {
                             mCalendar.setTime(new SimpleDateFormat("yyyyMMddhhmmss").parse(dateTime));
                         } catch (ParseException e) {
@@ -269,46 +204,32 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             }
         });
 
-        mLiuChengCB.setChecked(true);
-        mXiaoFeiCB.setChecked(true);
-        mYuriCB.setChecked(true);
-        mLiuChengCB.setOnCheckedChangeListener(this);
-        mXiaoFeiCB.setOnCheckedChangeListener(this);
-        mYuriCB.setOnCheckedChangeListener(this);
+        mBinding.cbLiucheng.setOnCheckedChangeListener(this);
+        mBinding.cbXiaofei.setOnCheckedChangeListener(this);
+        mBinding.cbYuri.setOnCheckedChangeListener(this);
     }
 
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        Log.d("Yuri", "id:" + compoundButton.getId() + ",checked:" + b);
         switch (compoundButton.getId()) {
             case R.id.cb_liucheng:
-                mCheckedArray.put(LIUCHENG, b);
+                Log.d("liucheng:" + b);
+                mAddNewModel.isLiuChengIn.set(b);
                 break;
             case R.id.cb_xiaofei:
-                mCheckedArray.put(XIAOFEI, b);
+                Log.d("cb_xiaofei:" + b);
+                mAddNewModel.isXiaoFeiIn.set(b);
                 break;
             case R.id.cb_yuri:
-                mCheckedArray.put(YURI, b);
+                Log.d("cb_yuri:" + b);
+                mAddNewModel.isYuriIn.set(b);
                 break;
-        }
-        Log.d("Yuri", "aaaaaaaaaaa");
-        doSelectWhich();
-    }
-
-    private void doSelectWhich() {
-        Log.d("Yuri", "doSelectWhich");
-        mLiuChengRB.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
-        mXiaoFeiRB.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
-        mYuriRB.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
-        if (mPayWay == PAY_WAY_CUSTOM) {
-            mLiuChengPriceView.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
-            mXiaoFeiPriceView.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
-            mYuriPriceView.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
         }
     }
 
     public void doComplete() {
-        String titleStr = etTitle.getText().toString().trim();
+//        String titleStr = etTitle.getText().toString().trim();
+        String titleStr = mAddNewModel.title;
         if (!TextUtils.isEmpty(titleStr)) {
             Title title = new Select().from(Title.class).where("title=?", titleStr).executeSingle();
             if (title == null) {
@@ -344,15 +265,15 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             return;
         }
 
-        if (TextUtils.isEmpty(etTitle.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "Title cannot be empty.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(etTotalPrice.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (TextUtils.isEmpty(etTitle.getText().toString().trim())) {
+//            Toast.makeText(getApplicationContext(), "Title cannot be empty.", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        if (TextUtils.isEmpty(etTotalPrice.getText().toString().trim())) {
+//            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         if (mPayWay == -1) {
             Toast.makeText(getApplicationContext(), "You must confirm how pay.", Toast.LENGTH_SHORT).show();
@@ -369,24 +290,24 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         boolean hasYuri = mCheckedArray.get(YURI);
 
         if (mPayWay == PAY_WAY_CUSTOM) {
-            mLiuChengPriceView.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
-            mXiaoFeiPriceView.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
-            mYuriPriceView.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
+//            mLiuChengPriceView.setVisibility(mCheckedArray.get(LIUCHENG) ? View.VISIBLE : View.GONE);
+//            mXiaoFeiPriceView.setVisibility(mCheckedArray.get(XIAOFEI) ? View.VISIBLE : View.GONE);
+//            mYuriPriceView.setVisibility(mCheckedArray.get(YURI) ? View.VISIBLE : View.GONE);
 
-            if (hasLiuCheng && TextUtils.isEmpty(etLiucheng.getText().toString().trim())) {
-                Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (hasXiaoFei && TextUtils.isEmpty(etXiaofei.getText().toString().trim())) {
-                Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (hasYuri && TextUtils.isEmpty(etYuri.getText().toString().trim())) {
-                Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if (hasLiuCheng && TextUtils.isEmpty(etLiucheng.getText().toString().trim())) {
+//                Toast.makeText(getApplicationContext(), "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            if (hasXiaoFei && TextUtils.isEmpty(etXiaofei.getText().toString().trim())) {
+//                Toast.makeText(getApplicationContext(), "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            if (hasYuri && TextUtils.isEmpty(etYuri.getText().toString().trim())) {
+//                Toast.makeText(getApplicationContext(), "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
         }
 
         final Cost cost = new Cost();
@@ -395,8 +316,8 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         } else {
             cost.createDate = System.currentTimeMillis();
         }
-        cost.totalPay = Float.parseFloat(etTotalPrice.getText().toString());
-        cost.title = etTitle.getText().toString().trim();
+//        cost.totalPay = Float.parseFloat(etTotalPrice.getText().toString());
+//        cost.title = etTitle.getText().toString().trim();
         cost.author = mAuthor;
         if (mPayWay == PAY_WAY_AVERAGE) {
             if (hasLiuCheng && hasXiaoFei && hasYuri) {
@@ -463,15 +384,15 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             float payXf = 0;
             float payYuri = 0;
             if (hasLiuCheng) {
-                payLc = Float.parseFloat(etLiucheng.getText().toString().trim());
+//                payLc = Float.parseFloat(etLiucheng.getText().toString().trim());
             }
 
             if (hasXiaoFei) {
-                payXf = Float.parseFloat(etXiaofei.getText().toString().trim());
+//                payXf = Float.parseFloat(etXiaofei.getText().toString().trim());
             }
 
             if (hasYuri) {
-                payYuri = Float.parseFloat(etYuri.getText().toString().trim());
+//                payYuri = Float.parseFloat(etYuri.getText().toString().trim());
             }
 
             switch (mPayPerson) {
@@ -557,19 +478,14 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_addnew, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_complete) {
             doComplete();
             return true;

@@ -8,4 +8,7 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_about" android:title="关于"
         android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/action_data_bind_test" android:title="databinderTest"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

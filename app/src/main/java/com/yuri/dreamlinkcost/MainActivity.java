@@ -213,6 +213,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 String message = "Version:" + Utils.getAppVersion(this);
                 showDialog(title, message);
                 break;
+            case R.id.action_data_bind_test:
+                Intent intent = new Intent();
+                intent.setClass(this, DataBindTestActivity.class);
+                startActivity(intent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);

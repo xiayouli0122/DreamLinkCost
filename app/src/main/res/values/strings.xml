@@ -8,4 +8,18 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="statement">描述</string>
+    <string name="date_picker">日期选择</string>
+    <string name="total_price">总价</string>
+    <string name="pay_way">结算方式</string>
+
+    <string name="custom">自定义</string>
+    <string name="avarage">平摊</string>
+
+    <string name="canyuren">参与人</string>
+    <string name="fukuanren">付款人</string>
+
+    <string name="complete">完成</string>
+    <string name="title_activity_data_bind_test">DataBindTestActivity</string>
 </resources>
