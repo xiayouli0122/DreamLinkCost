@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +36,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobInstallation;
@@ -46,7 +46,7 @@ import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener, LeftMenuFragment.OnLeftMenuFragmentListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener, LeftMenuFragment.OnLeftMenuFragmentListener, View.OnClickListener {
 
     TextView mFabButton;
     DrawerLayout mDrawerLayout;
@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mFabButton = binding.fabButton;
+        mFabButton.setOnClickListener(this);
         mDrawerLayout = binding.drawerLayout;
 
         ButterKnife.bind(this);
@@ -141,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         });
     }
 
-    @OnClick(R.id.fab_button)
     void doAddNew() {
         Intent intent = new Intent();
         intent.setClass(this, AddNewActivity.class);
@@ -239,6 +239,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 break;
             case 3:
                 mainFragment.showAuthor(Constant.Author.YURI);
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.fab_button:
+                doAddNew();
                 break;
         }
     }

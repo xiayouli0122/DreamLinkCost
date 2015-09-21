@@ -32,7 +32,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
                 android:text="@{CardItem.getHeaderText(cardItem.header)}"
-                android:background="@drawable/round_liucheng"
+                android:background="@{cardItem.getItemBackgroudRes()}"
                 />
 
             <LinearLayout

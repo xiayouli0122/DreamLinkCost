@@ -7,13 +7,9 @@ import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;
-import com.yuri.dreamlinkcost.log.Log;
 
 import java.text.DecimalFormat;
 
-/**
- * Created by Yuri on 2015/9/21.
- */
 public class CardItem {
     public String title;
     public String info;
@@ -74,8 +70,8 @@ public class CardItem {
         }
     }
 
+    /**直接可以在layout中调用*/
     public Drawable getItemBackgroudRes() {
-        Log.d("header:" + header);
         int resid = R.drawable.round_yuri;
         if (header == Constant.Author.LIUCHENG) {
             resid =  R.drawable.round_liucheng;
@@ -84,15 +80,4 @@ public class CardItem {
         }
         return mContext.getResources().getDrawable(resid);
     }
-//    @BindingConversion
-//    public static int getItemBackgroudRes(int header) {
-//        Log.d("header:" + header);
-//        if (header == Constant.Author.LIUCHENG) {
-//            return R.drawable.round_liucheng;
-//        } else if (header == Constant.Author.XIAOFEI) {
-//            return R.drawable.round_xiaofei;
-//        } else {
-//            return  R.drawable.round_yuri;
-//        }
-//    }
 }
