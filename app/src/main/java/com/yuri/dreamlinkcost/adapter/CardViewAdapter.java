@@ -1,33 +1,35 @@
 package com.yuri.dreamlinkcost.adapter;
 
-import android.graphics.Color;
+import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import com.yuri.dreamlinkcost.BR;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
+import com.yuri.dreamlinkcost.model.CardItem;
 import com.yuri.dreamlinkcost.model.Cost;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHolder> {
+public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.BindingHolder> {
 
     private List<BmobCost> mCostList = new ArrayList<>();
     private List<Cost> mLocalCostList = new ArrayList<>();
 
     private RecyclerViewClickListener mListener;
 
-    private DecimalFormat mDecimalFormat=new DecimalFormat(".00");
+    private Context mContext;
 
-    public CardViewAdapter(List<Cost> localList, List<BmobCost> list) {
+    public CardViewAdapter(Context context, List<Cost> localList, List<BmobCost> list) {
+        mContext = context;
         this.mCostList = list;
         this.mLocalCostList = localList;
     }
@@ -100,61 +102,28 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
     }
 
     @Override
-    public CardViewAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_cardview, viewGroup, false);
-        return new ViewHolder(v);
+    public CardViewAdapter.BindingHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        ViewDataBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()),
+                R.layout.item_cardview,
+                viewGroup,
+                false);
+        BindingHolder holder = new BindingHolder(binding.getRoot());
+        holder.setBinding(binding);
+        return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-//        Log.d("position:" + position);
+    public void onBindViewHolder(BindingHolder viewHolder, final int position) {
         Object object = getItem(position);
+        CardItem cardItem;
         if (object instanceof BmobCost) {
             BmobCost bmobCost = (BmobCost) object;
-            viewHolder.titleView.setText(bmobCost.title);
-//            Log.d("title:" + bmobCost.title);
-            String detail = "L:" + (bmobCost.payLC == 0 ? bmobCost.payLC + "" : mDecimalFormat.format(bmobCost.payLC))
-                    + ", X:" + (bmobCost.payXF == 0 ? bmobCost.payXF + "" : mDecimalFormat.format(bmobCost.payXF))
-                    + ", Y:" + (bmobCost.payYuri == 0 ? bmobCost.payYuri + "" : mDecimalFormat.format(bmobCost.payYuri));
-            viewHolder.totalPayView.setText("¥" + bmobCost.totalPay + "\n" + detail);
-
-            viewHolder.commitStatusView.setText("Commited");
-            viewHolder.commitStatusView.setTextColor(Color.GREEN);
-
-            viewHolder.dateView.setText(Utils.getDate(bmobCost.createDate));
-
-            if (bmobCost.payLC > 0) {
-                viewHolder.headerView.setText("L");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
-            } else if (bmobCost.payXF > 0) {
-                viewHolder.headerView.setText("X");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
-            } else {
-                viewHolder.headerView.setText("Y");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
-            }
+            cardItem = new CardItem(mContext).getCardItem(bmobCost);
+            viewHolder.getBinding().setVariable(BR.cardItem, cardItem);
         } else {
             Cost cost = (Cost) object;
-            viewHolder.titleView.setText(cost.title);
-
-            String detail = "L:" + (cost.payLC == 0 ? cost.payLC + "" : mDecimalFormat.format(cost.payLC))
-                    + ", X:" + (cost.payXF == 0 ? cost.payXF + "" : mDecimalFormat.format(cost.payXF))
-                    + ", Y:" + (cost.payYuri == 0 ? cost.payYuri + "" : mDecimalFormat.format(cost.payYuri));
-            viewHolder.totalPayView.setText("¥" + cost.totalPay + "\n" + detail);
-            viewHolder.commitStatusView.setText("UnCommited");
-            viewHolder.commitStatusView.setTextColor(Color.RED);
-            viewHolder.dateView.setText(Utils.getDate(cost.createDate));
-
-            if (cost.payLC > 0) {
-                viewHolder.headerView.setText("L");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_liucheng);
-            } else if (cost.payXF > 0) {
-                viewHolder.headerView.setText("X");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_xiaofei);
-            } else {
-                viewHolder.headerView.setText("Y");
-                viewHolder.headerView.setBackgroundResource(R.drawable.round_yuri);
-            }
+            cardItem = new CardItem(mContext).getCardItem(cost);
+            viewHolder.getBinding().setVariable(BR.cardItem, cardItem);
         }
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -172,6 +141,7 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
                 return false;
             }
         });
+        viewHolder.getBinding().executePendingBindings();
     }
 
     @Override
@@ -179,19 +149,19 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.ViewHo
         return mLocalCostList.size() + mCostList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class BindingHolder extends RecyclerView.ViewHolder {
+        private ViewDataBinding binding;
 
-        private TextView headerView;
-        public TextView titleView, totalPayView, commitStatusView;
-        public TextView dateView;
-
-        public ViewHolder(View itemView) {
+        public BindingHolder(View itemView) {
             super(itemView);
-            headerView = (TextView) itemView.findViewById(R.id.headerView);
-            titleView = (TextView) itemView.findViewById(R.id.titleView);
-            totalPayView = (TextView) itemView.findViewById(R.id.totalPayView);
-            commitStatusView = (TextView) itemView.findViewById(R.id.commit_status);
-            dateView = (TextView) itemView.findViewById(R.id.dateView);
+        }
+
+        public ViewDataBinding getBinding() {
+            return binding;
+        }
+
+        public void setBinding(ViewDataBinding binding) {
+            this.binding = binding;
         }
     }
 }

@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,13 +17,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
+import com.yuri.dreamlinkcost.binder.MainFragmentBinder;
+import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
@@ -31,8 +32,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
@@ -40,16 +39,9 @@ import cn.bmob.v3.listener.SaveListener;
 
 
 public class MainFragment extends Fragment implements RecyclerViewClickListener {
-    @Bind(R.id.my_recycler_view)
-    ContextMenuRecyclerView mRecyclerView;
+    private ContextMenuRecyclerView mRecyclerView;
 
-    @Bind(R.id.swipe_container)
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    @Bind(R.id.progressBar)
-    ProgressBar mProgressBar;
-
-    @Bind(R.id.emptyView)
-    protected TextView mEmptyView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private LinearLayoutManager mLayoutManager;
 
@@ -65,6 +57,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     private List<BmobCost> mNetCostList = new ArrayList<>();
     /**本地列表*/
     private List<Cost> mLocalCostList = new ArrayList<>();
+
+    private MainFragmentBinder mainFragmentBinder;
 
     public MainFragment() {
         // Required empty public constructor
@@ -95,9 +89,16 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ButterKnife.bind(this, rootView);
+        FragmentMainBinding binding = DataBindingUtil.bind(rootView);
+
+        mRecyclerView = binding.myRecyclerView;
+        mSwipeRefreshLayout = binding.swipeContainer;
+
+        mainFragmentBinder = new MainFragmentBinder();
+        mainFragmentBinder.setIsLoading(false);
+        binding.setMainFragment(mainFragmentBinder);
+
         return rootView;
     }
 
@@ -112,7 +113,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         // Handle Toolbar
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new CustomItemAnimator());
-        mAdapter = new CardViewAdapter(new ArrayList<Cost>(), new ArrayList<BmobCost>());
+        mAdapter = new CardViewAdapter(getActivity(), new ArrayList<Cost>(), new ArrayList<BmobCost>());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
 
@@ -126,7 +127,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
         mProgressDialog.show();
         doGetDataFromNet();
-        mProgressBar.setVisibility(View.GONE);
 
         registerForContextMenu(mRecyclerView);
     }
@@ -153,9 +153,9 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                 mSwipeRefreshLayout.setRefreshing(false);
 
                 if (list.size() + localList.size() == 0) {
-                    mEmptyView.setVisibility(View.VISIBLE);
+                    mainFragmentBinder.setIsDataEmpty(true);
                 } else {
-                    mRecyclerView.setVisibility(View.VISIBLE);
+                    mainFragmentBinder.setIsDataEmpty(false);
                     showAll();
 
                     //统计一下
@@ -187,8 +187,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
             @Override
             public void onError(int i, String s) {
                 Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
-                mEmptyView.setVisibility(View.VISIBLE);
-                mEmptyView.setText(s + "\n" + "请下拉重试");
+                mainFragmentBinder.setIsDataEmpty(true);
+                mainFragmentBinder.setEmptyMsg(s + "\n" + "请下拉重试");
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (mProgressDialog != null) {
                     mProgressDialog.cancel();

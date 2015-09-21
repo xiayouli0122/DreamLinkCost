@@ -22,4 +22,7 @@
 
     <string name="complete">完成</string>
     <string name="title_activity_data_bind_test">DataBindTestActivity</string>
+
+    <string name="commited">Commited</string>
+    <string name="uncommited">UnCommited</string>
 </resources>
