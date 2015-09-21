@@ -34,8 +34,6 @@ import com.yuri.dreamlinkcost.model.Title;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobInstallation;
@@ -56,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     ProgressDialog progressDialog;
 
-    @Bind(R.id.toolbar)
     Toolbar mToolBar;
 
     @Override
@@ -67,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mFabButton.setOnClickListener(this);
         mDrawerLayout = binding.drawerLayout;
 
-        ButterKnife.bind(this);
+        mToolBar = binding.toolbar;
+        mToolBar.setTitle("DreamLinkCost");
 
         Bmob.initialize(this, Constant.BMOB_APP_ID);
         // 使用推送服务时的初始化操作
@@ -213,11 +211,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 String title = "About";
                 String message = "Version:" + Utils.getAppVersion(this);
                 showDialog(title, message);
-                break;
-            case R.id.action_data_bind_test:
-                Intent intent = new Intent();
-                intent.setClass(this, DataBindTestActivity.class);
-                startActivity(intent);
                 break;
         }
 

@@ -55,10 +55,6 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".DataBindTestActivity"
-            android:label="@string/title_activity_data_bind_test" >
-        </activity>
 
         <receiver
             android:name=".notification.NotificationReceiver"
