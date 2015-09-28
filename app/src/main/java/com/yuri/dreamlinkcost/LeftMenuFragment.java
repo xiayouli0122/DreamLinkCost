@@ -31,10 +31,12 @@ import com.yuri.dreamlinkcost.notification.NotificationBuilder;
 import com.yuri.dreamlinkcost.notification.NotificationReceiver;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
 
+import java.io.File;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.UpdateListener;
 
 
 public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItemClickListener, View.OnClickListener {
@@ -206,7 +208,11 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                 checkUpdate(true);
                 break;
             case R.id.upload_apk:
-                String filePath = "/sdcard/DreamLinkCost.apk";
+                String filePath = "/sdcard/Release_V" + Utils.getAppVersion(getActivity())  + ".apk";
+                if (!new File(filePath).exists()) {
+                    Toast.makeText(getActivity(), filePath + " is not exist", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 final ProgressDialog progressDialog  = new ProgressDialog(getActivity());
                 progressDialog.setMessage("上传文件中...");
                 progressDialog.setCanceledOnTouchOutside(false);
@@ -222,6 +228,21 @@ public class LeftMenuFragment extends Fragment implements LeftMenuAdapter.OnItem
                         progressDialog.setProgress(100);
                         progressDialog.setMessage("上传完成");
                         progressDialog.cancel();
+
+                        Version version =new Version();
+                        version.version = Utils.getAppVersion(getActivity());
+                        version.apkUrl = s;
+                        version.update(getActivity(), "692ZQQQp", new UpdateListener() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d();
+                            }
+
+                            @Override
+                            public void onFailure(int i, String s) {
+                                Log.d();
+                            }
+                        });
                     }
 
                     @Override

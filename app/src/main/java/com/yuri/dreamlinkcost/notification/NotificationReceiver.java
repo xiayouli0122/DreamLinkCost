@@ -70,6 +70,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         }
     }
 
+    private int mLastPercent = 0;
     private void downloadApk(final Context context, String fileName){
         Log.d(fileName);
         ClickPendingIntentBroadCast installApp = new ClickPendingIntentBroadCast(
@@ -79,7 +80,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         builder.setContentTitle("Apk下载中...");
         builder.setOnClickBroadCast(installApp);
         builder.setProgress(100, 0);
-        builder.getSimpleNotification().build(true);
+        builder.getSimpleNotification().build(false);
         BmobProFile.getInstance(context).download(fileName, new DownloadListener() {
             @Override
             public void onSuccess(String s) {
@@ -90,11 +91,21 @@ public class NotificationReceiver extends BroadcastReceiver {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("apkPath", s);
                 editor.apply();
+
+                Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                installIntent.setDataAndType(Uri.parse("file://" + s), "application/vnd.android.package-archive");
+                context.startActivity(installIntent);
             }
 
             @Override
             public void onProgress(String s, int i) {
                 Log.d("path:" + s + ",progress:" + i);
+                if (i != mLastPercent) {
+                    mLastPercent = i;
+                    builder.setProgress(100, i);
+                    builder.getSimpleNotification().build(false);
+                }
             }
 
             @Override
