@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mDrawerLayout = binding.drawerLayout;
 
         mToolBar = binding.toolbar;
-        mToolBar.setTitle("DreamLinkCost");
+        mToolBar.setTitle(R.string.app_name);
 
         Bmob.initialize(this, Constant.BMOB_APP_ID);
         // 使用推送服务时的初始化操作

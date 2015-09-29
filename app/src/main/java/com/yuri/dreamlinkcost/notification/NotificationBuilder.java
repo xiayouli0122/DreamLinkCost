@@ -45,7 +45,7 @@ public class NotificationBuilder {
         this.mBuilder.setContentTitle("");
         this.mBuilder.setContentText("");
         this.mBuilder.setAutoCancel(true);
-        this.mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        this.mBuilder.setSmallIcon(R.mipmap.ic_notification);
         this.mBuilder.setLargeIcon(BitmapFactory.decodeResource(mNotification.mContext.getResources(),
                 R.mipmap.ic_launcher));
         this.mBuilder.setContentIntent(PendingIntent.getBroadcast(mNotification.mContext, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT));
