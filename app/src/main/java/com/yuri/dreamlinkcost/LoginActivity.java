@@ -6,12 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.databinding.LoginBinder;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.model.Cost;
-
-import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -28,16 +24,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         int currentVersionCode = Utils.getVersionCode(this);
         int versionCode = SharedPreferencesManager.get(this, Constant.Extra.KEY_VERSION_CODE, -1);
         if (versionCode == -1) {
-            if (currentVersionCode == 40) {
-                doVersion40Change();
-            }
             SharedPreferencesManager.put(this, Constant.Extra.KEY_VERSION_CODE, currentVersionCode);
         } else {
             if (versionCode != currentVersionCode) {
-                //新版本升级，第一次启动
-                if (currentVersionCode == 40) {
-                    doVersion40Change();
-                }
                 SharedPreferencesManager.put(this, Constant.Extra.KEY_VERSION_CODE, currentVersionCode);
             }
         }
@@ -46,21 +35,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (author != -1) {
             goToMain();
         }
-
         mLoginBinder.tvLiucheng.setOnClickListener(this);
         mLoginBinder.tvXiaofei.setOnClickListener(this);
         mLoginBinder.tvYuri.setOnClickListener(this);
 
-    }
-
-    private void doVersion40Change() {
-        //4.0版本对本地数据库作了改变，只保留未提交到服务器的数据
-        List<Cost> costs = new Select().from(Cost.class).execute();
-        for (Cost cost : costs) {
-            if (cost.status == Constant.STATUS_COMMIT_SUCCESS) {
-                cost.delete();
-            }
-        }
     }
 
     public void goToMain() {
