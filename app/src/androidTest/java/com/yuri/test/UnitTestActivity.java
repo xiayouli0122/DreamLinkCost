@@ -2,13 +2,13 @@ package com.yuri.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 
-import com.yuri.dreamlinkcost.MainActivity_;
+import com.yuri.dreamlinkcost.MainActivity;
 
 /**
  * Created by Yuri on 2015/7/22.
  */
-public class UnitTestActivity extends ActivityInstrumentationTestCase2<MainActivity_> {
-    public UnitTestActivity(Class<MainActivity_> activityClass) {
+public class UnitTestActivity extends ActivityInstrumentationTestCase2<MainActivity> {
+    public UnitTestActivity(Class<MainActivity> activityClass) {
         super(activityClass);
     }
 
