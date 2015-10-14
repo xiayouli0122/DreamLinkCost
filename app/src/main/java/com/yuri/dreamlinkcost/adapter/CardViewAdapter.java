@@ -17,6 +17,7 @@ import com.yuri.dreamlinkcost.model.CardItem;
 import com.yuri.dreamlinkcost.model.Cost;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.BindingHolder> {
@@ -55,6 +56,18 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.Bindin
         for (int i = 0; i < list.size(); i++) {
             addLocalItem(i, list.get(i));
         }
+    }
+
+    public void sortByPrice() {
+        Collections.sort(mLocalCostList, Cost.PRICE_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.PRICE_COMPARATOR);
+        notifyDataSetChanged();
+    }
+
+    public void sortByDate() {
+        Collections.sort(mLocalCostList, Cost.DATE_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.DATE_COMPARATOR);
+        notifyDataSetChanged();
     }
 
     public void addItem(int position, BmobCost cost) {

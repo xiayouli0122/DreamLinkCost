@@ -6,6 +6,9 @@ import com.activeandroid.annotation.Table;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 
+import java.text.Collator;
+import java.util.Comparator;
+
 /**
  * Created by Yuri on 2015/7/7.
  */
@@ -66,4 +69,44 @@ public class Cost extends Model {
         costBean.clear = this.clear;
         return costBean;
     }
+
+    /**
+     * Perform alphabetical comparison of application entry objects.
+     */
+    public static final Comparator<Cost> DATE_COMPARATOR = new Comparator<Cost>() {
+        private final Collator sCollator = Collator.getInstance();
+        @Override
+        public int compare(Cost object1, Cost object2) {
+            if (object1.createDate > object2.createDate)
+                return  -1;
+
+            if (object1.createDate == object2.createDate)
+                return 0;
+
+            if (object1.createDate < object2.createDate)
+                return 0;
+
+            return 0;
+        }
+    };
+
+    /**
+     * Perform alphabetical comparison of application entry objects.
+     */
+    public static final Comparator<Cost> PRICE_COMPARATOR = new Comparator<Cost>() {
+        private final Collator sCollator = Collator.getInstance();
+        @Override
+        public int compare(Cost object1, Cost object2) {
+            if (object1.totalPay > object2.totalPay)
+                return  -1;
+
+            if (object1.totalPay == object2.totalPay)
+                return 0;
+
+            if (object1.totalPay < object2.totalPay)
+                return 0;
+
+            return 0;
+        }
+    };
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <color name="colorAccent">#FF4081</color>
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
@@ -28,9 +27,9 @@
     <color name="holo_blue_light">#ff33b5e5</color>
     <color name="holo_blue_light_transparent">#3f33b5e5</color>
     <color name="holo_blue_light_transparent2">#7f33b5e5</color>
-    <drawable name="itemBackground_pressed">@color/holo_blue_light_transparent2</drawable>
-    <drawable name="itemBackground_selected">@color/holo_blue_light</drawable>
-    <drawable name="itemBackground_normal">@android:color/transparent</drawable>
+    <drawable name="itemBackground1_pressed">@color/holo_blue_light_transparent2</drawable>
+    <drawable name="itemBackground1_selected">@color/holo_blue_light</drawable>
+    <drawable name="itemBackground1_normal">@android:color/transparent</drawable>
 
     <color name="THEME_LIUCHENG">@android:color/holo_green_dark</color>
     <color name="THEME_XIAOFEI">@android:color/holo_blue_bright</color>

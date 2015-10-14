@@ -6,4 +6,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_sort_price" android:title="按价格排序"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_upload_new_version" android:title="上传新版本"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

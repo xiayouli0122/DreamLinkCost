@@ -1,0 +1,49 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.yuri.dreamlinkcost.AddNewActivity">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_all"
+            android:title="ALL"
+            />
+        <item
+            android:id="@+id/action_liucheng"
+            android:title="LIUCHENG"
+            />
+        <item
+            android:id="@+id/action_xiaofei"
+            android:title="XIAOFEI"
+            />
+        <item
+            android:id="@+id/action_yuri"
+            android:title="YURI"
+            />
+    </group>
+    <group>
+        <item
+            android:id="@+id/action_menu"
+            android:title="其他"
+            >
+            <menu>
+                <item
+                    android:id="@+id/action_jiesuan"
+                    android:title="结算"
+                    />
+                <item
+                    android:id="@+id/action_commit"
+                    android:title="一键提交"
+                    />
+                <item
+                    android:id="@+id/action_about"
+                    android:title="关于"
+                    />
+                <item
+                    android:id="@+id/action_check_update"
+                    android:title="检查新版本"
+                    />
+            </menu>
+        </item>
+    </group>
+
+</menu>

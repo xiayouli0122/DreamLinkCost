@@ -3,6 +3,9 @@ package com.yuri.dreamlinkcost.Bmob;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.model.Cost;
 
+import java.text.Collator;
+import java.util.Comparator;
+
 import cn.bmob.v3.BmobObject;
 
 /**
@@ -52,4 +55,44 @@ public class BmobCost extends BmobObject{
                 ", createDate=" + createDate +
                 '}';
     }
+
+    /**
+     * Perform alphabetical comparison of application entry objects.
+     */
+    public static final Comparator<BmobCost> DATE_COMPARATOR = new Comparator<BmobCost>() {
+        private final Collator sCollator = Collator.getInstance();
+        @Override
+        public int compare(BmobCost object1, BmobCost object2) {
+            if (object1.createDate > object2.createDate)
+                return  -1;
+
+            if (object1.createDate == object2.createDate)
+                return 0;
+
+            if (object1.createDate < object2.createDate)
+                return 0;
+
+            return 0;
+        }
+    };
+
+    /**
+     * Perform alphabetical comparison of application entry objects.
+     */
+    public static final Comparator<BmobCost> PRICE_COMPARATOR = new Comparator<BmobCost>() {
+        private final Collator sCollator = Collator.getInstance();
+        @Override
+        public int compare(BmobCost object1, BmobCost object2) {
+            if (object1.totalPay > object2.totalPay)
+                return  -1;
+
+            if (object1.totalPay == object2.totalPay)
+                return 0;
+
+            if (object1.totalPay < object2.totalPay)
+                return 0;
+
+            return 0;
+        }
+    };
 }

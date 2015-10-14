@@ -33,17 +33,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <FrameLayout
-                android:id="@+id/left_menu_container"
-                android:layout_width="match_parent"
+            <android.support.design.widget.NavigationView
+                android:id="@+id/navigationView"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="start" />
-
+                android:layout_gravity="start"
+                app:headerLayout="@layout/left_header_view"
+                app:menu="@menu/menu_left"
+                android:fitsSystemWindows="true"
+                />
         </android.support.v4.widget.DrawerLayout>
 
 
-        <TextView
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            app:elevation="4dp"
+            app:rippleColor="@color/accent_material_light"
+            android:src="@mipmap/ic_launcher"
+            />
+
+        <TextView
+            android:id="@+id/fab_button1"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_alignParentBottom="true"
@@ -61,7 +79,9 @@
             android:text="+"
             android:textColor="@android:color/white"
             android:textSize="30sp"
-            android:transitionName="fab" />
+            android:transitionName="fab"
+            android:visibility="gone"
+            />
 
     </RelativeLayout>
 </layout>

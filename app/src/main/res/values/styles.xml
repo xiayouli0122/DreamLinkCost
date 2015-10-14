@@ -14,7 +14,7 @@
         <!--Window color-->
         <item name="android:windowBackground">@android:color/background_light</item>
 
-        <item name="itemBackground">@drawable/item_background</item>
+        <item name="itemBackground1">@drawable/item_background</item>
     </style>
 
     <!--<style name="MaterialDrawerBaseBaseTheme.Light.DarkToolbar" parent="Theme.AppCompat.Light.DarkActionBar">-->

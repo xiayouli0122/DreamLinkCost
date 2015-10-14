@@ -30,6 +30,7 @@ import com.yuri.dreamlinkcost.model.Cost;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
@@ -188,7 +189,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
             public void onError(int i, String s) {
                 Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
                 mainFragmentBinder.setIsDataEmpty(true);
-                mainFragmentBinder.setEmptyMsg(s + "\n" + "请下拉重试");
+                mainFragmentBinder.setEmptyMsg("网络异常,请下拉重试");
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (mProgressDialog != null) {
                     mProgressDialog.cancel();
@@ -446,6 +447,11 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     public void showAll() {
 //      mAdapter.addLocalCostList(localList);
 //      mAdapter.addCostList(list);
+        int sort = SharedPreferencesManager.get(getActivity(), Constant.Extra.KEY_SORT, 0);
+        if (sort == 1) {
+            Collections.sort(mLocalCostList, Cost.PRICE_COMPARATOR);
+            Collections.sort(mNetCostList, BmobCost.PRICE_COMPARATOR);
+        }
         mAdapter.setCostList(mLocalCostList, mNetCostList);
         //这个方法有Bug
         //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder{2f92781d position=16 id=-1, oldPos=0, pLpos:0 scrap tmpDetached not recyclable(1) no parent}
@@ -514,6 +520,10 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
             }
         }
         return  itemList;
+    }
+
+    public CardViewAdapter getAdapter() {
+        return  mAdapter;
     }
 
 }

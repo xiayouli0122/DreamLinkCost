@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mLoginBinder.tvLiucheng.setOnClickListener(this);
         mLoginBinder.tvXiaofei.setOnClickListener(this);
         mLoginBinder.tvYuri.setOnClickListener(this);
-
     }
 
     public void goToMain() {
