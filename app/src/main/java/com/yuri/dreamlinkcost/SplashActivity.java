@@ -39,7 +39,7 @@ public class SplashActivity extends AwesomeSplash {
 
 
         //Customize Title
-        configSplash.setTitleSplash("美好的生活从现在开始");
+        configSplash.setTitleSplash("刘成你真是个哈麻批");
         configSplash.setTitleTextColor(R.color.colorPrimary);
         configSplash.setTitleTextSize(30f); //float value
         configSplash.setAnimTitleDuration(2000);

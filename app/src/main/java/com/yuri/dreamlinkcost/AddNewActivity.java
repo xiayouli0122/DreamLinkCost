@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -56,6 +57,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
         mAddNewModel = new AddNewModel();
         mBinding.setAddNewModel(mAddNewModel);
+
+        TextInputLayout textInputLayout = mBinding.textInput;
+        textInputLayout.setHint("请输入总价");
 
         init();
 
