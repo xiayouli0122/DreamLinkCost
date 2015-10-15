@@ -57,7 +57,7 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             app:elevation="4dp"
             app:rippleColor="@color/accent_material_light"
-            android:src="@mipmap/ic_launcher"
+            android:src="@mipmap/ic_add_white_24dp"
             />
 
         <TextView
