@@ -3,6 +3,7 @@
     package="com.yuri.dreamlinkcost"
     android:versionCode="40"
     android:versionName="4.0" >
+
     <!-- BmobPush SDK权限 -->
     <permission
         android:name="cn.bmob.permission.push"
@@ -39,13 +40,24 @@
             android:value="com.yuri.dreamlinkcost.model.Cost,com.yuri.dreamlinkcost.model.Title" />
 
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/app_name" >
+            android:name=".SplashActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name" >
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity
             android:name=".AddNewActivity"
