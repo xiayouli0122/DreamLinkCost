@@ -26,4 +26,5 @@
     <string name="commited">Commited</string>
     <string name="uncommited">UnCommited</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_splash2">SplashActivity2</string>
 </resources>
