@@ -27,6 +27,10 @@
             >
             <menu>
                 <item
+                    android:id="@+id/action_encourage"
+                    android:title="鼓励一下"
+                    />
+                <item
                     android:id="@+id/action_jiesuan"
                     android:title="结算"
                     />

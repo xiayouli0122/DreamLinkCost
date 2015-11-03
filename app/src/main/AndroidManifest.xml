@@ -21,6 +21,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
 
+    <!-- alipay sdk permission begin -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- alipay sdk permission end -->
     <application
         android:name=".AppApplication"
         android:allowBackup="true"
@@ -49,7 +53,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SplashActivity"
             android:label="@string/title_activity_splash2"
@@ -112,6 +115,25 @@
             </intent-filter>
         </receiver>
         <!-- Bmob Push end -->
+
+
+        <!-- bmob pay sdk activity begin ,please put below code into application tag -->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" >
+        </activity>
+        <activity
+            android:name="com.bmob.pay.tool.PayActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name=".PayActivity"
+            android:label="鼓励一下"
+            android:theme="@style/AppTheme" >
+        </activity>
     </application>
 
 </manifest>

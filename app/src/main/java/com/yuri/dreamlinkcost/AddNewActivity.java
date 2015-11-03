@@ -424,6 +424,9 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         if (id == R.id.action_complete) {
             doComplete();
             return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

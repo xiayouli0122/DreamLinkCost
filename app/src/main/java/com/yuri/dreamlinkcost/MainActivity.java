@@ -31,6 +31,7 @@ import com.activeandroid.query.Select;
 import com.bmob.BTPFileResponse;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.UploadListener;
+import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
@@ -76,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        BmobPay.init(this, Constant.BMOB_APP_ID);
+
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.fabButton.setOnClickListener(this);
         mDrawerLayout = binding.drawerLayout;
@@ -254,6 +258,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 break;
             case R.id.action_check_update:
                 checkUpdate(true);
+                break;
+            case R.id.action_encourage:
+                Intent intent = new Intent();
+                intent.setClass(this, PayActivity.class);
+                startActivity(intent);
                 break;
         }
         return true;
