@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.content.Intent;
 
@@ -6,6 +6,8 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.viksaa.sssplash.lib.activity.AwesomeSplash;
 import com.viksaa.sssplash.lib.cnst.Flags;
 import com.viksaa.sssplash.lib.model.ConfigSplash;
+import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.SplashConstants;
 
 public class SplashActivity extends AwesomeSplash {
 

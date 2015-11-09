@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
@@ -36,6 +36,10 @@ import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.Bmob.Version;
+import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.SharedPreferencesManager;
+import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;

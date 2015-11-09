@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,9 +9,11 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +23,12 @@ import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.ContextMenuRecyclerView;
+import com.yuri.dreamlinkcost.CustomItemAnimator;
+import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.SharedPreferencesManager;
+import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
 import com.yuri.dreamlinkcost.binder.MainFragmentBinder;
 import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
@@ -118,7 +126,28 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
 
-        mSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.theme_accent));
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                switch (newState) {
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        mAdapter.setOnScrollIdle(true);
+                        break;
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        mAdapter.setOnScrollIdle(false);
+                        break;
+                }
+            }
+        });
+
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.refresh_progress_3,
+                R.color.refresh_progress_2, R.color.refresh_progress_1);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -126,7 +155,15 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
             }
         });
 
-        mProgressDialog.show();
+        //SwipeRefreshLayout想要实现一进入页面就实现自动刷新一次，并显示刷新动画
+        //光靠setRefreshing(true)并不能实现这一目的，你需要使用如下的方法才能将动画显示出来
+//        mSwipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        });
         doGetDataFromNet();
 
         registerForContextMenu(mRecyclerView);
@@ -144,9 +181,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                 Log.d("serverSize=" + list.size());
                 List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
                 Log.d("localSize=" + localList.size());
-                if (mProgressDialog != null) {
-                    mProgressDialog.cancel();
-                }
 
                 mNetCostList = list;
                 mLocalCostList = localList;
@@ -188,12 +222,21 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
             @Override
             public void onError(int i, String s) {
                 Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
-                mainFragmentBinder.setIsDataEmpty(true);
-                mainFragmentBinder.setEmptyMsg("网络异常,请下拉重试");
+                Snackbar.make(mRecyclerView, "加载失败，请重试", Snackbar.LENGTH_LONG)
+                        .setAction("重试", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mSwipeRefreshLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mSwipeRefreshLayout.setRefreshing(true);
+                                    }
+                                });
+                                doGetDataFromNet();
+                            }
+                        }).show();
+
                 mSwipeRefreshLayout.setRefreshing(false);
-                if (mProgressDialog != null) {
-                    mProgressDialog.cancel();
-                }
             }
         });
     }
@@ -447,6 +490,9 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     public void showAll() {
 //      mAdapter.addLocalCostList(localList);
 //      mAdapter.addCostList(list);
+        if (!isAdded()) {
+            return;
+        }
         int sort = SharedPreferencesManager.get(getActivity(), Constant.Extra.KEY_SORT, 0);
         if (sort == 1) {
             Collections.sort(mLocalCostList, Cost.PRICE_COMPARATOR);

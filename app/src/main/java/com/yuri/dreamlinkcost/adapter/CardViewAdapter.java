@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.BindingHolder> {
+public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.BindingHolder> {
 
     private List<BmobCost> mCostList = new ArrayList<>();
     private List<Cost> mLocalCostList = new ArrayList<>();
@@ -155,11 +155,20 @@ public class CardViewAdapter extends RecyclerView.Adapter<CardViewAdapter.Bindin
             }
         });
         viewHolder.getBinding().executePendingBindings();
+
+        if (mOnScrollIdle) {
+            showItemAnim(viewHolder.itemView, position);
+        }
     }
 
     @Override
     public int getItemCount() {
         return mLocalCostList.size() + mCostList.size();
+    }
+
+    private boolean mOnScrollIdle = true;
+    public void setOnScrollIdle(boolean idle) {
+        mOnScrollIdle = idle;
     }
 
     public static class BindingHolder extends RecyclerView.ViewHolder {

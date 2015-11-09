@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -24,6 +24,9 @@ import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.yuri.dreamlinkcost.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.binder.AddNewModel;
 import com.yuri.dreamlinkcost.databinding.AddNewerBinder;
 import com.yuri.dreamlinkcost.log.Log;

@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.SharedPreferencesManager;
+import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.databinding.LoginBinder;
 import com.yuri.dreamlinkcost.log.Log;
 

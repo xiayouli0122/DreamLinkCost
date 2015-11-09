@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +15,7 @@ import android.view.View;
 
 import com.bmob.pay.tool.BmobPay;
 import com.bmob.pay.tool.PayListener;
+import com.yuri.dreamlinkcost.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.yuri.dreamlinkcost.MainActivity">
+        tools:context="com.yuri.dreamlinkcost.ui.MainActivity">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
