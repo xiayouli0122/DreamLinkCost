@@ -48,6 +48,8 @@ import com.yuri.dreamlinkcost.notification.MMNotificationManager;
 import com.yuri.dreamlinkcost.notification.NotificationBuilder;
 import com.yuri.dreamlinkcost.notification.NotificationReceiver;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
+import com.yuri.dreamlinkcost.rx.RxBus;
+import com.yuri.dreamlinkcost.rx.RxBusTag;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -165,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
             }
         });
+
     }
 
     void doAddNew() {
@@ -201,11 +204,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         switch (id) {
             case R.id.action_sort_date:
                 SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 0);
-                mainFragment.getAdapter().sortByDate();
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE);
                 break;
             case R.id.action_sort_price:
                 SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 1);
-                mainFragment.getAdapter().sortByPrice();
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE);
                 break;
             case R.id.action_upload_new_version:
                 doUpload();

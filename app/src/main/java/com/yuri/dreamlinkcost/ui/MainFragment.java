@@ -35,6 +35,8 @@ import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.Cost;
+import com.yuri.dreamlinkcost.rx.RxBus;
+import com.yuri.dreamlinkcost.rx.RxBusTag;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -45,6 +47,9 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 
 public class MainFragment extends Fragment implements RecyclerViewClickListener {
@@ -68,6 +73,11 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     private List<Cost> mLocalCostList = new ArrayList<>();
 
     private MainFragmentBinder mainFragmentBinder;
+
+    private Observable<Integer> mSortObservable;
+
+    public static final int SORT_BY_DATE = 0;
+    public static final int SORT_BY_PRICE = 1;
 
     public MainFragment() {
         // Required empty public constructor
@@ -93,6 +103,22 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setCancelable(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+        mSortObservable = RxBus.get().register(RxBusTag.TAG_MAIN_FRAGEMNT, Integer.class);
+        mSortObservable.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Integer>() {
+                    @Override
+                    public void call(Integer integer) {
+                        switch (integer) {
+                            case SORT_BY_DATE:
+                                mAdapter.sortByDate();
+                                break;
+                            case SORT_BY_PRICE:
+                                mAdapter.sortByPrice();
+                                break;
+                        }
+                    }
+                });
     }
 
     @Override
@@ -396,6 +422,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         if (mHandler.hasMessages(MSG_GET_LOCAL_DATA)) {
             mHandler.removeMessages(MSG_GET_LOCAL_DATA);
         }
+
+        RxBus.get().unregister(RxBusTag.TAG_MAIN_FRAGEMNT, mSortObservable);
     }
 
     @Override
