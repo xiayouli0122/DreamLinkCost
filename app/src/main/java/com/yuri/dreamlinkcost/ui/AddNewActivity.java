@@ -102,7 +102,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 Log.d();
-                mBinding.etTitle.setText(mBinding.spinnerTitleSelector.getSelectedItem() + "");
+                mBinding.etTitle.setText(mBinding.spinnerTitleSelector.getSelectedItem().toString());
             }
 
             @Override
