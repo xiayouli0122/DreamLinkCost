@@ -79,7 +79,7 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 if (s.length() == 0) {
                     textInputLayout.setError("总价不能为空");
                 } else {
-                    textInputLayout.setError("");
+                    textInputLayout.setErrorEnabled(false);
                 }
             }
         });
