@@ -8,7 +8,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.log.Log;
 
 /**
  * Created by Yuri on 2015/11/9.
@@ -34,7 +33,7 @@ public class AnimRecyclerViewAdapter<T extends RecyclerView.ViewHolder> extends 
     }
 
     public void showItemAnim(final View view, final int position) {
-        Log.d("position:" + position);
+//        Log.d("position:" + position);
         final Context context = view.getContext();
         if (position > mLastPosition) {
             view.setAlpha(0);
@@ -63,7 +62,7 @@ public class AnimRecyclerViewAdapter<T extends RecyclerView.ViewHolder> extends 
                 }
             }, DELAY * position);
             mLastPosition = position;
-            Log.d("lastPosition:" + mLastPosition);
+//            Log.d("lastPosition:" + mLastPosition);
         }
     }
 }

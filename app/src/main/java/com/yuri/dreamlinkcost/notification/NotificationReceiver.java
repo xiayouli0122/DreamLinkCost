@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
 
@@ -58,8 +59,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             downloadApk(context, url);
         } else if (ACTION_NOTIFICATION_INSTALL_APP.equals(action)) {
             Log.d("install APP");
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
-            String path = sharedPreferences.getString("apkPath", null);
+            String path = SharedPreferencesManager.get(context, "apkPath", null);
             Log.d("path:" + path);
             if (path != null) {
                 Intent installIntent = new Intent(Intent.ACTION_VIEW);

@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +21,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.bmob.BTPFileResponse;
 import com.bmob.BmobProFile;
+import com.bmob.btp.callback.DownloadListener;
 import com.bmob.btp.callback.UploadListener;
 import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mNavigationView = binding.navigationView;
         mNavigationView.setNavigationItemSelectedListener(this);
         mNavigationView.getMenu().findItem(R.id.action_all).setChecked(true);
+        mNavigationView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
         mToolBar = binding.toolbar;
         mToolBar.setTitle(R.string.app_name);
@@ -308,25 +310,50 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
     private void checkUpdate(final boolean byuser) {
+        //第一步检查本地新版本
+        int versionCode = SharedPreferencesManager.get(getApplicationContext(), "latest_version_code", -1);
+        int currentVersionCode = Utils.getVersionCode(getApplicationContext());
+        if (versionCode > currentVersionCode) {
+            //有新版本已经下载好了，可以直接安装
+            String apkPath = SharedPreferencesManager.get(getApplicationContext(), "apkPath", null);
+            if (apkPath != null && new File(apkPath).exists()) {
+                //显示安装Dialog
+                showInstallDialog(apkPath);
+                return;
+            }
+        }
         BmobQuery<Version> bmobQuery = new BmobQuery();
         bmobQuery.findObjects(this, new FindListener<Version>() {
             @Override
             public void onSuccess(List<Version> list) {
                 if (list != null && list.size() > 0) {
-                    String serverVersion = list.get(0).version;
-                    String currentVersion = Utils.getAppVersion(getApplicationContext());
-                    Log.d("serverVersion:" + serverVersion + ",currentVersion:" + currentVersion);
-                    if (!TextUtils.isEmpty(currentVersion) && !currentVersion.equals(serverVersion)) {
+                    int serverVersionCode = list.get(0).version_code;
+                    int currentVersionCode = Utils.getVersionCode(getApplicationContext());
+                    Log.d("serverVersionCode:" + serverVersionCode + ",currentVersionCode:"
+                            + currentVersionCode);
+                    if (serverVersionCode > currentVersionCode) {
+                        //有新版本了
                         Log.d("Need to update");
                         mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_UPDATE_VERSION_VIEW));
                         String url = list.get(0).apkUrl;
+                        String serverVersion = list.get(0).version;
                         //has new version
                         Message message = new Message();
                         Bundle bundle = new Bundle();
                         bundle.putString("version", serverVersion);
+                        bundle.putInt("version_code", serverVersionCode);
                         bundle.putString("url", url);
                         message.setData(bundle);
-                        message.what = MSG_SHOW_UPDATE_NOTIFICATION;
+
+                        if (byuser) {
+                            message.what = MSG_SHOW_UPDATE_NOTIFICATION;
+                        } else {
+                            if (Utils.isWifiConnected(getApplicationContext())) {
+                                message.what = MSG_BACKGROUND_DOWNLOAD;
+                            } else {
+                                message.what = MSG_SHOW_UPDATE_NOTIFICATION;
+                            }
+                        }
                         mUIHandler.sendMessage(message);
                     } else {
                         if (byuser) {
@@ -341,6 +368,23 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
             }
         });
+    }
+
+    private void showInstallDialog(final String apkPath) {
+        new AlertDialog.Builder(this)
+                .setMessage("新版本已经后台下载完成。")
+                .setPositiveButton("立即安装", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                        installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        installIntent.setDataAndType(Uri.parse("file://" + apkPath),
+                                "application/vnd.android.package-archive");
+                        startActivity(installIntent);
+                    }
+                })
+                .setNegativeButton("稍后再说", null)
+                .create().show();
     }
 
     private class CommitTask extends AsyncTask<List<Cost>, Void, Void> {
@@ -470,6 +514,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     private static final int MSG_UPDATE_VERSION_VIEW = 0;
     private static final int MSG_NO_VERSION_UPDATE = 1;
     private static final int MSG_SHOW_UPDATE_NOTIFICATION = 2;
+    private static final int MSG_BACKGROUND_DOWNLOAD = 3;
     private static class UIHandler extends Handler{
         private WeakReference<MainActivity> mOuter;
 
@@ -489,12 +534,79 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                     break;
                 case MSG_SHOW_UPDATE_NOTIFICATION:
                     String version = msg.getData().getString("version");
-                    String url = msg.getData().getString("url");
-                    activity.showUpdateNotification(version, url);
+                    String fileName = msg.getData().getString("url");
+                    activity.showUpdateNotification(version, fileName);
+                    break;
+                case MSG_BACKGROUND_DOWNLOAD:
+                    String version1 = msg.getData().getString("version");
+                    int versionCode1 = msg.getData().getInt("version_code");
+                    String fileName1 = msg.getData().getString("url");
+                    activity.doDownloadNewVersionAPk(version1, versionCode1, fileName1);
                     break;
             }
         }
     };
+
+    //自动后台下载新版本apk，下载完毕后直接提醒用户
+    public void doDownloadNewVersionAPk(final String version, final int versionCode, final String fileName) {
+        BmobProFile.getInstance(getApplicationContext()).download(fileName, new DownloadListener() {
+            @Override
+            public void onSuccess(String s) {
+                Log.d("Download Apk Success.localPath:" + s);
+                SharedPreferencesManager.put(getApplicationContext(), "latest_version_code", versionCode);
+                SharedPreferencesManager.put(getApplicationContext(), "apkPath", s);
+                showInstallNotification(version);
+            }
+
+            @Override
+            public void onProgress(String s, int i) {
+
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.e("Download apk faile:" + s);
+            }
+        });
+
+//        Observable<String> observable = Observable.just(fileName)
+//                .map(new Func1<String, String>() {
+//                    @Override
+//                    public String call(String s) {
+//                        Log.d(s);
+//                        downlaod(fileName);
+//                        return null;
+//                    }
+//                });
+//        observable.subscribe(new Action1<String>() {
+//            @Override
+//            public void call(String s) {
+//                Log.d(s);
+//            }
+//        });
+    }
+
+    private void showInstallNotification(String serverVersion) {
+        NotificationBuilder builder = MMNotificationManager.getInstance(getApplicationContext()).load();
+        builder.setNotificationId(Constant.NotificationID.VERSION_UPDAET);
+        builder.setContentTitle("新版本已经下载完毕，点击立即安装");
+        ClickPendingIntentBroadCast cancelBroadcast = new ClickPendingIntentBroadCast(
+                NotificationReceiver.ACTION_NOTIFICATION_CANCEL);
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", Constant.NotificationID.VERSION_UPDAET);
+        cancelBroadcast.setBundle(bundle);
+
+        ClickPendingIntentBroadCast installBroadcast = new ClickPendingIntentBroadCast(
+                NotificationReceiver.ACTION_NOTIFICATION_INSTALL_APP);
+        builder.setProfit(NotificationCompat.PRIORITY_MAX);
+        builder.addAction(R.mipmap.ic_cancel, "稍后查看", cancelBroadcast);
+        builder.addAction(R.mipmap.ic_download, "立即安装", installBroadcast);
+
+        builder.setFullScreenIntent(PendingIntent.getBroadcast(getApplicationContext(), 0,
+                new Intent(NotificationReceiver.ACTION_NOTIFICATION_CLICK_INTENT), PendingIntent.FLAG_UPDATE_CURRENT), true);
+
+        builder.getSimpleNotification().build(true);
+    }
 
     private void showUpdateNotification(String serverVersion,  String url) {
         NotificationBuilder builder = MMNotificationManager.getInstance(getApplicationContext()).load();
@@ -544,6 +656,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
                 Version version =new Version();
                 version.version = Utils.getAppVersion(getApplicationContext());
+                version.version_code = Utils.getVersionCode(getApplicationContext());
                 version.apkUrl = s;
                 version.update(getApplicationContext(), "692ZQQQp", new UpdateListener() {
                     @Override
