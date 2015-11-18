@@ -70,7 +70,7 @@ public class BmobCost extends BmobObject{
                 return 0;
 
             if (object1.createDate < object2.createDate)
-                return 0;
+                return 1;
 
             return 0;
         }
@@ -90,7 +90,7 @@ public class BmobCost extends BmobObject{
                 return 0;
 
             if (object1.totalPay < object2.totalPay)
-                return 0;
+                return 1;
 
             return 0;
         }
