@@ -540,8 +540,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         mAdapter.notifyDataSetChanged();
     }
 
-    public List<Cost> getItemLocalList(int author) {
-        List<Cost> itemList = new ArrayList<>();
+    public List<Cost> getItemLocalList(final int author) {
+        final List<Cost> itemList = new ArrayList<>();
         if (mLocalCostList.size() == 0) {
             return itemList;
         }
@@ -568,11 +568,43 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         return  itemList;
     }
 
-    public List<BmobCost> getNetItemList(int author) {
-        List<BmobCost> itemList = new ArrayList<>();
+    public List<BmobCost> getNetItemList(final int author) {
+        final List<BmobCost> itemList = new ArrayList<>();
         if (mNetCostList.size() == 0) {
             return itemList;
         }
+
+        //采用RxJava写的过滤方法
+//        Observable.from(mNetCostList).filter(new Func1<BmobCost, Boolean>() {
+//            @Override
+//            public Boolean call(BmobCost cost) {
+//                switch (author) {
+//                    case Constant.Author.LIUCHENG:
+//                        return  cost.payLC > 0;
+//                    case Constant.Author.XIAOFEI:
+//                        return  cost.payXF > 0;
+//                    case Constant.Author.YURI:
+//                        return  cost.payYuri > 0;
+//                }
+//                return null;
+//            }
+//        }).subscribe(new Subscriber<BmobCost>() {
+//            @Override
+//            public void onCompleted() {
+//                Log.d();
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onNext(BmobCost cost) {
+//                Log.d(cost.author + "");
+//                itemList.add(cost);
+//            }
+//        });
 
         for (BmobCost cost: mNetCostList) {
             switch (author) {

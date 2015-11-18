@@ -10,8 +10,8 @@ android {
         applicationId "com.yuri.dreamlinkcost"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 54
-        versionName "5.4"
+        versionCode 55
+        versionName "5.5"
         testApplicationId "com.yuri.test"
     }
 

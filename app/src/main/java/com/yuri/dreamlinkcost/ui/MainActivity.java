@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 title.save();
             }
         }
-
         checkUpdate(false);
     }
 

@@ -7,27 +7,31 @@
 
     </data>
 
-    <RelativeLayout
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.yuri.dreamlinkcost.ui.MainActivity">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:transitionName="actionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:elevation="4dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                android:transitionName="actionBar"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.widget.DrawerLayout
             android:id="@+id/drawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
-
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            >
             <FrameLayout
                 android:id="@+id/content_view"
                 android:layout_width="match_parent"
@@ -44,14 +48,11 @@
                 />
         </android.support.v4.widget.DrawerLayout>
 
-
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|right"
             android:layout_marginBottom="30dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -59,29 +60,5 @@
             app:rippleColor="@color/accent_material_light"
             android:src="@mipmap/ic_add_white_24dp"
             />
-
-        <TextView
-            android:id="@+id/fab_button1"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="38dp"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:background="@drawable/button_round"
-            android:clickable="true"
-            android:elevation="8dp"
-            android:gravity="center"
-            android:scaleType="fitCenter"
-            android:stateListAnimator="@anim/fab_anim"
-            android:text="+"
-            android:textColor="@android:color/white"
-            android:textSize="30sp"
-            android:transitionName="fab"
-            android:visibility="gone"
-            />
-
-    </RelativeLayout>
+    </android.support.design.widget.CoordinatorLayout>
 </layout>

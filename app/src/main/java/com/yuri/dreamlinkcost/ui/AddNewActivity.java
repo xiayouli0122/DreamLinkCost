@@ -9,13 +9,16 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -61,8 +64,23 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         mAddNewModel = new AddNewModel();
         mBinding.setAddNewModel(mAddNewModel);
 
-        TextInputLayout textInputLayout = mBinding.textInput;
+        final TextInputLayout textInputLayout = mBinding.textInput;
         textInputLayout.setHint("请输入总价");
+        EditText editText = textInputLayout.getEditText();
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 0) {
+                    textInputLayout.setError("总价不能为空");
+                }
+            }
+        });
 
         init();
 
