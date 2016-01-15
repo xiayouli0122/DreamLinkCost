@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.bean.table;
 
 /**
  * Created by Yuri on 2015/9/18.

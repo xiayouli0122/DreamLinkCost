@@ -1,9 +1,9 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.bean.table;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.yuri.dreamlinkcost.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
 
 /**
  * Created by Yuri on 2015/7/18.

@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.adapter;
+package com.yuri.dreamlinkcost.view.adapter;
 
 import android.text.Editable;
 import android.text.TextWatcher;

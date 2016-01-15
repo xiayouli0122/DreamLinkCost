@@ -2,7 +2,7 @@ package com.yuri.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 
-import com.yuri.dreamlinkcost.ui.MainActivity;
+import com.yuri.dreamlinkcost.view.ui.MainActivity;
 
 /**
  * Created by Yuri on 2015/7/22.

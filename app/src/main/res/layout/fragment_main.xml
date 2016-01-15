@@ -14,7 +14,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_horizontal_margin"
-        tools:context="com.yuri.dreamlinkcost.ui.MainFragment">
+        tools:context=".view.ui.MainFragment">
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipe_container"

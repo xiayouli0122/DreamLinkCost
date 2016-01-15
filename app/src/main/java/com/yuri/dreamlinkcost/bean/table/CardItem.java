@@ -1,9 +1,9 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.bean.table;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;

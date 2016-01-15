@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.ui;
+package com.yuri.dreamlinkcost.view.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;

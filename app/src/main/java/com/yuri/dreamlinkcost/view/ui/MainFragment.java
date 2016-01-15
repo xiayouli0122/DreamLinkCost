@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.ui;
+package com.yuri.dreamlinkcost.view.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -22,19 +22,19 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
-import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.ContextMenuRecyclerView;
 import com.yuri.dreamlinkcost.CustomItemAnimator;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.Utils;
-import com.yuri.dreamlinkcost.adapter.CardViewAdapter;
+import com.yuri.dreamlinkcost.view.adapter.CardViewAdapter;
 import com.yuri.dreamlinkcost.binder.MainFragmentBinder;
 import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.model.Cost;
+import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.rx.RxBus;
 import com.yuri.dreamlinkcost.rx.RxBusTag;
 

@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.adapter;
+package com.yuri.dreamlinkcost.view.adapter;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
@@ -9,12 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.yuri.dreamlinkcost.BR;
-import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.model.CardItem;
-import com.yuri.dreamlinkcost.model.Cost;
+import com.yuri.dreamlinkcost.bean.table.CardItem;
+import com.yuri.dreamlinkcost.bean.table.Cost;
 
 import java.util.ArrayList;
 import java.util.Collections;

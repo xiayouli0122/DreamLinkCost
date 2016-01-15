@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.Bmob;
+package com.yuri.dreamlinkcost.bean.Bmob;
 
 import cn.bmob.v3.BmobObject;
 

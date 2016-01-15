@@ -1,9 +1,9 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.bean.table;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.yuri.dreamlinkcost.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 
 import java.text.Collator;

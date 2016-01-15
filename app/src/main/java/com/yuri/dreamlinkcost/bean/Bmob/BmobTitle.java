@@ -1,6 +1,6 @@
-package com.yuri.dreamlinkcost.Bmob;
+package com.yuri.dreamlinkcost.bean.Bmob;
 
-import com.yuri.dreamlinkcost.model.Title;
+import com.yuri.dreamlinkcost.bean.table.Title;
 
 import cn.bmob.v3.BmobObject;
 

@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.ui;
+package com.yuri.dreamlinkcost.view.ui;
 
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
@@ -34,17 +34,17 @@ import com.bmob.btp.callback.DownloadListener;
 import com.bmob.btp.callback.UploadListener;
 import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.yuri.dreamlinkcost.Bmob.BmobCost;
-import com.yuri.dreamlinkcost.Bmob.BmobTitle;
-import com.yuri.dreamlinkcost.Bmob.Version;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
+import com.yuri.dreamlinkcost.bean.Bmob.Version;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.model.Cost;
-import com.yuri.dreamlinkcost.model.Title;
+import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.notification.MMNotificationManager;
 import com.yuri.dreamlinkcost.notification.NotificationBuilder;
 import com.yuri.dreamlinkcost.notification.NotificationReceiver;

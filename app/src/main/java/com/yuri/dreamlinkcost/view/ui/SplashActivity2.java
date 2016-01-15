@@ -1,4 +1,4 @@
-package com.yuri.dreamlinkcost.ui;
+package com.yuri.dreamlinkcost.view.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
