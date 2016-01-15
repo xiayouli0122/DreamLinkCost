@@ -2,7 +2,6 @@ package com.yuri.dreamlinkcost.view.ui;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -22,29 +21,23 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.fourmob.datetimepicker.date.DatePickerDialog.OnDateSetListener;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.Utils;
+import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.binder.AddNewModel;
 import com.yuri.dreamlinkcost.databinding.AddNewerBinder;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.bean.table.Cost;
-import com.yuri.dreamlinkcost.bean.table.Title;
+import com.yuri.dreamlinkcost.model.CommitResultListener;
+import com.yuri.dreamlinkcost.presenter.AddNewPresenter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
-
-import cn.bmob.v3.listener.SaveListener;
 
 public class AddNewActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
-    private SharedPreferences mSharedPrefences;
     private int mAuthor;
 
     private Calendar mCalendar;
@@ -53,6 +46,8 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
 
     private AddNewerBinder mBinding;
     private AddNewModel mAddNewModel;
+
+    private AddNewPresenter mAddNewPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +79,8 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             }
         });
 
+        mAddNewPresenter= new AddNewPresenter(getApplicationContext());
+
         init();
 
         setResult(RESULT_CANCELED);
@@ -97,21 +94,11 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
     }
 
     public void init(){
-        mSharedPrefences = getSharedPreferences(Constant.SHARED_NAME, MODE_PRIVATE);
-        mAuthor = mSharedPrefences.getInt(Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+        mAuthor = mAddNewPresenter.getUserId();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        List<Title> titles = new Select().from(Title.class).execute();
-        String[] titleArrays ;
-        if (titles == null) {
-            titleArrays = getResources().getStringArray(R.array.title_arrays);
-        } else {
-            titleArrays = new String[titles.size()];
-            for (int i = 0; i < titles.size(); i++) {
-                titleArrays[i] = titles.get(i).mTitle;
-            }
-        }
+        String[] titleArrays = mAddNewPresenter.getTitles();
         String[] operators = getResources().getStringArray(R.array.operator_arrays);
 
         ArrayAdapter adapter;
@@ -247,8 +234,6 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             return;
         }
 
-        saveNewTitle(titleStr);
-
         int selectCount = 0;
         if (mAddNewModel.isLiuChengIn.get()) {
             selectCount ++;
@@ -268,12 +253,12 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
         }
 
         if (TextUtils.isEmpty(mBinding.etTotalPrice.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "TotalPay cannot be empty.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "总价不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (mAddNewModel.whichOnePay.get() == -1) {
-            Toast.makeText(getApplicationContext(), "You must confirm who pay.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "请填写付款人", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -402,32 +387,30 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                             if (mProgressDialog != null) {
                                 mProgressDialog.show();
                             }
-                            final BmobCost bmobCost = cost.getCostBean();
-                            bmobCost.save(getApplicationContext(), new SaveListener() {
-                                        @Override
-                                        public void onSuccess() {
-                                            if (mProgressDialog != null) {
-                                                mProgressDialog.cancel();
-                                            }
-                                            Toast.makeText(getApplicationContext(), "upload success.", Toast.LENGTH_SHORT).show();
-                                            setResult(RESULT_OK);
-                                            Log.d("Yuri", cost.toString());
-                                            AddNewActivity.this.finish();
-                                        }
 
-                                        @Override
-                                        public void onFailure(int i, String s) {
-                                            if (mProgressDialog != null) {
-                                                mProgressDialog.cancel();
-                                            }
-                                            cost.save();
-                                            setResult(RESULT_OK);
-                                            Toast.makeText(getApplicationContext(), "upload failure.errorCode:" + i
-                                                    + ",msg:" + s, Toast.LENGTH_SHORT).show();
-                                            AddNewActivity.this.finish();
-                                        }
+                            mAddNewPresenter.commit(cost, new CommitResultListener() {
+                                @Override
+                                public void onCommitSuccess() {
+                                    Log.d(cost.toString());
+                                    if (mProgressDialog != null) {
+                                        mProgressDialog.cancel();
                                     }
-                            );
+                                    Toast.makeText(getApplicationContext(), "upload success.", Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK);
+                                    AddNewActivity.this.finish();
+                                }
+
+                                @Override
+                                public void onCommitFail(int errorCode, String msg) {
+                                    if (mProgressDialog != null) {
+                                        mProgressDialog.cancel();
+                                    }
+                                    setResult(RESULT_OK);
+                                    Toast.makeText(getApplicationContext(), "upload failure.errorCode:" + errorCode
+                                            + ",msg:" + msg, Toast.LENGTH_SHORT).show();
+                                    AddNewActivity.this.finish();
+                                }
+                            });
                         }
                     })
                     .create().show();
@@ -468,27 +451,4 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 }).create().show();
     }
 
-    private void saveNewTitle(String titleStr) {
-        Title title = new Select().from(Title.class).where("title=?", titleStr).executeSingle();
-        if (title == null) {
-            final  Title title2 = new Title();
-            title2.mTitle = titleStr;
-            title2.mHasCommited = false;
-            title2.save();
-
-            BmobTitle bmobTitle = title2.getBmobTitle();
-            bmobTitle.save(getApplicationContext(), new SaveListener() {
-                @Override
-                public void onSuccess() {
-                    title2.mHasCommited = true;
-                    title2.save();
-                }
-
-                @Override
-                public void onFailure(int i, String s) {
-
-                }
-            });
-        }
-    }
 }
