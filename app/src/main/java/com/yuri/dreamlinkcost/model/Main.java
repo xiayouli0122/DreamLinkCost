@@ -57,9 +57,10 @@ public class Main extends BaseMain implements IMain {
         if (versionCode > currentVersionCode) {
             //有新版本已经下载好了，可以直接安装
             String apkPath = SharedPreferencesManager.get(context, "apkPath", null);
+            String changeLog = SharedPreferencesManager.get(context, "changeLog", "");
             if (apkPath != null && new File(apkPath).exists()) {
                 //显示安装Dialog
-                listener.onApkDownloaded(null, apkPath, false);
+                listener.onApkDownloaded(null, apkPath, changeLog, false);
                 return;
             }
         }
@@ -77,12 +78,14 @@ public class Main extends BaseMain implements IMain {
                         Log.d("Need to update");
                         String url = list.get(0).apkUrl;
                         String serverVersion = list.get(0).version;
+                        String changeLog = list.get(0).changeLog;
                         //has new version
                         Message message = new Message();
                         Bundle bundle = new Bundle();
                         bundle.putString("version", serverVersion);
                         bundle.putInt("version_code", serverVersionCode);
                         bundle.putString("url", url);
+                        bundle.putString("changeLog", changeLog);
                         message.setData(bundle);
 
                         if (byUser) {
@@ -90,9 +93,11 @@ public class Main extends BaseMain implements IMain {
                         } else {
                             if (Utils.isWifiConnected(context)) {
                                 doDownloadNewVersionAPk(context, serverVersion, serverVersionCode,
+                                        changeLog,
                                         url, listener);
                             } else {
-                                listener.showUpdateNotification(serverVersion, url);
+                                //非wifi下，什么都不做了，浪费流量
+//                                listener.showUpdateNotification(serverVersion, url);
                             }
                         }
                     } else {
@@ -116,22 +121,26 @@ public class Main extends BaseMain implements IMain {
             @Override
             public void onSuccess(String s, String s1) {
                 Log.d("success.name:" + s + ",url:" + s1);
-                if (listener != null) {
-                    listener.onUploadSuccess();
-                }
                 Version version =new Version();
                 version.version = Utils.getAppVersion(context);
                 version.version_code = Utils.getVersionCode(context);
                 version.apkUrl = s;
+                version.changeLog = context.getString(R.string.change_log);
                 version.update(context, "692ZQQQp", new UpdateListener() {
                     @Override
                     public void onSuccess() {
                         Log.d();
+                        if (listener != null) {
+                            listener.onUploadSuccess();
+                        }
                     }
 
                     @Override
                     public void onFailure(int i, String s) {
                         Log.d();
+                        if (listener != null) {
+                            listener.onUploadFail(s);
+                        }
                     }
                 });
             }
@@ -156,14 +165,16 @@ public class Main extends BaseMain implements IMain {
 
     //自动后台下载新版本apk，下载完毕后直接提醒用户
     private void doDownloadNewVersionAPk(final Context context, final String version, final int versionCode,
-                                        final String fileName, final OnCheckUpdateListener listener) {
+                                         final String chageLog,
+                                         final String fileName, final OnCheckUpdateListener listener) {
         BmobProFile.getInstance(context).download(fileName, new DownloadListener() {
             @Override
             public void onSuccess(String s) {
                 Log.d("Download Apk Success.localPath:" + s);
                 SharedPreferencesManager.put(context, "latest_version_code", versionCode);
                 SharedPreferencesManager.put(context, "apkPath", s);
-                listener.onApkDownloaded(version, s, true);
+                SharedPreferencesManager.put(context, "changeLog", chageLog);
+                listener.onApkDownloaded(version, s, chageLog, true);
             }
 
             @Override
@@ -211,7 +222,7 @@ public class Main extends BaseMain implements IMain {
     }
 
     public interface OnCheckUpdateListener{
-        void onApkDownloaded(String version, String path, boolean server);
+        void onApkDownloaded(String version, String path, String changeLog, boolean server);
         void showUpdateNotification(String latestVersion, String url);
         void noVersionNeedToUpdate();
     }

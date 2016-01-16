@@ -44,7 +44,7 @@ public class MainPresenter extends BasePresenter<IMainView>{
     public void checkUpdate(boolean byUser, final Handler handler) {
         iMain.checkUpdate(mContext, byUser, new Main.OnCheckUpdateListener() {
             @Override
-            public void onApkDownloaded(String version, String path, boolean server) {
+            public void onApkDownloaded(String version, String path, String changeLog, boolean server) {
                 if (server) {
                     handler.sendMessage(handler.obtainMessage(MSG_SHOW_INSTALL_NOTIFICATION, version));
                 } else {

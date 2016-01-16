@@ -271,8 +271,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     private void showInstallDialog(final String apkPath) {
         Log.d("apkPath:" + apkPath);
+        String changeLog = SharedPreferencesManager.get(getApplicationContext(), "changeLog", "");
+
         new AlertDialog.Builder(this)
-                .setMessage("新版本已经后台下载完成。")
+                .setMessage("新版本已经后台下载完成。" + "\n"
+                + changeLog)
                 .setPositiveButton("立即安装", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

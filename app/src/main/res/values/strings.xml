@@ -28,4 +28,6 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_splash2">SplashActivity2</string>
     <string name="title_activity_pay">PayActivity</string>
+
+    <string name="change_log">更新日志：\n闲来无事更新一个玩玩~</string>
 </resources>

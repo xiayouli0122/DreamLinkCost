@@ -10,4 +10,5 @@ public class Version extends BmobObject {
     public String version;
     public String apkUrl;
     public int version_code;
+    public String changeLog;//更新日志
 }
