@@ -46,7 +46,8 @@ public class MainPresenter extends BasePresenter<IMainView>{
             @Override
             public void onApkDownloaded(String version, String path, String changeLog, boolean server) {
                 if (server) {
-                    handler.sendMessage(handler.obtainMessage(MSG_SHOW_INSTALL_NOTIFICATION, version));
+                    //暂时别提醒了，等下次启动app再提醒吧
+//                    handler.sendMessage(handler.obtainMessage(MSG_SHOW_INSTALL_NOTIFICATION, version));
                 } else {
                     handler.sendMessage(handler.obtainMessage(MSG_SHOW_INSTALL_DIALOG, path));
                 }
