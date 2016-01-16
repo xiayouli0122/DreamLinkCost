@@ -5,6 +5,7 @@ import android.content.Context;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.Utils;
+import com.yuri.dreamlinkcost.model.impl.IUserLogin;
 
 /**
  * Created by Yuri on 2016/1/15.

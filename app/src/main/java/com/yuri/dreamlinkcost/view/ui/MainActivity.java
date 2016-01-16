@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,30 +26,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
-import com.bmob.BTPFileResponse;
-import com.bmob.BmobProFile;
-import com.bmob.btp.callback.DownloadListener;
-import com.bmob.btp.callback.UploadListener;
 import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
-import com.yuri.dreamlinkcost.bean.Bmob.Version;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.Utils;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.bean.table.Cost;
-import com.yuri.dreamlinkcost.bean.table.Title;
+import com.yuri.dreamlinkcost.model.CommitResultListener;
+import com.yuri.dreamlinkcost.model.Main;
 import com.yuri.dreamlinkcost.notification.MMNotificationManager;
 import com.yuri.dreamlinkcost.notification.NotificationBuilder;
 import com.yuri.dreamlinkcost.notification.NotificationReceiver;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
+import com.yuri.dreamlinkcost.presenter.MainPresenter;
 import com.yuri.dreamlinkcost.rx.RxBus;
 import com.yuri.dreamlinkcost.rx.RxBusTag;
+import com.yuri.dreamlinkcost.view.impl.IMainView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -61,13 +56,11 @@ import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobInstallation;
 import cn.bmob.v3.BmobObject;
-import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener, View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener,
+        View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, IMainView {
 
     DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -80,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     Toolbar mToolBar;
 
     private UIHandler mUIHandler;
+
+    private MainPresenter mMainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,15 +95,18 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         mUIHandler = new UIHandler(this);
 
+        mMainPresenter = new MainPresenter(getApplicationContext(), this);
+
         Bmob.initialize(this, Constant.BMOB_APP_ID);
         // 使用推送服务时的初始化操作
         BmobInstallation.getCurrentInstallation(this).save();
         // 启动推送服务
         BmobPush.startWork(this, Constant.BMOB_APP_ID);
 
+
         //Bugly
         Log.d();
-        int author = SharedPreferencesManager.get(this, Constant.Extra.KEY_LOGIN, -1);
+        int author = mMainPresenter.getUserId();
         if (author == Constant.Author.LIUCHENG) {
             CrashReport.setUserId("LiuCheng");
         } else if (author == Constant.Author.XIAOFEI) {
@@ -119,18 +117,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         init();
 
-        doGetTitleFromNet();
-        List<Title> titles = new Select().from(Title.class).execute();
-        if (titles == null || titles.size() == 0) {
-            String[] titleArrays = getResources().getStringArray(R.array.title_arrays);
-            Title title;
-            for (int i = 0; i < titleArrays.length; i++) {
-                title = new Title();
-                title.mTitle = titleArrays[i];
-                title.save();
-            }
-        }
-        checkUpdate(false);
+        mMainPresenter.initTitles();
+
+        mMainPresenter.checkUpdate(false, mUIHandler);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -147,30 +136,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         fm.beginTransaction().replace(R.id.content_view, mainFragment).commit();
     }
 
-    private void doGetTitleFromNet() {
-        BmobQuery<BmobTitle> bmobQuery = new BmobQuery<>();
-        bmobQuery.findObjects(getApplicationContext(), new FindListener<BmobTitle>() {
-            @Override
-            public void onSuccess(List<BmobTitle> list) {
-                for (BmobTitle bmobTitle : list) {
-                    Title title = new Select().from(Title.class).where("title=?", bmobTitle.title).executeSingle();
-                    if (title != null) {
-                        //
-                    } else {
-                        title = bmobTitle.getTitle();
-                        title.save();
-                    }
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-
-            }
-        });
-
-    }
-
     void doAddNew() {
         Intent intent = new Intent();
         intent.setClass(this, AddNewActivity.class);
@@ -185,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        int author = SharedPreferencesManager.get(this, Constant.Extra.KEY_LOGIN, -1);
+        int author = mMainPresenter.getUserId();
         if (author == Constant.Author.YURI) {
             getMenuInflater().inflate(R.menu.menu_main_yuri, menu);
         } else {
@@ -252,12 +217,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 doStatistics();
                 break;
             case R.id.action_commit:
-                List<Cost> localList = mainFragment.getLocalList();
-                if (localList == null || localList.size() == 0) {
-                    Toast.makeText(this, "本地没有需要提交的数据", Toast.LENGTH_SHORT).show();
-                } else {
-                    new CommitTask().execute(localList);
-                }
+                startCommit();
                 break;
             case R.id.action_about:
                 String title = "About";
@@ -265,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 showDialog(title, message);
                 break;
             case R.id.action_check_update:
-                checkUpdate(true);
+                mMainPresenter.checkUpdate(true, mUIHandler);
                 break;
             case R.id.action_encourage:
                 Intent intent = new Intent();
@@ -309,68 +269,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         showJieSuanDialog("账单结算", sb.toString(), list);
     }
 
-    private void checkUpdate(final boolean byuser) {
-        //第一步检查本地新版本
-        int versionCode = SharedPreferencesManager.get(getApplicationContext(), "latest_version_code", -1);
-        int currentVersionCode = Utils.getVersionCode(getApplicationContext());
-        if (versionCode > currentVersionCode) {
-            //有新版本已经下载好了，可以直接安装
-            String apkPath = SharedPreferencesManager.get(getApplicationContext(), "apkPath", null);
-            if (apkPath != null && new File(apkPath).exists()) {
-                //显示安装Dialog
-                showInstallDialog(apkPath);
-                return;
-            }
-        }
-        BmobQuery<Version> bmobQuery = new BmobQuery();
-        bmobQuery.findObjects(this, new FindListener<Version>() {
-            @Override
-            public void onSuccess(List<Version> list) {
-                if (list != null && list.size() > 0) {
-                    int serverVersionCode = list.get(0).version_code;
-                    int currentVersionCode = Utils.getVersionCode(getApplicationContext());
-                    Log.d("serverVersionCode:" + serverVersionCode + ",currentVersionCode:"
-                            + currentVersionCode);
-                    if (serverVersionCode > currentVersionCode) {
-                        //有新版本了
-                        Log.d("Need to update");
-                        mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_UPDATE_VERSION_VIEW));
-                        String url = list.get(0).apkUrl;
-                        String serverVersion = list.get(0).version;
-                        //has new version
-                        Message message = new Message();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("version", serverVersion);
-                        bundle.putInt("version_code", serverVersionCode);
-                        bundle.putString("url", url);
-                        message.setData(bundle);
-
-                        if (byuser) {
-                            message.what = MSG_SHOW_UPDATE_NOTIFICATION;
-                        } else {
-                            if (Utils.isWifiConnected(getApplicationContext())) {
-                                message.what = MSG_BACKGROUND_DOWNLOAD;
-                            } else {
-                                message.what = MSG_SHOW_UPDATE_NOTIFICATION;
-                            }
-                        }
-                        mUIHandler.sendMessage(message);
-                    } else {
-                        if (byuser) {
-                            mUIHandler.sendMessage(mUIHandler.obtainMessage(MSG_NO_VERSION_UPDATE));
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-
-            }
-        });
-    }
-
     private void showInstallDialog(final String apkPath) {
+        Log.d("apkPath:" + apkPath);
         new AlertDialog.Builder(this)
                 .setMessage("新版本已经后台下载完成。")
                 .setPositiveButton("立即安装", new DialogInterface.OnClickListener() {
@@ -387,46 +287,26 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 .create().show();
     }
 
-    private class CommitTask extends AsyncTask<List<Cost>, Void, Void> {
-        ProgressDialog progressDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+    private void startCommit() {
+        List<Cost> localList = mainFragment.getLocalList();
+        if (localList == null || localList.size() == 0) {
+            Toast.makeText(this, "本地没有需要提交的数据", Toast.LENGTH_SHORT).show();
+        } else {
+            ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("提交本地数据中...");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.show();
-        }
+            mMainPresenter.doCommit(localList, new CommitResultListener() {
+                @Override
+                public void onCommitSuccess() {
+                    mainFragment.refresh();
+                }
 
-        @Override
-        protected Void doInBackground(List<Cost>... lists) {
+                @Override
+                public void onCommitFail(int errorCode, String msg) {
 
-            BmobCost bmobCost;
-            for (final Cost cost : lists[0]) {
-                bmobCost = cost.getCostBean();
-                bmobCost.save(getApplicationContext(), new SaveListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d("Yuri", "upload success:" + cost.title);
-                        //上传成功后，删除本地数据
-                        cost.delete();
-                    }
-
-                    @Override
-                    public void onFailure(int i, String s) {
-                        Log.d("Yuri", "upload failure:" + cost.title);
-                    }
-                });
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.d();
-            mainFragment.refresh();
+                }
+            });
         }
     }
 
@@ -511,10 +391,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mToolBar.setSubtitle(detail);
     }
 
-    private static final int MSG_UPDATE_VERSION_VIEW = 0;
-    private static final int MSG_NO_VERSION_UPDATE = 1;
-    private static final int MSG_SHOW_UPDATE_NOTIFICATION = 2;
-    private static final int MSG_BACKGROUND_DOWNLOAD = 3;
     private static class UIHandler extends Handler{
         private WeakReference<MainActivity> mOuter;
 
@@ -525,66 +401,28 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.d("msg.what:" + msg.what);
             MainActivity activity = mOuter.get();
             switch (msg.what) {
-                case MSG_NO_VERSION_UPDATE:
+                case MainPresenter.MSG_NO_VERSION_UPDATE:
                     Toast.makeText(activity, "已经是最新版本了", Toast.LENGTH_SHORT).show();
                     break;
-                case MSG_UPDATE_VERSION_VIEW:
+                case MainPresenter.MSG_SHOW_INSTALL_DIALOG:
+                    String path = (String) msg.obj;
+                    activity.showInstallDialog(path);
                     break;
-                case MSG_SHOW_UPDATE_NOTIFICATION:
+                case MainPresenter.MSG_SHOW_UPDATE_NOTIFICATION:
                     String version = msg.getData().getString("version");
                     String fileName = msg.getData().getString("url");
                     activity.showUpdateNotification(version, fileName);
                     break;
-                case MSG_BACKGROUND_DOWNLOAD:
+                case MainPresenter.MSG_SHOW_INSTALL_NOTIFICATION:
                     String version1 = msg.getData().getString("version");
-                    int versionCode1 = msg.getData().getInt("version_code");
-                    String fileName1 = msg.getData().getString("url");
-                    activity.doDownloadNewVersionAPk(version1, versionCode1, fileName1);
+                    activity.showInstallNotification(version1);
                     break;
             }
         }
     };
-
-    //自动后台下载新版本apk，下载完毕后直接提醒用户
-    public void doDownloadNewVersionAPk(final String version, final int versionCode, final String fileName) {
-        BmobProFile.getInstance(getApplicationContext()).download(fileName, new DownloadListener() {
-            @Override
-            public void onSuccess(String s) {
-                Log.d("Download Apk Success.localPath:" + s);
-                SharedPreferencesManager.put(getApplicationContext(), "latest_version_code", versionCode);
-                SharedPreferencesManager.put(getApplicationContext(), "apkPath", s);
-                showInstallNotification(version);
-            }
-
-            @Override
-            public void onProgress(String s, int i) {
-
-            }
-
-            @Override
-            public void onError(int i, String s) {
-                Log.e("Download apk faile:" + s);
-            }
-        });
-
-//        Observable<String> observable = Observable.just(fileName)
-//                .map(new Func1<String, String>() {
-//                    @Override
-//                    public String call(String s) {
-//                        Log.d(s);
-//                        downlaod(fileName);
-//                        return null;
-//                    }
-//                });
-//        observable.subscribe(new Action1<String>() {
-//            @Override
-//            public void call(String s) {
-//                Log.d(s);
-//            }
-//        });
-    }
 
     private void showInstallNotification(String serverVersion) {
         NotificationBuilder builder = MMNotificationManager.getInstance(getApplicationContext()).load();
@@ -646,41 +484,23 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         progressDialog.setProgress(0);
         progressDialog.setMax(100);
         progressDialog.show();
-        BTPFileResponse response = BmobProFile.getInstance(getApplicationContext()).upload(filePath, new UploadListener() {
+        mMainPresenter.doUpload(filePath, new Main.OnUploadListener() {
             @Override
-            public void onSuccess(String s, String s1) {
-                Log.d("success.name:" + s + ",url:" + s1);
+            public void onUploadSuccess() {
                 progressDialog.setProgress(100);
                 progressDialog.setMessage("上传完成");
                 progressDialog.cancel();
-
-                Version version =new Version();
-                version.version = Utils.getAppVersion(getApplicationContext());
-                version.version_code = Utils.getVersionCode(getApplicationContext());
-                version.apkUrl = s;
-                version.update(getApplicationContext(), "692ZQQQp", new UpdateListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d();
-                    }
-
-                    @Override
-                    public void onFailure(int i, String s) {
-                        Log.d();
-                    }
-                });
             }
 
             @Override
-            public void onProgress(int i) {
-                Log.d("progress：" + i);
-                progressDialog.setProgress(i);
+            public void onUploadProgress(int progress) {
+                progressDialog.setProgress(progress);
             }
 
             @Override
-            public void onError(int i, String s) {
-                Log.d("error:" + s);
-                progressDialog.setMessage("上传失败:" + s);
+            public void onUploadFail(String msg) {
+                Log.d("error:" + msg);
+                progressDialog.setMessage("上传失败:" + msg);
                 progressDialog.cancel();
             }
         });

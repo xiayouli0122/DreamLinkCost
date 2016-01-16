@@ -3,16 +3,12 @@ package com.yuri.dreamlinkcost.model;
 import android.content.Context;
 
 import com.activeandroid.query.Select;
-import com.yuri.dreamlinkcost.Constant;
-import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.log.Log;
-
-import java.util.List;
+import com.yuri.dreamlinkcost.model.impl.IAddNew;
 
 import cn.bmob.v3.listener.SaveListener;
 
@@ -21,26 +17,7 @@ import cn.bmob.v3.listener.SaveListener;
  * 实现类
  * Created by Yuri on 2016/1/15.
  */
-public class AddNew implements IAddNew{
-    @Override
-    public int getUserId(Context context) {
-        return SharedPreferencesManager.get(context, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
-    }
-
-    @Override
-    public String[] getTitles(Context context) {
-        List<Title> titles = new Select().from(Title.class).execute();
-        String[] titleArrays ;
-        if (titles == null) {
-            titleArrays = context.getResources().getStringArray(R.array.title_arrays);
-        } else {
-            titleArrays = new String[titles.size()];
-            for (int i = 0; i < titles.size(); i++) {
-                titleArrays[i] = titles.get(i).mTitle;
-            }
-        }
-        return titleArrays;
-    }
+public class AddNew extends BaseMain implements IAddNew {
 
     @Override
     public void saveNewTitle(Context context, String titleStr) {
@@ -70,7 +47,7 @@ public class AddNew implements IAddNew{
     @Override
     public void commit(final Context context, final Cost cost, final CommitResultListener listener) {
         if (listener == null) {
-            throw new NullPointerException("OnLoginListener cannot be null");
+            throw new NullPointerException("CommitResultListener cannot be null");
         }
 
         final BmobCost bmobCost = cost.getCostBean();
@@ -79,7 +56,6 @@ public class AddNew implements IAddNew{
                     public void onSuccess() {
                         Log.d();
                         saveNewTitle(context, cost.title);
-
                         listener.onCommitSuccess();
                     }
 

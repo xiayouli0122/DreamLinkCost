@@ -1,19 +1,15 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.model.impl;
 
 import android.content.Context;
 
 import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.model.CommitResultListener;
 
 /**
  * 接口类
  * Created by Yuri on 2016/1/15.
  */
-public interface IAddNew {
-
-    /**获取当前用户id*/
-    int getUserId(Context context);
-
-    String[] getTitles(Context context);
+public interface IAddNew extends IBaseMain{
 
     void saveNewTitle(Context context, String title);
 

@@ -2,7 +2,7 @@ package com.yuri.dreamlinkcost.presenter;
 
 import android.content.Context;
 
-import com.yuri.dreamlinkcost.model.IUserLogin;
+import com.yuri.dreamlinkcost.model.impl.IUserLogin;
 import com.yuri.dreamlinkcost.model.OnLoginListener;
 import com.yuri.dreamlinkcost.model.UserLogin;
 import com.yuri.dreamlinkcost.view.impl.IUserLoginView;
@@ -10,23 +10,20 @@ import com.yuri.dreamlinkcost.view.impl.IUserLoginView;
 /**
  * Created by Yuri on 2016/1/15.
  */
-public class UserLoginPresenter {
+public class UserLoginPresenter extends BasePresenter<IUserLoginView>{
 
-    private Context context;
     private IUserLogin userLogin;
-    private IUserLoginView userLoginView;
 
     public UserLoginPresenter(Context context, IUserLoginView iUserLoginView) {
-        this.context = context;
-        this.userLoginView = iUserLoginView;
+        super(context, iUserLoginView);
         this.userLogin = new UserLogin();
     }
 
     public void doAutoLogin() {
-        userLogin.autoLogin(context, new OnLoginListener() {
+        userLogin.autoLogin(mContext, new OnLoginListener() {
             @Override
             public void onLoginSuccess() {
-                userLoginView.goToMainActivity();
+                mView.goToMainActivity();
             }
 
             @Override
@@ -37,10 +34,10 @@ public class UserLoginPresenter {
     }
 
     public void doLogin(int userId) {
-        userLogin.login(context, userId, new OnLoginListener() {
+        userLogin.login(mContext, userId, new OnLoginListener() {
             @Override
             public void onLoginSuccess() {
-                userLoginView.goToMainActivity();//通知View
+                mView.goToMainActivity();//通知View
             }
 
             @Override

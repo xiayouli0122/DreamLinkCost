@@ -5,34 +5,33 @@ import android.content.Context;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.model.AddNew;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
-import com.yuri.dreamlinkcost.model.IAddNew;
+import com.yuri.dreamlinkcost.model.impl.IAddNew;
 
 /**
  * Created by Yuri on 2016/1/15.
  */
-public class AddNewPresenter {
+public class AddNewPresenter extends BasePresenter{
 
     private IAddNew iAddNew;
-    private Context context;
 
     public AddNewPresenter(Context context) {
-        this.context = context;
+        super(context);
         this.iAddNew = new AddNew();
     }
 
     public int getUserId() {
-        return iAddNew.getUserId(context);
+        return iAddNew.getUserId(mContext);
     }
 
     public String[] getTitles() {
-        return iAddNew.getTitles(context);
+        return iAddNew.getTitles(mContext);
     }
 
     public void saveTitle(String title) {
-        iAddNew.saveNewTitle(context, title);
+        iAddNew.saveNewTitle(mContext, title);
     }
 
     public void commit(final Cost cost, CommitResultListener listener) {
-        iAddNew.commit(context, cost, listener);
+        iAddNew.commit(mContext, cost, listener);
     }
 }

@@ -1,6 +1,8 @@
-package com.yuri.dreamlinkcost.model;
+package com.yuri.dreamlinkcost.model.impl;
 
 import android.content.Context;
+
+import com.yuri.dreamlinkcost.model.OnLoginListener;
 
 /**
  * Created by Yuri on 2016/1/15.
