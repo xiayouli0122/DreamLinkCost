@@ -21,38 +21,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.ContextMenuRecyclerView;
 import com.yuri.dreamlinkcost.CustomItemAnimator;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.Utils;
-import com.yuri.dreamlinkcost.view.adapter.CardViewAdapter;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.binder.MainFragmentBinder;
 import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.dreamlinkcost.log.Log;
-import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.model.CommitResultListener;
+import com.yuri.dreamlinkcost.model.OnDeleteItemListener;
+import com.yuri.dreamlinkcost.presenter.MainFragmentPresenter;
 import com.yuri.dreamlinkcost.rx.RxBus;
 import com.yuri.dreamlinkcost.rx.RxBusTag;
+import com.yuri.dreamlinkcost.view.adapter.CardViewAdapter;
+import com.yuri.dreamlinkcost.view.impl.IMainFragmentView;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.listener.DeleteListener;
-import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.SaveListener;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 
-public class MainFragment extends Fragment implements RecyclerViewClickListener {
+public class MainFragment extends Fragment implements RecyclerViewClickListener, IMainFragmentView {
     private ContextMenuRecyclerView mRecyclerView;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -65,8 +63,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
     private OnMainFragmentListener mListener;
 
-    private DecimalFormat mDecimalFormat = new DecimalFormat(".00");
-
     /**云端列表*/
     private List<BmobCost> mNetCostList = new ArrayList<>();
     /**本地列表*/
@@ -78,6 +74,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
 
     public static final int SORT_BY_DATE = 0;
     public static final int SORT_BY_PRICE = 1;
+
+    private MainFragmentPresenter mPresenter;
 
     public MainFragment() {
         // Required empty public constructor
@@ -119,6 +117,8 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                         }
                     }
                 });
+
+        mPresenter = new MainFragmentPresenter(getActivity().getApplicationContext(), this);
     }
 
     @Override
@@ -195,101 +195,57 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         registerForContextMenu(mRecyclerView);
     }
 
+    @Override
+    public void updateList(boolean result, List<BmobCost> serverList, List<Cost> localList) {
+        if (!result) {
+            Snackbar.make(mRecyclerView, "加载失败，请重试", Snackbar.LENGTH_LONG)
+                    .setAction("重试", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mSwipeRefreshLayout.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mSwipeRefreshLayout.setRefreshing(true);
+                                }
+                            });
+                            doGetDataFromNet();
+                        }
+                    }).show();
+
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
+        mAdapter.clearList();
+        mNetCostList = serverList;
+        mLocalCostList = localList;
+        mSwipeRefreshLayout.setRefreshing(false);
+
+        if (serverList.size() + localList.size() == 0) {
+            mainFragmentBinder.setIsDataEmpty(true);
+        } else {
+            mainFragmentBinder.setIsDataEmpty(false);
+            showAll();
+        }
+    }
+
+    @Override
+    public void updateTitleMoney(String result) {
+        if (mListener != null) {
+            mListener.onUpdateMoney(result);
+        }
+    }
+
     private void doGetDataFromNet() {
         Log.d();
-        BmobQuery<BmobCost> bmobQuery = new BmobQuery<>();
-        bmobQuery.addWhereEqualTo("clear", false);
-        bmobQuery.order("-createDate");//按日期倒序排序
-        bmobQuery.findObjects(getActivity().getApplicationContext(), new FindListener<BmobCost>() {
-            @Override
-            public void onSuccess(List<BmobCost> list) {
-                mAdapter.clearList();
-                Log.d("serverSize=" + list.size());
-                List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
-                Log.d("localSize=" + localList.size());
-
-                mNetCostList = list;
-                mLocalCostList = localList;
-
-                mSwipeRefreshLayout.setRefreshing(false);
-
-                if (list.size() + localList.size() == 0) {
-                    mainFragmentBinder.setIsDataEmpty(true);
-                } else {
-                    mainFragmentBinder.setIsDataEmpty(false);
-                    showAll();
-
-                    //统计一下
-                    float liuchengPay = 0;
-                    float xiaofeiPay = 0;
-                    float yuriPay = 0;
-                    for (BmobCost cos : list) {
-                        liuchengPay += cos.payLC;
-                        xiaofeiPay += cos.payXF;
-                        yuriPay += cos.payYuri;
-                    }
-
-                    for (Cost cost : localList) {
-                        liuchengPay += cost.payLC;
-                        xiaofeiPay += cost.payXF;
-                        yuriPay += cost.payYuri;
-                    }
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("L:" + mDecimalFormat.format(liuchengPay) + ",");
-                    sb.append("X:" + mDecimalFormat.format(xiaofeiPay) + ",");
-                    sb.append("Y:" + mDecimalFormat.format(yuriPay));
-                    if (mListener != null) {
-                        mListener.onUpdateMoney(sb.toString());
-                    }
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-                Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
-                Snackbar.make(mRecyclerView, "加载失败，请重试", Snackbar.LENGTH_LONG)
-                        .setAction("重试", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mSwipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mSwipeRefreshLayout.setRefreshing(true);
-                                    }
-                                });
-                                doGetDataFromNet();
-                            }
-                        }).show();
-
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        mPresenter.syncData();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         //提交本地数据到服务器
-        List<Cost> costs = new Select().from(Cost.class).where("status=?", Constant.STATUS_COMMIT_FAILURE).execute();
-        BmobCost bmobCost;
-        for (final Cost cost : costs) {
-            bmobCost = cost.getCostBean();
-            bmobCost.save(getActivity().getApplicationContext(), new SaveListener() {
-                @Override
-                public void onSuccess() {
-                    Log.d("Yuri", "upload success:" + cost.title);
-                    //上传成功后，删除本地数据
-                    cost.delete();
-                    mHandler.sendMessage(mHandler.obtainMessage(MSG_GET_LOCAL_DATA));
-                }
-
-                @Override
-                public void onFailure(int i, String s) {
-                    Log.d("Yuri", "upload failure:" + cost.title);
-                }
-            });
-        }
+        mPresenter.commitLocalData();
     }
 
     public void refresh() {
@@ -349,22 +305,16 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
     }
 
     public void doCommit(long id) {
-        final Cost cost = Cost.load(Cost.class, id);
-        final BmobCost bmobCost = cost.getCostBean();
-        bmobCost.save(getActivity().getApplicationContext(), new SaveListener() {
+        mPresenter.commitItem(id, new CommitResultListener() {
             @Override
-            public void onSuccess() {
-                Log.d("upload success:" + cost.title);
+            public void onCommitSuccess() {
                 Toast.makeText(getActivity().getApplicationContext(), "upload success", Toast.LENGTH_SHORT).show();
-                cost.status = Constant.STATUS_COMMIT_SUCCESS;
-                cost.objectId = bmobCost.getObjectId();
-                cost.save();
             }
 
             @Override
-            public void onFailure(int i, String s) {
-                Toast.makeText(getActivity().getApplicationContext(), "upload failure.errorCode:" + i
-                        + ",msg:" + s, Toast.LENGTH_SHORT).show();
+            public void onCommitFail(int errorCode, String msg) {
+                Toast.makeText(getActivity().getApplicationContext(), "upload failure.errorCode:" + errorCode
+                        + ",msg:" + msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -465,9 +415,10 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                         mProgressDialog.setMessage("删除中...");
                         mProgressDialog.show();
                     }
-                    bmobCost.delete(getActivity(), new DeleteListener() {
+
+                    mPresenter.deleteItem(bmobCost, new OnDeleteItemListener() {
                         @Override
-                        public void onSuccess() {
+                        public void onDeleteSucess() {
                             mAdapter.remove(position);
                             mAdapter.notifyDataSetChanged();
                             Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_SHORT).show();
@@ -477,7 +428,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
                         }
 
                         @Override
-                        public void onFailure(int i, String s) {
+                        public void onDeleteFail(String msg) {
                             Toast.makeText(getActivity(), "删除失败", Toast.LENGTH_SHORT).show();
                             if (mProgressDialog != null) {
                                 mProgressDialog.cancel();
@@ -510,6 +461,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener 
         }
         return super.onContextItemSelected(item);
     }
+
 
     public interface OnMainFragmentListener {
         void onUpdateMoney(String detail);
