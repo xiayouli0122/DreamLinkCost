@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bmob.pay.tool.BmobPay;
@@ -35,6 +37,7 @@ import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
+import com.yuri.dreamlinkcost.databinding.LeftHeaderViewBinding;
 import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.Main;
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
+    private TextView mAuthorViewTV;
 
     private MainFragment mainFragment;
 
@@ -90,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mNavigationView.getMenu().findItem(R.id.action_all).setChecked(true);
         mNavigationView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
+        LeftHeaderViewBinding leftHeaderViewBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.left_header_view, null, false);
+        mAuthorViewTV = leftHeaderViewBinding.tvAuthor;
+
         mToolBar = binding.toolbar;
         mToolBar.setTitle(R.string.app_name);
 
@@ -109,10 +116,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         int author = mMainPresenter.getUserId();
         if (author == Constant.Author.LIUCHENG) {
             CrashReport.setUserId("LiuCheng");
+            mAuthorViewTV.setText("LIUCHENG");
         } else if (author == Constant.Author.XIAOFEI) {
             CrashReport.setUserId("XiaoFei");
+            mAuthorViewTV.setText("XIAOFEI");
         } else {
             CrashReport.setUserId("Yuri");
+            mAuthorViewTV.setText("YURI");
         }
 
         init();
@@ -168,13 +178,22 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_sort_date:
+            case R.id.action_sort_date_asc:
                 SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 0);
-                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE);
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE_ASC);
                 break;
-            case R.id.action_sort_price:
+            case R.id.action_sort_default://默认排序即按时间升序
+            case R.id.action_sort_date_desc:
                 SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 1);
-                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE);
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE_DESC);
+                break;
+            case R.id.action_sort_price_asc:
+                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 2);
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE_ASC);
+                break;
+            case R.id.action_sort_price_desc:
+                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 3);
+                RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE_DESC);
                 break;
             case R.id.action_upload_new_version:
                 doUpload();

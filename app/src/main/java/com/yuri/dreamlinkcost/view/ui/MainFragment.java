@@ -72,8 +72,10 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
 
     private Observable<Integer> mSortObservable;
 
-    public static final int SORT_BY_DATE = 0;
-    public static final int SORT_BY_PRICE = 1;
+    public static final int SORT_BY_DATE_ASC = 0;
+    public static final int SORT_BY_DATE_DESC = 1;
+    public static final int SORT_BY_PRICE_ASC  = 2;
+    public static final int SORT_BY_PRICE_DESC  = 3;
 
     private MainFragmentPresenter mPresenter;
 
@@ -108,11 +110,17 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
                     @Override
                     public void call(Integer integer) {
                         switch (integer) {
-                            case SORT_BY_DATE:
-                                mAdapter.sortByDate();
+                            case SORT_BY_DATE_ASC:
+                                mAdapter.sortByDateAsc();
                                 break;
-                            case SORT_BY_PRICE:
-                                mAdapter.sortByPrice();
+                            case SORT_BY_DATE_DESC:
+                                mAdapter.sortByDateDesc();
+                                break;
+                            case SORT_BY_PRICE_ASC:
+                                mAdapter.sortByPriceAsc();
+                                break;
+                            case SORT_BY_PRICE_DESC:
+                                mAdapter.sortByPriceDesc();
                                 break;
                         }
                     }
@@ -356,7 +364,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         try {
             mListener = (OnMainFragmentListener) activity;
         } catch (ClassCastException e) {
-
+            //do nothing
         }
     }
 
@@ -474,9 +482,15 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
             return;
         }
         int sort = SharedPreferencesManager.get(getActivity(), Constant.Extra.KEY_SORT, 0);
-        if (sort == 1) {
-            Collections.sort(mLocalCostList, Cost.PRICE_COMPARATOR);
-            Collections.sort(mNetCostList, BmobCost.PRICE_COMPARATOR);
+        if (sort == SORT_BY_DATE_DESC) {
+            Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR);
+            Collections.sort(mNetCostList, BmobCost.DATE_DESC_COMPARATOR);
+        } else if (sort == SORT_BY_PRICE_ASC) {
+            Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR);
+            Collections.sort(mNetCostList, BmobCost.PRICE_ASC_COMPARATOR);
+        } else if (sort == SORT_BY_PRICE_DESC){
+            Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR);
+            Collections.sort(mNetCostList, BmobCost.PRICE_DESC_COMPARATOR);
         }
         mAdapter.setCostList(mLocalCostList, mNetCostList);
         //这个方法有Bug

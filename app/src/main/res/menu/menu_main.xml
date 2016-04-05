@@ -2,8 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.ui.MainActivity">
-    <item android:id="@+id/action_sort_date" android:title="按时间排序"
+    <item android:id="@+id/action_sort_default" android:title="默认排序"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_sort_price" android:title="按价格排序"
+    <item android:id="@+id/action_sort_date_asc" android:title="按时间升序排序"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_sort_date_desc" android:title="按时间倒序排序"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_sort_price_asc" android:title="按价格升序排序"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_sort_price_desc" android:title="按价格倒序排序"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>
