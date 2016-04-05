@@ -141,28 +141,21 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
                 switch (id) {
                     case R.id.rb_liucheng:
                         Log.d("rgPayPerson:rb_liucheng");
-                        mAddNewModel.whichOnePay.set(AddNewModel.LIUCHENG);
-                        mBinding.spinnerLc.setSelection(1);
-                        mBinding.spinnerXf.setSelection(0);
-                        mBinding.spinnerYuri.setSelection(0);
+                        setPayPerson(Constant.Author.LIUCHENG);
                         break;
                     case R.id.rb_xiaofei:
                         Log.d("rgPayPerson:rb_xiaofei");
-                        mAddNewModel.whichOnePay.set(AddNewModel.XIAOFEI);
-                        mBinding.spinnerLc.setSelection(0);
-                        mBinding.spinnerXf.setSelection(1);
-                        mBinding.spinnerYuri.setSelection(0);
+                        setPayPerson(Constant.Author.XIAOFEI);
                         break;
                     case R.id.rb_yuri:
                         Log.d("rgPayPerson:rb_yuri");
-                        mAddNewModel.whichOnePay.set(AddNewModel.YURI);
-                        mBinding.spinnerLc.setSelection(0);
-                        mBinding.spinnerXf.setSelection(0);
-                        mBinding.spinnerYuri.setSelection(1);
+                        setPayPerson(Constant.Author.YURI);
                         break;
                 }
             }
         });
+
+        setPayPerson(mAuthor);
 
         mBinding.tvDatePicker.setText("Date:" + Utils.getDate(System.currentTimeMillis()));
         mBinding.btnDatePicker.setOnClickListener(new View.OnClickListener() {
@@ -222,6 +215,29 @@ public class AddNewActivity extends AppCompatActivity implements CompoundButton.
             case R.id.cb_yuri:
                 Log.d("cb_yuri:" + b);
                 mAddNewModel.isYuriIn.set(b);
+                break;
+        }
+    }
+
+    private void setPayPerson(int author) {
+        switch (author) {
+            case Constant.Author.LIUCHENG:
+                mAddNewModel.whichOnePay.set(AddNewModel.LIUCHENG);
+                mBinding.spinnerLc.setSelection(1);
+                mBinding.spinnerXf.setSelection(0);
+                mBinding.spinnerYuri.setSelection(0);
+                break;
+            case Constant.Author.XIAOFEI:
+                mAddNewModel.whichOnePay.set(AddNewModel.XIAOFEI);
+                mBinding.spinnerLc.setSelection(0);
+                mBinding.spinnerXf.setSelection(1);
+                mBinding.spinnerYuri.setSelection(0);
+                break;
+            case Constant.Author.YURI:
+                mAddNewModel.whichOnePay.set(AddNewModel.YURI);
+                mBinding.spinnerLc.setSelection(0);
+                mBinding.spinnerXf.setSelection(0);
+                mBinding.spinnerYuri.setSelection(1);
                 break;
         }
     }
