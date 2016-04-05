@@ -71,10 +71,9 @@ public class Cost extends Model {
     }
 
     /**
-     * Perform alphabetical comparison of application entry objects.
+     * 按日期倒序排序.
      */
-    public static final Comparator<Cost> DATE_COMPARATOR = new Comparator<Cost>() {
-        private final Collator sCollator = Collator.getInstance();
+    public static final Comparator<Cost> DATE_DESC_COMPARATOR = new Comparator<Cost>() {
         @Override
         public int compare(Cost object1, Cost object2) {
             if (object1.createDate > object2.createDate)
@@ -84,16 +83,55 @@ public class Cost extends Model {
                 return 0;
 
             if (object1.createDate < object2.createDate)
-                return 0;
+                return 1;
 
             return 0;
         }
     };
 
     /**
-     * Perform alphabetical comparison of application entry objects.
+     * 日期升序.
      */
-    public static final Comparator<Cost> PRICE_COMPARATOR = new Comparator<Cost>() {
+    public static final Comparator<Cost> DATE_ASC_COMPARATOR = new Comparator<Cost>() {
+        @Override
+        public int compare(Cost object1, Cost object2) {
+            if (object1.createDate > object2.createDate)
+                return  1;
+
+            if (object1.createDate == object2.createDate)
+                return 0;
+
+            if (object1.createDate < object2.createDate)
+                return -1;
+
+            return 0;
+        }
+    };
+
+    /**
+     * 价格升序.
+     */
+    public static final Comparator<Cost> PRICE_ASC_COMPARATOR = new Comparator<Cost>() {
+        private final Collator sCollator = Collator.getInstance();
+        @Override
+        public int compare(Cost object1, Cost object2) {
+            if (object1.totalPay > object2.totalPay)
+                return  1;
+
+            if (object1.totalPay == object2.totalPay)
+                return 0;
+
+            if (object1.totalPay < object2.totalPay)
+                return -1;
+
+            return 0;
+        }
+    };
+
+    /**
+     * 价格倒序.
+     */
+    public static final Comparator<Cost> PRICE_DESC_COMPARATOR = new Comparator<Cost>() {
         private final Collator sCollator = Collator.getInstance();
         @Override
         public int compare(Cost object1, Cost object2) {
@@ -104,7 +142,7 @@ public class Cost extends Model {
                 return 0;
 
             if (object1.totalPay < object2.totalPay)
-                return 0;
+                return 1;
 
             return 0;
         }

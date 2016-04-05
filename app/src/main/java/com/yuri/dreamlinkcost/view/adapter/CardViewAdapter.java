@@ -58,15 +58,27 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         }
     }
 
-    public void sortByPrice() {
-        Collections.sort(mLocalCostList, Cost.PRICE_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.PRICE_COMPARATOR);
+    public void sortByPriceAsc() {
+        Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.PRICE_ASC_COMPARATOR);
         notifyDataSetChanged();
     }
 
-    public void sortByDate() {
-        Collections.sort(mLocalCostList, Cost.DATE_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.DATE_COMPARATOR);
+    public void sortByPriceDesc() {
+        Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.PRICE_DESC_COMPARATOR);
+        notifyDataSetChanged();
+    }
+
+    public void sortByDateAsc() {
+        Collections.sort(mLocalCostList, Cost.DATE_ASC_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.DATE_ASC_COMPARATOR);
+        notifyDataSetChanged();
+    }
+
+    public void sortByDateDesc() {
+        Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR);
+        Collections.sort(mCostList, BmobCost.DATE_DESC_COMPARATOR);
         notifyDataSetChanged();
     }
 
