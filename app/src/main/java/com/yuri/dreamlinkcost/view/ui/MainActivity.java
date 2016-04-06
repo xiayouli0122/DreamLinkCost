@@ -105,15 +105,16 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mMainPresenter = new MainPresenter(getApplicationContext(), this);
 
         Bmob.initialize(this, Constant.BMOB_APP_ID);
-        // 使用推送服务时的初始化操作
-        BmobInstallation.getCurrentInstallation(this).save();
-        // 启动推送服务
-        BmobPush.startWork(this, Constant.BMOB_APP_ID);
+        //2016年4月6日09:21:05 bmob的push暂时出现了bug，
+//        // 使用推送服务时的初始化操作
+//        BmobInstallation.getCurrentInstallation(this).save();
+//        // 启动推送服务
+//        BmobPush.startWork(this, Constant.BMOB_APP_ID);
 
 
         //Bugly
-        Log.d();
         int author = mMainPresenter.getUserId();
+        Log.d("author:" + author);
         if (author == Constant.Author.LIUCHENG) {
             CrashReport.setUserId("LiuCheng");
             mAuthorViewTV.setText("LIUCHENG");

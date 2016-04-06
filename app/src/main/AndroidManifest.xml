@@ -69,7 +69,9 @@
         </activity>
         <activity
             android:name=".view.ui.AddNewActivity"
-            android:label="@string/title_activity_addnew" >
+            android:label="@string/title_activity_addnew"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden"
+            >
         </activity>
 
         <receiver
