@@ -10,8 +10,8 @@ android {
         applicationId "com.yuri.dreamlinkcost"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 57
-        versionName "5.7"
+        versionCode 60
+        versionName "6.0"
         testApplicationId "com.yuri.test"
     }
 
@@ -26,14 +26,14 @@ android {
 
     buildTypes {
         release {
-//            signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
             //混淆开关
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
-//            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

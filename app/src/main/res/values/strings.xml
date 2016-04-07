@@ -29,5 +29,11 @@
     <string name="title_activity_splash2">SplashActivity2</string>
     <string name="title_activity_pay">PayActivity</string>
 
-    <string name="change_log">更新日志：\n闲来无事更新一个玩玩~</string>
+    <string name="change_log">
+        更新日志：\n
+        1. 修复结算bug \n
+        2. 修复部分UI显示不正常的Bug \n
+        3. 付款人默认选中当前用户（请注意） \n
+        4. 其他细节优化
+    </string>
 </resources>
