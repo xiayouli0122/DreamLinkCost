@@ -441,6 +441,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
                             if (mProgressDialog != null) {
                                 mProgressDialog.cancel();
                             }
+                            refresh();
                         }
 
                         @Override

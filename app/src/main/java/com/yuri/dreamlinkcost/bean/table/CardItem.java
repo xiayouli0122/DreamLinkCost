@@ -20,7 +20,7 @@ public class CardItem {
     private DecimalFormat mDecimalFormat;
     private Context mContext;
     public CardItem(Context context) {
-        mDecimalFormat=new DecimalFormat(".00");
+        mDecimalFormat=new DecimalFormat("0.00");
         mContext = context;
     }
 

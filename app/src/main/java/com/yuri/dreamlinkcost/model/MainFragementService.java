@@ -124,6 +124,9 @@ public class MainFragementService extends BaseMain implements IMainFragment{
                 }
 
                 if (list.size() + localList.size() == 0) {
+                    if (listener != null) {
+                        listener.onUpdateMoney("");
+                    }
                 } else {
                     //统计一下
                     float liuchengPay = 0;
@@ -141,7 +144,7 @@ public class MainFragementService extends BaseMain implements IMainFragment{
                         yuriPay += cost.payYuri;
                     }
 
-                    DecimalFormat decimalFormat = new DecimalFormat(".00");
+                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
                     StringBuilder sb = new StringBuilder();
                     sb.append("L:" + decimalFormat.format(liuchengPay) + ",");
                     sb.append("X:" + decimalFormat.format(xiaofeiPay) + ",");
