@@ -203,6 +203,12 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         registerForContextMenu(mRecyclerView);
     }
 
+    /**
+     * 更新列表UI
+     * @param result 从服务器端获取数据结果，true：成功；false：失败
+     * @param serverList 服务端列表
+     * @param localList 本地列表
+     */
     @Override
     public void updateList(boolean result, List<BmobCost> serverList, List<Cost> localList) {
         if (!result) {
@@ -230,7 +236,9 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         mSwipeRefreshLayout.setRefreshing(false);
 
         if (serverList.size() + localList.size() == 0) {
+            mainFragmentBinder.setEmptyMsg("记录为空");
             mainFragmentBinder.setIsDataEmpty(true);
+            mAdapter.notifyDataSetChanged();
         } else {
             mainFragmentBinder.setIsDataEmpty(false);
             showAll();

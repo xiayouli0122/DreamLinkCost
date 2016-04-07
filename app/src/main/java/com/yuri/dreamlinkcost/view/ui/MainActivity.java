@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mAuthorViewTV = leftHeaderViewBinding.tvAuthor;
 
         mToolBar = binding.toolbar;
-        mToolBar.setTitle(R.string.app_name);
 
         mUIHandler = new UIHandler(this);
 
@@ -115,16 +115,18 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         //Bugly
         int author = mMainPresenter.getUserId();
         Log.d("author:" + author);
+        String authorStr;
         if (author == Constant.Author.LIUCHENG) {
             CrashReport.setUserId("LiuCheng");
-            mAuthorViewTV.setText("LIUCHENG");
+            authorStr = "LIUCHENG";
         } else if (author == Constant.Author.XIAOFEI) {
             CrashReport.setUserId("XiaoFei");
-            mAuthorViewTV.setText("XIAOFEI");
+            authorStr = "XIAOFEI";
         } else {
             CrashReport.setUserId("Yuri");
-            mAuthorViewTV.setText("YURI");
+            authorStr = "YURI";
         }
+        mToolBar.setTitle(getString(R.string.app_name) + "(" + authorStr + ")");
 
         init();
 
@@ -263,6 +265,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             return;
         }
         List<BmobCost> list = mainFragment.getCostList();
+        if (list.size() == 0) {
+            Toast.makeText(getApplicationContext(), "暂无记录", Toast.LENGTH_LONG).show();
+            return;
+        }
         float totalPay = 0;
         float liuchengPay = 0;
         float xiaofeiPay = 0;
@@ -356,40 +362,79 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                         progressDialog.show();
 
-                        List<BmobObject> updateBmobCosts = new ArrayList<>();
+                        List<BmobObject> updateList = new ArrayList<>();
                         //服务器结算
-                        for (BmobCost bmobCost : list) {
-                            updateBmobCosts.add(bmobCost);
+                        if (list.size() == 0) {
+                            return;
                         }
 
-                        if (updateBmobCosts.size() > 0) {
-                            new BmobObject().updateBatch(getApplicationContext(), updateBmobCosts, new UpdateListener() {
-                                @Override
-                                public void onSuccess() {
-                                    Log.d("updateBatch success");
-
-                                    if (progressDialog != null) {
-                                        progressDialog.cancel();
-                                    }
-
-                                    if (mainFragment != null) {
-                                        mainFragment.refresh();
-                                    }
+                        if (list.size() > 50) {
+                            BmobCost bmobCost;
+                            for (int k = 0; k < list.size(); k++) {
+                                bmobCost = list.get(k);
+                                bmobCost.clear = true;
+                                updateList.add(bmobCost);
+                                if (updateList.size() >= 50) {
+                                    break;
                                 }
-
-                                @Override
-                                public void onFailure(int i, String s) {
-                                    Log.d("updateBatch fail:" + s);
-                                    if (progressDialog != null) {
-                                        progressDialog.cancel();
-                                    }
-                                }
-                            });
+                            }
+                            doUpdateBatch(updateList, 50, list);
+                        } else {
+                            for (BmobCost bmobCost : list) {
+                                bmobCost.clear = true;
+                                updateList.add(bmobCost);
+                            }
+                            doUpdateBatch(updateList, list.size(), null);
                         }
-
                     }
                 })
                 .create().show();
+    }
+
+    /**
+     * 更新记录操作
+     * @param updateList 需要更新的list
+     * @param index 当前更新最后一条记录在源list中的位置
+     * @param srcList 源list
+     */
+    private void doUpdateBatch(List<BmobObject> updateList, final int index, final  List<BmobCost> srcList) {
+        //批量操作目前bmob只支持最多50条数据操作
+        new BmobObject().updateBatch(getApplicationContext(), updateList, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("updateBatch success.index:" + index + ",total:" + (srcList == null ? 0 : srcList.size()));
+                if (srcList == null || index == srcList.size()) {
+                    if (progressDialog != null) {
+                        progressDialog.cancel();
+                    }
+
+                    if (mainFragment != null) {
+                        mainFragment.refresh();
+                    }
+                } else {
+                    List<BmobObject> updateList = new ArrayList<>();
+                    BmobCost bmobCost;
+                    for (int k = index; k < srcList.size(); k++) {
+                        bmobCost = srcList.get(k);
+                        bmobCost.clear = true;
+                        updateList.add(srcList.get(k));
+                        if (updateList.size() >= 50) {
+                            break;
+                        }
+                    }
+                    doUpdateBatch(updateList, index + updateList.size(), srcList);
+                }
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                Log.d("updateBatch fail:" + s);
+                if (progressDialog != null) {
+                    progressDialog.cancel();
+                }
+                Toast.makeText(getApplicationContext(), "提交失败:" + s, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
