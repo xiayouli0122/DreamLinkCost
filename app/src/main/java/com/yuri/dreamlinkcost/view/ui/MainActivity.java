@@ -283,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         String endTime = Utils.getDate(list.get(0).createDate);
 
         StringBuilder sb = new StringBuilder();
+        sb.append("总共记录条数：" + list.size() + "\n");
         sb.append("开始日期:" + startTime + "\n");
         sb.append("结束日期:" + endTime + "\n\n");
         sb.append("总共消费(¥):" + totalPay + "\n");
