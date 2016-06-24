@@ -8,15 +8,17 @@ import com.activeandroid.query.Select;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.bmob.btp.callback.UploadListener;
+import com.yuri.dreamlinkcost.BuildConfig;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
-import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.Bmob.Version;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.impl.IMain;
+import com.yuri.dreamlinkcost.utils.CommonUtils;
+import com.yuri.dreamlinkcost.utils.NetUtil;
+import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
+import com.yuri.xlog.Log;
 
 import java.io.File;
 import java.util.List;
@@ -52,12 +54,12 @@ public class Main extends BaseMain implements IMain {
         }
 
         //第一步检查本地新版本
-        int versionCode = SharedPreferencesManager.get(context, "latest_version_code", -1);
-        int currentVersionCode = Utils.getVersionCode(context);
+        int versionCode = SharedPreferencesUtil.get(context, "latest_version_code", -1);
+        int currentVersionCode = BuildConfig.VERSION_CODE;
         if (versionCode > currentVersionCode) {
             //有新版本已经下载好了，可以直接安装
-            String apkPath = SharedPreferencesManager.get(context, "apkPath", null);
-            String changeLog = SharedPreferencesManager.get(context, "changeLog", "");
+            String apkPath = SharedPreferencesUtil.get(context, "apkPath", null);
+            String changeLog = SharedPreferencesUtil.get(context, "changeLog", "");
             if (apkPath != null && new File(apkPath).exists()) {
                 //显示安装Dialog
                 listener.onApkDownloaded(null, apkPath, changeLog, false);
@@ -70,7 +72,7 @@ public class Main extends BaseMain implements IMain {
             public void onSuccess(List<Version> list) {
                 if (list != null && list.size() > 0) {
                     int serverVersionCode = list.get(0).version_code;
-                    int currentVersionCode = Utils.getVersionCode(context);
+                    int currentVersionCode = BuildConfig.VERSION_CODE;
                     Log.d("serverVersionCode:" + serverVersionCode + ",currentVersionCode:"
                             + currentVersionCode);
                     if (serverVersionCode > currentVersionCode) {
@@ -91,7 +93,7 @@ public class Main extends BaseMain implements IMain {
                         if (byUser) {
                             listener.showUpdateNotification(serverVersion, url);
                         } else {
-                            if (Utils.isWifiConnected(context)) {
+                            if (NetUtil.isWifiConnected(context)) {
                                 doDownloadNewVersionAPk(context, serverVersion, serverVersionCode,
                                         changeLog,
                                         url, listener);
@@ -122,8 +124,8 @@ public class Main extends BaseMain implements IMain {
             public void onSuccess(String s, String s1) {
                 Log.d("success.name:" + s + ",url:" + s1);
                 Version version =new Version();
-                version.version = Utils.getAppVersion(context);
-                version.version_code = Utils.getVersionCode(context);
+                version.version = BuildConfig.VERSION_NAME;
+                version.version_code = BuildConfig.VERSION_CODE;
                 version.apkUrl = s;
                 version.changeLog = context.getString(R.string.change_log);
                 version.update(context, "692ZQQQp", new UpdateListener() {
@@ -171,9 +173,9 @@ public class Main extends BaseMain implements IMain {
             @Override
             public void onSuccess(String s) {
                 Log.d("Download Apk Success.localPath:" + s);
-                SharedPreferencesManager.put(context, "latest_version_code", versionCode);
-                SharedPreferencesManager.put(context, "apkPath", s);
-                SharedPreferencesManager.put(context, "changeLog", chageLog);
+                SharedPreferencesUtil.put(context, "latest_version_code", versionCode);
+                SharedPreferencesUtil.put(context, "apkPath", s);
+                SharedPreferencesUtil.put(context, "changeLog", chageLog);
                 listener.onApkDownloaded(version, s, chageLog, true);
             }
 

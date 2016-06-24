@@ -5,9 +5,9 @@ import android.content.Context;
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
 import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.model.impl.IBaseMain;
+import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
 public class BaseMain implements IBaseMain {
     @Override
     public int getUserId(Context context) {
-        return SharedPreferencesManager.get(context, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
+        return SharedPreferencesUtil.get(context, Constant.Extra.KEY_LOGIN, Constant.Author.YURI);
     }
 
     @Override

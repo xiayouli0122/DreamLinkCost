@@ -4,10 +4,10 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.notification.MMNotificationManager;
 import com.yuri.dreamlinkcost.notification.NotificationReceiver;
 import com.yuri.dreamlinkcost.notification.interfaces.PendingIntentNotification;
+import com.yuri.xlog.Log;
 
 /**用户点击通知后，发送一个广播*/
 public class ClickPendingIntentBroadCast implements PendingIntentNotification {

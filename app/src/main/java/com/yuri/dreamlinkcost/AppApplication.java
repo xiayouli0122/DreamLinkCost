@@ -9,7 +9,8 @@ import com.activeandroid.ActiveAndroid;
 import com.bmob.BmobConfiguration;
 import com.bmob.BmobPro;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.yuri.dreamlinkcost.log.Log;
+import com.yuri.xlog.Log;
+import com.yuri.xlog.Settings;
 
 import java.util.List;
 
@@ -21,16 +22,15 @@ public class AppApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d();
         //避免调用多次onCreate()时，执行多次初始化
+
+        //ActiveAndroid初始化
+        ActiveAndroid.initialize(this, true);
+
         String processName = getProcessName(this, android.os.Process.myPid());
-        Log.d(processName);
         if (processName != null) {
             boolean defaultProcess = processName.equals("com.yuri.dreamlinkcost");
             if (defaultProcess) {
-                //默认进程才进行初始化动作
-                //ActiveAndroid初始化
-                ActiveAndroid.initialize(this, true);
 
                 //Bugly
                 CrashReport.initCrashReport(getApplicationContext(), "900005722", true);
@@ -40,6 +40,10 @@ public class AppApplication extends Application {
                 BmobPro.getInstance(getApplicationContext()).initConfig(config);
 
 //                LeakCanary.install(this);
+
+                Log.initialize(Settings.getInstance()
+                        .setAppTag("DreamLinkCost")
+                        .isDebug(true));
             }
         }
     }

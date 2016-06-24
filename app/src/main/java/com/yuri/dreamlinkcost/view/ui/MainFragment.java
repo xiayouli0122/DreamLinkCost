@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -19,41 +18,47 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.ContextMenuRecyclerView;
-import com.yuri.dreamlinkcost.CustomItemAnimator;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
-import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.table.Cost;
-import com.yuri.dreamlinkcost.binder.MainFragmentBinder;
-import com.yuri.dreamlinkcost.databinding.FragmentMainBinding;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.OnDeleteItemListener;
 import com.yuri.dreamlinkcost.presenter.MainFragmentPresenter;
 import com.yuri.dreamlinkcost.rx.RxBus;
 import com.yuri.dreamlinkcost.rx.RxBusTag;
+import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
+import com.yuri.dreamlinkcost.utils.TimeUtil;
 import com.yuri.dreamlinkcost.view.adapter.CardViewAdapter;
 import com.yuri.dreamlinkcost.view.impl.IMainFragmentView;
+import com.yuri.xlog.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 
 public class MainFragment extends Fragment implements RecyclerViewClickListener, IMainFragmentView {
-    private ContextMenuRecyclerView mRecyclerView;
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.my_recycler_view)
+    ContextMenuRecyclerView mRecyclerView;
+    @BindView(R.id.swipe_container)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @BindView(R.id.emptyView)
+    TextView mEmptyView;
 
     private LinearLayoutManager mLayoutManager;
 
@@ -67,8 +72,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
     private List<BmobCost> mNetCostList = new ArrayList<>();
     /**本地列表*/
     private List<Cost> mLocalCostList = new ArrayList<>();
-
-    private MainFragmentBinder mainFragmentBinder;
 
     private Observable<Integer> mSortObservable;
 
@@ -133,15 +136,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        FragmentMainBinding binding = DataBindingUtil.bind(rootView);
-
-        mRecyclerView = binding.myRecyclerView;
-        mSwipeRefreshLayout = binding.swipeContainer;
-
-        mainFragmentBinder = new MainFragmentBinder();
-        mainFragmentBinder.setIsLoading(false);
-        binding.setMainFragment(mainFragmentBinder);
-
+        ButterKnife.bind(this, rootView);
         return rootView;
     }
 
@@ -155,7 +150,6 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         Log.d();
         // Handle Toolbar
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setItemAnimator(new CustomItemAnimator());
         mAdapter = new CardViewAdapter(getActivity(), new ArrayList<Cost>(), new ArrayList<BmobCost>());
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
@@ -236,11 +230,12 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         mSwipeRefreshLayout.setRefreshing(false);
 
         if (serverList.size() + localList.size() == 0) {
-            mainFragmentBinder.setEmptyMsg("记录为空");
-            mainFragmentBinder.setIsDataEmpty(true);
+            mEmptyView.setVisibility(View.VISIBLE);
+            mEmptyView.setText("记录为空");
             mAdapter.notifyDataSetChanged();
         } else {
-            mainFragmentBinder.setIsDataEmpty(false);
+            mEmptyView.setVisibility(View.GONE);
+
             showAll();
         }
     }
@@ -290,7 +285,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
                     + "XiaoFei(¥):" + cost.payXF + "\n"
                     + "Yuri(¥):" + cost.payYuri + "\n\n"
                     + "Status:" + status + "\n"
-                    + "Date:" + Utils.getDate(cost.createDate) + "\n"
+                    + "Date:" + TimeUtil.getDate(cost.createDate) + "\n"
                     + "Author:" + author;
             showDialog(title, message);
             return;
@@ -314,7 +309,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
                 + "XiaoFei(¥):" + cost.payXF + "\n"
                 + "Yuri(¥):" + cost.payYuri + "\n\n"
                 + "Status:" + status + "\n"
-                + "Date:" + Utils.getDate(cost.createDate) + "\n"
+                + "Date:" + TimeUtil.getDate(cost.createDate) + "\n"
                 + "Author:" + author;
         showDialog(title, message);
 
@@ -479,6 +474,11 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         return super.onContextItemSelected(item);
     }
 
+    @Override
+    public void showError(String message) {
+
+    }
+
 
     public interface OnMainFragmentListener {
         void onUpdateMoney(String detail);
@@ -490,7 +490,7 @@ public class MainFragment extends Fragment implements RecyclerViewClickListener,
         if (!isAdded()) {
             return;
         }
-        int sort = SharedPreferencesManager.get(getActivity(), Constant.Extra.KEY_SORT, 0);
+        int sort = SharedPreferencesUtil.get(getActivity(), Constant.Extra.KEY_SORT, 0);
         if (sort == SORT_BY_DATE_DESC) {
             Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR);
             Collections.sort(mNetCostList, BmobCost.DATE_DESC_COMPARATOR);

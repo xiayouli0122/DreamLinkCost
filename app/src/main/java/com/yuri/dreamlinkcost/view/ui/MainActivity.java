@@ -6,13 +6,10 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -31,15 +28,11 @@ import android.widget.Toast;
 
 import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
+import com.yuri.dreamlinkcost.BuildConfig;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
-import com.yuri.dreamlinkcost.Utils;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.table.Cost;
-import com.yuri.dreamlinkcost.databinding.ActivityMainBinding;
-import com.yuri.dreamlinkcost.databinding.LeftHeaderViewBinding;
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.Main;
 import com.yuri.dreamlinkcost.notification.MMNotificationManager;
@@ -49,13 +42,19 @@ import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroad
 import com.yuri.dreamlinkcost.presenter.MainPresenter;
 import com.yuri.dreamlinkcost.rx.RxBus;
 import com.yuri.dreamlinkcost.rx.RxBusTag;
+import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
+import com.yuri.dreamlinkcost.utils.TimeUtil;
 import com.yuri.dreamlinkcost.view.impl.IMainView;
+import com.yuri.xlog.Log;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobInstallation;
@@ -66,17 +65,21 @@ import cn.bmob.v3.listener.UpdateListener;
 public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener,
         View.OnClickListener, NavigationView.OnNavigationItemSelectedListener, IMainView {
 
+    @BindView(R.id.toolbar)
+    Toolbar mToolBar;
+    @BindView(R.id.drawerLayout)
     DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private NavigationView mNavigationView;
-    private TextView mAuthorViewTV;
+    @BindView(R.id.navigationView)
+    NavigationView mNavigationView;
 
-    private MainFragment mainFragment;
+//    @BindView(R.id.tv_author)
+    TextView mAuthorViewTV;
+
+    private ActionBarDrawerToggle mDrawerToggle;
 
     ProgressDialog progressDialog;
 
-    Toolbar mToolBar;
-
+    private MainFragment mainFragment;
     private UIHandler mUIHandler;
 
     private MainPresenter mMainPresenter;
@@ -87,18 +90,14 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         BmobPay.init(this, Constant.BMOB_APP_ID);
 
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.fabButton.setOnClickListener(this);
-        mDrawerLayout = binding.drawerLayout;
-        mNavigationView = binding.navigationView;
+        setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
+
         mNavigationView.setNavigationItemSelectedListener(this);
         mNavigationView.getMenu().findItem(R.id.action_all).setChecked(true);
         mNavigationView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
-        LeftHeaderViewBinding leftHeaderViewBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.left_header_view, null, false);
-        mAuthorViewTV = leftHeaderViewBinding.tvAuthor;
-
-        mToolBar = binding.toolbar;
 
         mUIHandler = new UIHandler(this);
 
@@ -148,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         fm.beginTransaction().replace(R.id.content_view, mainFragment).commit();
     }
 
+    @OnClick(R.id.fab_button)
     void doAddNew() {
         Intent intent = new Intent();
         intent.setClass(this, AddNewActivity.class);
@@ -181,20 +181,20 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         int id = item.getItemId();
         switch (id) {
             case R.id.action_sort_date_asc:
-                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 0);
+                SharedPreferencesUtil.put(getApplicationContext(), Constant.Extra.KEY_SORT, 0);
                 RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE_ASC);
                 break;
             case R.id.action_sort_default://默认排序即按时间升序
             case R.id.action_sort_date_desc:
-                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 1);
+                SharedPreferencesUtil.put(getApplicationContext(), Constant.Extra.KEY_SORT, 1);
                 RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_DATE_DESC);
                 break;
             case R.id.action_sort_price_asc:
-                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 2);
+                SharedPreferencesUtil.put(getApplicationContext(), Constant.Extra.KEY_SORT, 2);
                 RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE_ASC);
                 break;
             case R.id.action_sort_price_desc:
-                SharedPreferencesManager.put(getApplicationContext(), Constant.Extra.KEY_SORT, 3);
+                SharedPreferencesUtil.put(getApplicationContext(), Constant.Extra.KEY_SORT, 3);
                 RxBus.get().post(RxBusTag.TAG_MAIN_FRAGEMNT, MainFragment.SORT_BY_PRICE_DESC);
                 break;
             case R.id.action_upload_new_version:
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 break;
             case R.id.action_about:
                 String title = "About";
-                String message = "Version:" + Utils.getAppVersion(this);
+                String message = "Version:" + BuildConfig.VERSION_NAME;
                 showDialog(title, message);
                 break;
             case R.id.action_check_update:
@@ -279,8 +279,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             yuriPay += cos.payYuri;
         }
 
-        String startTime = Utils.getDate(list.get(list.size() - 1).createDate);
-        String endTime = Utils.getDate(list.get(0).createDate);
+        String startTime = TimeUtil.getDate(list.get(list.size() - 1).createDate);
+        String endTime = TimeUtil.getDate(list.get(0).createDate);
 
         StringBuilder sb = new StringBuilder();
         sb.append("总共记录条数：" + list.size() + "\n");
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     private void showInstallDialog(final String apkPath) {
         Log.d("apkPath:" + apkPath);
-        String changeLog = SharedPreferencesManager.get(getApplicationContext(), "changeLog", "");
+        String changeLog = SharedPreferencesUtil.get(getApplicationContext(), "changeLog", "");
 
         new AlertDialog.Builder(this)
                 .setMessage("新版本已经后台下载完成。" + "\n"
@@ -459,6 +459,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         mToolBar.setSubtitle(detail);
     }
 
+    @Override
+    public void showError(String message) {
+
+    }
+
     private static class UIHandler extends Handler{
         private WeakReference<MainActivity> mOuter;
 
@@ -539,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
     private void doUpload() {
-        String filePath = "/sdcard/Release_V" + Utils.getAppVersion(getApplicationContext())  + ".apk";
+        String filePath = "/sdcard/Release_V" + BuildConfig.VERSION_NAME  + ".apk";
         if (!new File(filePath).exists()) {
             Toast.makeText(getApplicationContext(), filePath + " is not exist", Toast.LENGTH_SHORT).show();
             return;

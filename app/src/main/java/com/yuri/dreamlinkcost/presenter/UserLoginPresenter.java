@@ -6,6 +6,7 @@ import com.yuri.dreamlinkcost.model.impl.IUserLogin;
 import com.yuri.dreamlinkcost.model.OnLoginListener;
 import com.yuri.dreamlinkcost.model.UserLogin;
 import com.yuri.dreamlinkcost.view.impl.IUserLoginView;
+import com.yuri.xlog.Log;
 
 /**
  * Created by Yuri on 2016/1/15.
@@ -23,7 +24,7 @@ public class UserLoginPresenter extends BasePresenter<IUserLoginView>{
         userLogin.autoLogin(mContext, new OnLoginListener() {
             @Override
             public void onLoginSuccess() {
-                mView.goToMainActivity();
+                mView.onLoginSuccess();
             }
 
             @Override
@@ -34,15 +35,17 @@ public class UserLoginPresenter extends BasePresenter<IUserLoginView>{
     }
 
     public void doLogin(int userId) {
+        Log.d("userId:" + userId);
         userLogin.login(mContext, userId, new OnLoginListener() {
             @Override
             public void onLoginSuccess() {
-                mView.goToMainActivity();//通知View
+                mView.onLoginSuccess();//通知View
             }
 
             @Override
             public void onLoginFail() {
                 //ignore
+                mView.showError("登录失败");
             }
         });
     }

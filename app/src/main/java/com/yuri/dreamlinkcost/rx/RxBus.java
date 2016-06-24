@@ -1,6 +1,7 @@
 package com.yuri.dreamlinkcost.rx;
 
-import com.yuri.dreamlinkcost.log.Log;
+
+import com.yuri.xlog.Log;
 
 import java.util.ArrayList;
 import java.util.List;

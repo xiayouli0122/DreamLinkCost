@@ -1,119 +1,268 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <data class="AddNewerBinder">
+    <android.support.v7.widget.Toolbar
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:transitionName="actionBar"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        />
 
-        <import type="android.view.View" />
-
-        <variable
-            name="toolbarTitle"
-            type="String" />
-
-        <variable
-            name="toolbarSubTitle"
-            type="String" />
-
-        <variable
-            name="addNewModel"
-            type="com.yuri.dreamlinkcost.binder.AddNewModel" />
-    </data>
-
-    <RelativeLayout
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.ui.AddNewActivity">
+        android:layout_above="@+id/btn_complete"
+        android:layout_below="@+id/toolbar"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
 
-        <android.support.v7.widget.Toolbar xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            android:subtitle="@{toolbarSubTitle}"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            android:title="@{toolbarTitle}"
-            android:transitionName="actionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            />
-
-        <ScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/btn_complete"
-            android:layout_below="@+id/toolbar"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_date_picker"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+
+                <Button
+                    android:id="@+id/btn_date_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/date_picker"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/statement"/>
+
+                <EditText
+                    android:id="@+id/et_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:imeOptions="actionNext"
+                    android:singleLine="true"
+                    />
+
+                <Spinner
+                    android:id="@+id/spinner_title_selector"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+                <EditText
+                    android:id="@+id/et_total_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    />
+            </android.support.design.widget.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/pay_way"/>
+
+                <RadioGroup
+                    android:id="@+id/rg_pay_way"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tv_date_picker"
-                        android:layout_width="0dp"
+                    <RadioButton
+                        android:id="@+id/rb_average"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@{addNewModel.dateStr}"
-                        />
+                        android:text="@string/avarage"/>
 
-                    <Button
-                        android:id="@+id/btn_date_picker"
+                    <RadioButton
+                        android:id="@+id/rb_custom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/date_picker" />
-                </LinearLayout>
+                        android:layout_weight="1"
+                        android:text="@string/custom"/>
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/canyuren"/>
 
                 <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/cb_liucheng"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="LiuCheng"/>
+
+
+                    <CheckBox
+                        android:id="@+id/cb_xiaofei"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="XiaoFei"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_yuri"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yuri"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/fukuanren"/>
+
+                <RadioGroup
+                    android:id="@+id/rg_pay_person"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rb_liucheng"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="LiuCheng"
+                        />
+
+
+                    <RadioButton
+                        android:id="@+id/rb_xiaofei"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="XiaoFei"
+                        />
+
+
+                    <RadioButton
+                        android:id="@+id/rb_yuri"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yuri"
+                        />
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/item_price_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                >
+
+                <LinearLayout
+                    android:id="@+id/ll_liucheng_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/statement" />
+                        android:text="LiuCheng:"/>
 
                     <EditText
-                        android:id="@+id/et_title"
+                        android:id="@+id/et_liucheng"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:imeOptions="actionNext"
+                        android:inputType="numberDecimal"
                         android:singleLine="true"
                         />
 
                     <Spinner
-                        android:id="@+id/spinner_title_selector"
+                        android:id="@+id/spinner_lc"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/ll_xiaofei_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:visibility="gone"
                     >
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_price" />
+                        android:text="XiaoFei:"/>
 
                     <EditText
-                        android:id="@+id/et_total_price1"
+                        android:id="@+id/et_xiaofei"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -121,257 +270,52 @@
                         android:inputType="numberDecimal"
                         android:singleLine="true"
                         />
+
+                    <Spinner
+                        android:id="@+id/spinner_xf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/textInput"
+                <LinearLayout
+                    android:id="@+id/ll_yuri_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     >
-                    <EditText
-                        android:id="@+id/et_total_price"
-                        android:layout_width="match_parent"
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Yuri:"/>
+
+                    <EditText
+                        android:id="@+id/et_yuri"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:imeOptions="actionNext"
                         android:inputType="numberDecimal"
                         android:singleLine="true"
                         />
-                </android.support.design.widget.TextInputLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
+                    <Spinner
+                        android:id="@+id/spinner_yuri"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/pay_way" />
-
-                    <RadioGroup
-                        android:id="@+id/rg_pay_way"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/rb_average"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.isAverageUserChecked}"
-                            android:text="@string/avarage" />
-
-                        <RadioButton
-                            android:id="@+id/rb_custom"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/custom" />
-                    </RadioGroup>
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/canyuren" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <CheckBox
-                            android:id="@+id/cb_liucheng"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.isLiuChengIn}"
-                            android:text="LiuCheng" />
-
-
-                        <CheckBox
-                            android:id="@+id/cb_xiaofei"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.isXiaoFeiIn}"
-                            android:text="XiaoFei" />
-
-                        <CheckBox
-                            android:id="@+id/cb_yuri"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.isYuriIn}"
-                            android:text="Yuri" />
-
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/fukuanren" />
-
-                    <RadioGroup
-                        android:id="@+id/rg_pay_person"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/rb_liucheng"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.whichOnePay == 0}"
-                            android:text="LiuCheng"
-                            android:visibility="@{addNewModel.itemLiuChengPayVisiblity}"
-                            />
-
-
-                        <RadioButton
-                            android:id="@+id/rb_xiaofei"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.whichOnePay == 1}"
-                            android:visibility="@{addNewModel.itemXiaoFeiPayVisiblity}"
-                            android:text="XiaoFei" />
-
-
-                        <RadioButton
-                            android:id="@+id/rb_yuri"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:checked="@{addNewModel.whichOnePay == 2}"
-                            android:visibility="@{addNewModel.itemYuriPayVisiblity}"
-                            android:text="Yuri" />
-
-                    </RadioGroup>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/item_price_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="@{addNewModel.itemPriceBlockVisiblity}">
-
-                    <LinearLayout
-                        android:id="@+id/ll_liucheng_price"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:visibility="@{addNewModel.itemLiuChengPriceBlockVisiblity}">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="LiuCheng:" />
-
-                        <EditText
-                            android:id="@+id/et_liucheng"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:imeOptions="actionNext"
-                            android:inputType="numberDecimal"
-                            android:singleLine="true"
-                            />
-
-                        <Spinner
-                            android:id="@+id/spinner_lc"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_xiaofei_price"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:visibility="@{addNewModel.itemXiaoFeiPriceBlockVisiblity}">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="XiaoFei:" />
-
-                        <EditText
-                            android:id="@+id/et_xiaofei"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:imeOptions="actionNext"
-                            android:inputType="numberDecimal"
-                            android:singleLine="true"
-                            />
-
-                        <Spinner
-                            android:id="@+id/spinner_xf"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_yuri_price"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:visibility="@{addNewModel.itemYuriPriceBlockVisiblity}">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Yuri:" />
-
-                        <EditText
-                            android:id="@+id/et_yuri"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:imeOptions="actionNext"
-                            android:inputType="numberDecimal"
-                            android:singleLine="true"
-                            />
-
-                        <Spinner
-                            android:id="@+id/spinner_yuri"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-                </LinearLayout>
-
-
             </LinearLayout>
-        </ScrollView>
 
-        <Button
-            android:id="@+id/btn_complete"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="@string/complete"
-            android:visibility="gone" />
 
-    </RelativeLayout>
-</layout>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btn_complete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/complete"
+        android:visibility="gone"/>
+
+</RelativeLayout>

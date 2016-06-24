@@ -1,24 +1,25 @@
 package com.yuri.dreamlinkcost.view.adapter;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.yuri.dreamlinkcost.BR;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
-import com.yuri.dreamlinkcost.log.Log;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.table.CardItem;
 import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
+import com.yuri.xlog.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.BindingHolder> {
 
@@ -116,60 +117,54 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         return mCostList.get(position - localListCount);
     }
 
-    /**获取网络列表*/
+    /**
+     * 获取网络列表
+     */
     public List<BmobCost> getCostList() {
         return this.mCostList;
     }
 
-    /**获取本地列表*/
+    /**
+     * 获取本地列表
+     */
     public List<Cost> getLocalList() {
         return this.mLocalCostList;
     }
 
     @Override
-    public CardViewAdapter.BindingHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        ViewDataBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()),
+    public BindingHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        View view = LayoutInflater.from(mContext).inflate(
                 R.layout.item_cardview,
                 viewGroup,
                 false);
-        BindingHolder holder = new BindingHolder(binding.getRoot());
-        holder.setBinding(binding);
-        return holder;
+        return new BindingHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(BindingHolder viewHolder, final int position) {
+    public void onBindViewHolder(BindingHolder holder, final int position) {
         Object object = getItem(position);
         CardItem cardItem;
         if (object instanceof BmobCost) {
             BmobCost bmobCost = (BmobCost) object;
             cardItem = new CardItem(mContext).getCardItem(bmobCost);
-            viewHolder.getBinding().setVariable(BR.cardItem, cardItem);
+
+            holder.mTitleView.setText(cardItem.title);
+            holder.mTotalPayView.setText(cardItem.info);
+            holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
+            holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
+
         } else {
             Cost cost = (Cost) object;
             cardItem = new CardItem(mContext).getCardItem(cost);
-            viewHolder.getBinding().setVariable(BR.cardItem, cardItem);
+
+            holder.mTitleView.setText(cardItem.title);
+            holder.mTotalPayView.setText(cardItem.info);
+            holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
+            holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
         }
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onItemClick(view, position);
-                }
-            }
-        });
-
-        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return false;
-            }
-        });
-        viewHolder.getBinding().executePendingBindings();
-
         if (mOnScrollIdle) {
-            showItemAnim(viewHolder.itemView, position);
+            showItemAnim(holder.itemView, position);
         }
     }
 
@@ -179,23 +174,46 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
     }
 
     private boolean mOnScrollIdle = true;
+
     public void setOnScrollIdle(boolean idle) {
         mOnScrollIdle = idle;
     }
 
-    public static class BindingHolder extends RecyclerView.ViewHolder {
-        private ViewDataBinding binding;
+    public class BindingHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.headerView)
+        TextView mHeaderView;
+        @BindView(R.id.titleView)
+        TextView mTitleView;
+        @BindView(R.id.totalPayView)
+        TextView mTotalPayView;
+        @BindView(R.id.commit_status)
+        TextView mCommitStatus;
+        @BindView(R.id.dateView)
+        TextView mDateView;
 
         public BindingHolder(View itemView) {
             super(itemView);
+
+            ButterKnife.bind(this, itemView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null) {
+                        mListener.onItemClick(v, getLayoutPosition());
+                    }
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
         }
 
-        public ViewDataBinding getBinding() {
-            return binding;
-        }
 
-        public void setBinding(ViewDataBinding binding) {
-            this.binding = binding;
-        }
     }
 }

@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.Utils;
+import com.yuri.dreamlinkcost.utils.TimeUtil;
 
 import java.text.DecimalFormat;
 
@@ -31,7 +31,7 @@ public class CardItem {
                 + ", Y:" + (bmobCost.payYuri == 0 ? bmobCost.payYuri + "" : mDecimalFormat.format(bmobCost.payYuri));
         this.info = "¥" + bmobCost.totalPay + "\n" + detail;
         this.isCommited = true;
-        this.date = Utils.getDate(bmobCost.createDate);
+        this.date = TimeUtil.getDate(bmobCost.createDate);
         if (bmobCost.payLC > 0) {
             this.header = Constant.Author.LIUCHENG;
         } else if (bmobCost.payXF > 0) {
@@ -49,7 +49,7 @@ public class CardItem {
                 + ", Y:" + (cost.payYuri == 0 ? cost.payYuri + "" : mDecimalFormat.format(cost.payYuri));
         this.info = "¥" + cost.totalPay + "\n" + detail;
         this.isCommited = false;
-        this.date = Utils.getDate(cost.createDate);
+        this.date = TimeUtil.getDate(cost.createDate);
         if (cost.payLC > 0) {
             this.header = Constant.Author.LIUCHENG;
         } else if (cost.payXF > 0) {

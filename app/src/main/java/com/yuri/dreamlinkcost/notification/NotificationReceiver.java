@@ -11,9 +11,9 @@ import android.text.TextUtils;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.yuri.dreamlinkcost.Constant;
-import com.yuri.dreamlinkcost.SharedPreferencesManager;
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
+import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
+import com.yuri.xlog.Log;
 
 /**
  * 监听通知栏被点击，请清除
@@ -59,7 +59,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             downloadApk(context, url);
         } else if (ACTION_NOTIFICATION_INSTALL_APP.equals(action)) {
             Log.d("install APP");
-            String path = SharedPreferencesManager.get(context, "apkPath", null);
+            String path = SharedPreferencesUtil.get(context, "apkPath", null);
             Log.d("path:" + path);
             if (path != null) {
                 Intent installIntent = new Intent(Intent.ACTION_VIEW);

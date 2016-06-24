@@ -1,22 +1,22 @@
-package com.yuri.dreamlinkcost;
+package com.yuri.dreamlinkcost.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import com.yuri.dreamlinkcost.log.Log;
-
-import java.lang.reflect.Method;
+import android.preference.PreferenceManager;
 
 /*
- * 应用所有的偏好管理类
+ * 应用所有的偏好设置管理类
  */
-public class SharedPreferencesManager {
-    private static final String SP_FILE_NAME = "Cost_Preferences";
+public class SharedPreferencesUtil {
 
-    //添加一个偏好
+    /**
+     * 添加一个偏好
+     * @param context context
+     * @param key key
+     * @param object String,int,boolean,float,long,and so on
+     */
     public static void put(Context context, String key, Object object) {
-        SharedPreferences sp = context.getSharedPreferences(SP_FILE_NAME,
-                Context.MODE_PRIVATE);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
         if (object instanceof String) {
             editor.putString(key, (String) object);
@@ -31,7 +31,7 @@ public class SharedPreferencesManager {
         } else {
             editor.putString(key, object.toString());
         }
-        SharedPreferencesCompat.apply(editor);
+        editor.apply();
     }
 
     /**
@@ -45,8 +45,7 @@ public class SharedPreferencesManager {
      */
     @SuppressWarnings("unchecked")
     public static <T> T get(Context context, String key, T defaultObject) {
-        SharedPreferences sp = context.getSharedPreferences(SP_FILE_NAME,
-                Context.MODE_PRIVATE);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         Object value = defaultObject;
         if (defaultObject == null || defaultObject instanceof String) {
             value = sp.getString(key, (String) defaultObject);
@@ -70,38 +69,9 @@ public class SharedPreferencesManager {
 
     //删除一个偏好
     public static void remove(Context context, String key) {
-        SharedPreferences sp = context.getSharedPreferences(SP_FILE_NAME,
-                Context.MODE_PRIVATE);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
         editor.remove(key);
-        SharedPreferencesCompat.apply(editor);
-    }
-
-    //兼容类，能应用apply方法就用该方法，因为它是异步的
-    private static class SharedPreferencesCompat {
-        private static final Method sApplyMethod = findApplyMethod();
-
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        private static Method findApplyMethod() {
-            try {
-                Class clz = SharedPreferences.Editor.class;
-                return clz.getMethod("apply");
-            } catch (NoSuchMethodException e) {
-                Log.w("NoSuchMethodException: " + e);
-            }
-            return null;
-        }
-
-        public static void apply(SharedPreferences.Editor editor) {
-            try {
-                if (sApplyMethod != null) {
-                    sApplyMethod.invoke(editor);
-                    return;
-                }
-            } catch (Exception e) {
-                Log.w("Exception" + e);
-            }
-            editor.commit();
-        }
+        editor.apply();
     }
 }

@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.yuri.dreamlinkcost.log.Log;
+
+import com.yuri.xlog.Log;
 
 import cn.bmob.push.PushConstants;
 

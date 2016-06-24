@@ -7,8 +7,8 @@ import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
-import com.yuri.dreamlinkcost.log.Log;
 import com.yuri.dreamlinkcost.model.impl.IAddNew;
+import com.yuri.xlog.Log;
 
 import cn.bmob.v3.listener.SaveListener;
 
