@@ -34,7 +34,7 @@ public class PermissionManager {
      */
     public static boolean hasPermission(Context context, String permission) {
         //只有6.0以上系统才需要运行时检查权限，否则直接返回ture
-        return !isAndroidM() || ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**

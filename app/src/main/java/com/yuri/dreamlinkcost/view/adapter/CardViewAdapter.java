@@ -1,6 +1,7 @@
 package com.yuri.dreamlinkcost.view.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -147,21 +148,18 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         if (object instanceof BmobCost) {
             BmobCost bmobCost = (BmobCost) object;
             cardItem = new CardItem(mContext).getCardItem(bmobCost);
-
-            holder.mTitleView.setText(cardItem.title);
-            holder.mTotalPayView.setText(cardItem.info);
-            holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
-            holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
-
         } else {
             Cost cost = (Cost) object;
             cardItem = new CardItem(mContext).getCardItem(cost);
-
-            holder.mTitleView.setText(cardItem.title);
-            holder.mTotalPayView.setText(cardItem.info);
-            holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
-            holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
         }
+
+        holder.mTitleView.setText(cardItem.title);
+        holder.mTotalPayView.setText(cardItem.info);
+        holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
+        holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
+        holder.mDateView.setText(cardItem.date);
+        holder.mCommitStatus.setText(cardItem.isCommited ? "Commited" : "UnCommited");
+        holder.mCommitStatus.setTextColor(cardItem.isCommited ? Color.GREEN : Color.RED);
 
         if (mOnScrollIdle) {
             showItemAnim(holder.itemView, position);
