@@ -1,6 +1,5 @@
 package com.yuri.dreamlinkcost.view.ui;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,8 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.bmob.pay.tool.BmobPay;
-import com.bmob.pay.tool.PayListener;
 import com.yuri.dreamlinkcost.R;
 
 import java.io.File;
@@ -68,78 +65,78 @@ public class PayActivity extends AppCompatActivity {
     }
 
     private void payByAli(final View v) {
-        new BmobPay(PayActivity.this).pay(MONEY, PAY_BODY, new PayListener() {
-            @Override
-            public void orderId(String s) {
-                Snackbar.make(v, "获取订单成功!请等待跳转到支付页面~", Snackbar.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void succeed() {
-                showPaySuccessDialog();
-            }
-
-            @Override
-            public void fail(int i, String s) {
-                Snackbar.make(v, "支付中断!", Snackbar.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void unknow() {
-                Snackbar.make(v, "支付结果未知,请稍后手动查询", Snackbar.LENGTH_SHORT).show();
-            }
-        });
+//        new BmobPay(PayActivity.this).pay(MONEY, PAY_BODY, new PayListener() {
+//            @Override
+//            public void orderId(String s) {
+//                Snackbar.make(v, "获取订单成功!请等待跳转到支付页面~", Snackbar.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void succeed() {
+//                showPaySuccessDialog();
+//            }
+//
+//            @Override
+//            public void fail(int i, String s) {
+//                Snackbar.make(v, "支付中断!", Snackbar.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void unknow() {
+//                Snackbar.make(v, "支付结果未知,请稍后手动查询", Snackbar.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     private void payByWX(final View v) {
-        new BmobPay(PayActivity.this).payByWX(MONEY, PAY_BODY, new PayListener() {
-            @Override
-            public void orderId(String s) {
-                Snackbar.make(v, "获取订单成功!请等待跳转到支付页面~", Snackbar.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void succeed() {
-                showPaySuccessDialog();
-            }
-
-            @Override
-            public void fail(int i, String s) {
-                if (i == -3) {
-                    //需要安装插件
-                    new AlertDialog.Builder(PayActivity.this)
-                            .setMessage(
-                                    "监测到你尚未安装支付插件,无法进行微信支付,请选择安装插件(已打包在本地,无流量消耗)还是用支付宝支付")
-                            .setPositiveButton("安装",
-                                    new DialogInterface.OnClickListener() {
-
-                                        @Override
-                                        public void onClick(
-                                                DialogInterface dialog,
-                                                int which) {
-                                            installBmobPayPlugin("BmobPayPlugin.apk");
-                                        }
-                                    })
-                            .setNegativeButton("支付宝支付",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(
-                                                DialogInterface dialog,
-                                                int which) {
-                                            payByAli(v);
-                                        }
-                                    }).create().show();
-                } else {
-                    Snackbar.make(v, "支付中断", Snackbar.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void unknow() {
-                Snackbar.make(v, "支付结果未知,请稍后手动查询", Snackbar.LENGTH_SHORT).show();
-            }
-        });
+//        new BmobPay(PayActivity.this).payByWX(MONEY, PAY_BODY, new PayListener() {
+//            @Override
+//            public void orderId(String s) {
+//                Snackbar.make(v, "获取订单成功!请等待跳转到支付页面~", Snackbar.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void succeed() {
+//                showPaySuccessDialog();
+//            }
+//
+//            @Override
+//            public void fail(int i, String s) {
+//                if (i == -3) {
+//                    //需要安装插件
+//                    new AlertDialog.Builder(PayActivity.this)
+//                            .setMessage(
+//                                    "监测到你尚未安装支付插件,无法进行微信支付,请选择安装插件(已打包在本地,无流量消耗)还是用支付宝支付")
+//                            .setPositiveButton("安装",
+//                                    new DialogInterface.OnClickListener() {
+//
+//                                        @Override
+//                                        public void onClick(
+//                                                DialogInterface dialog,
+//                                                int which) {
+//                                            installBmobPayPlugin("BmobPayPlugin.apk");
+//                                        }
+//                                    })
+//                            .setNegativeButton("支付宝支付",
+//                                    new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(
+//                                                DialogInterface dialog,
+//                                                int which) {
+//                                            payByAli(v);
+//                                        }
+//                                    }).create().show();
+//                } else {
+//                    Snackbar.make(v, "支付中断", Snackbar.LENGTH_SHORT).show();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void unknow() {
+//                Snackbar.make(v, "支付结果未知,请稍后手动查询", Snackbar.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     void installBmobPayPlugin(String fileName) {

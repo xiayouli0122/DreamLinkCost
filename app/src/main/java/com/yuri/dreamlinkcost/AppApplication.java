@@ -3,20 +3,17 @@ package com.yuri.dreamlinkcost;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.os.Environment;
 
 import com.activeandroid.ActiveAndroid;
-import com.bmob.BmobConfiguration;
-import com.bmob.BmobPro;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.xlog.Log;
 import com.yuri.xlog.Settings;
 
 import java.util.List;
 
-/**
- * Created by Yuri on 2015/7/7.
- */
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobConfig;
+
 public class AppApplication extends Application {
 
     @Override
@@ -35,9 +32,20 @@ public class AppApplication extends Application {
                 //Bugly
                 CrashReport.initCrashReport(getApplicationContext(), "900005722", true);
 
-                BmobConfiguration config = new BmobConfiguration.Builder(getApplicationContext())
-                        .customExternalCacheDir(Environment.DIRECTORY_DOWNLOADS).build();
-                BmobPro.getInstance(getApplicationContext()).initConfig(config);
+                //默认初始化
+//                Bmob.initialize(this, "da0e5e015563ce04e1675989c4d81012");
+                //更详细初始化
+                BmobConfig config = new BmobConfig.Builder(this)
+                        //设置appkey
+                        .setApplicationId(Constant.BMOB_APP_ID)
+                        //请求超时时间（单位为秒）：默认15s
+                        .setConnectTimeout(30)
+                        //文件分片上传时每片的大小（单位字节），默认512*1024
+                        .setUploadBlockSize(1024*1024)
+                        //文件的过期时间(单位为秒)：默认1800s
+                        .setFileExpiration(2400)
+                        .build();
+                Bmob.initialize(config);
 
 //                LeakCanary.install(this);
 

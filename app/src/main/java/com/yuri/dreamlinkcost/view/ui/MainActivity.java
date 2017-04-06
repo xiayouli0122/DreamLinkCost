@@ -26,7 +26,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bmob.pay.tool.BmobPay;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yuri.dreamlinkcost.BuildConfig;
 import com.yuri.dreamlinkcost.Constant;
@@ -55,11 +54,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.bmob.push.BmobPush;
 import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobInstallation;
+import cn.bmob.v3.BmobBatch;
 import cn.bmob.v3.BmobObject;
-import cn.bmob.v3.listener.UpdateListener;
+import cn.bmob.v3.datatype.BatchResult;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.QueryListListener;
 
 
 public class MainActivity extends AppCompatActivity implements MainFragment.OnMainFragmentListener,
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        BmobPay.init(this, Constant.BMOB_APP_ID);
+//        BmobPay.init(this, Constant.BMOB_APP_ID);
 
         setContentView(R.layout.activity_main);
 
@@ -106,9 +106,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         Bmob.initialize(this, Constant.BMOB_APP_ID);
         //2016年4月6日09:21:05 bmob的push暂时出现了bug，
 //        // 使用推送服务时的初始化操作
-        BmobInstallation.getCurrentInstallation(this).save();
+//        BmobInstallation.getCurrentInstallation(this).save();
         // 启动推送服务
-        BmobPush.startWork(this, Constant.BMOB_APP_ID);
+//        BmobPush.startWork(this, Constant.BMOB_APP_ID);
 
 
         //Bugly
@@ -368,24 +368,32 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                             return;
                         }
 
-                        if (list.size() > 50) {
-                            BmobCost bmobCost;
-                            for (int k = 0; k < list.size(); k++) {
-                                bmobCost = list.get(k);
-                                bmobCost.clear = true;
-                                updateList.add(bmobCost);
-                                if (updateList.size() >= 50) {
-                                    break;
-                                }
-                            }
-                            doUpdateBatch(updateList, 50, list);
-                        } else {
-                            for (BmobCost bmobCost : list) {
-                                bmobCost.clear = true;
-                                updateList.add(bmobCost);
-                            }
-                            doUpdateBatch(updateList, list.size(), null);
+                        BmobCost updateCost;
+                        for (BmobCost bmobCost : list) {
+                            updateCost = bmobCost;
+                            updateCost.clear = true;
+                            updateList.add(updateCost);
                         }
+
+                        doUpdateBatch(updateList, 0, null);
+//                        if (list.size() > 50) {
+//                            BmobCost bmobCost;
+//                            for (int k = 0; k < list.size(); k++) {
+//                                bmobCost = list.get(k);
+//                                bmobCost.clear = true;
+//                                updateList.add(bmobCost);
+//                                if (updateList.size() >= 50) {
+//                                    break;
+//                                }
+//                            }
+//                            doUpdateBatch(updateList, 50, list);
+//                        } else {
+//                            for (BmobCost bmobCost : list) {
+//                                bmobCost.clear = true;
+//                                updateList.add(bmobCost);
+//                            }
+//                            doUpdateBatch(updateList, list.size(), null);
+//                        }
                     }
                 })
                 .create().show();
@@ -398,41 +406,28 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
      * @param srcList 源list
      */
     private void doUpdateBatch(List<BmobObject> updateList, final int index, final  List<BmobCost> srcList) {
-        //批量操作目前bmob只支持最多50条数据操作
-        new BmobObject().updateBatch(getApplicationContext(), updateList, new UpdateListener() {
+        Log.d("updateBatch.size:" + updateList.size());
+        new BmobBatch().updateBatch(updateList).doBatch(new QueryListListener<BatchResult>() {
             @Override
-            public void onSuccess() {
-                Log.d("updateBatch success.index:" + index + ",total:" + (srcList == null ? 0 : srcList.size()));
-                if (srcList == null || index == srcList.size()) {
+            public void done(List<BatchResult> list, BmobException e) {
+                if(e==null){
+                    Log.d("updateBatch success");
+                    if (srcList == null || index == srcList.size()) {
+                        if (progressDialog != null) {
+                            progressDialog.cancel();
+                        }
+
+                        if (mainFragment != null) {
+                            mainFragment.refresh();
+                        }
+                    }
+                }else{
+                    Log.d("updateBatch fail:" + e.getMessage());
                     if (progressDialog != null) {
                         progressDialog.cancel();
                     }
-
-                    if (mainFragment != null) {
-                        mainFragment.refresh();
-                    }
-                } else {
-                    List<BmobObject> updateList = new ArrayList<>();
-                    BmobCost bmobCost;
-                    for (int k = index; k < srcList.size(); k++) {
-                        bmobCost = srcList.get(k);
-                        bmobCost.clear = true;
-                        updateList.add(srcList.get(k));
-                        if (updateList.size() >= 50) {
-                            break;
-                        }
-                    }
-                    doUpdateBatch(updateList, index + updateList.size(), srcList);
+                    Toast.makeText(getApplicationContext(), "提交失败:" + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                Log.d("updateBatch fail:" + s);
-                if (progressDialog != null) {
-                    progressDialog.cancel();
-                }
-                Toast.makeText(getApplicationContext(), "提交失败:" + s, Toast.LENGTH_LONG).show();
             }
         });
     }

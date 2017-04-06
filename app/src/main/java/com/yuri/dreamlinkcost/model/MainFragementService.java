@@ -14,9 +14,10 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
-import cn.bmob.v3.listener.DeleteListener;
+import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
 
 /**
  * Created by Yuri on 2016/1/16.
@@ -29,17 +30,16 @@ public class MainFragementService extends BaseMain implements IMainFragment{
         BmobCost bmobCost;
         for (final Cost cost : costs) {
             bmobCost = cost.getCostBean();
-            bmobCost.save(context, new SaveListener() {
+            bmobCost.save(new SaveListener<String>() {
                 @Override
-                public void onSuccess() {
-                    Log.d("Yuri", "upload success:" + cost.title);
-                    //上传成功后，删除本地数据
-                    cost.delete();
-                }
-
-                @Override
-                public void onFailure(int i, String s) {
-                    Log.d("Yuri", "upload failure:" + cost.title);
+                public void done(String objectId, BmobException e) {
+                    if (e == null) {
+                        Log.d("Yuri", "upload success:" + cost.title);
+                        //上传成功后，删除本地数据
+                        cost.delete();
+                    } else {
+                        Log.d("Yuri", "upload failure:" + cost.title);
+                    }
                 }
             });
         }
@@ -49,24 +49,23 @@ public class MainFragementService extends BaseMain implements IMainFragment{
     public void commit(final Context context, long id, final CommitResultListener listener) {
         final Cost cost = Cost.load(Cost.class, id);
         final BmobCost bmobCost = cost.getCostBean();
-        bmobCost.save(context, new SaveListener() {
+        bmobCost.save(new SaveListener<String>() {
             @Override
-            public void onSuccess() {
-                Log.d("upload success:" + cost.title);
-                Toast.makeText(context, "upload success", Toast.LENGTH_SHORT).show();
-                cost.status = Constant.STATUS_COMMIT_SUCCESS;
-                cost.objectId = bmobCost.getObjectId();
-                cost.save();
+            public void done(String objectId, BmobException e) {
+                if (e == null) {
+                    Log.d("upload success:" + cost.title);
+                    Toast.makeText(context, "upload success", Toast.LENGTH_SHORT).show();
+                    cost.status = Constant.STATUS_COMMIT_SUCCESS;
+                    cost.objectId = bmobCost.getObjectId();
+                    cost.save();
 
-                if (listener != null) {
-                    listener.onCommitSuccess();
-                }
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                if (listener != null) {
-                    listener.onCommitFail(i, s);
+                    if (listener != null) {
+                        listener.onCommitSuccess();
+                    }
+                } else {
+                    if (listener != null) {
+                        listener.onCommitFail(e.getErrorCode(), e.getMessage());
+                    }
                 }
             }
         });
@@ -84,18 +83,17 @@ public class MainFragementService extends BaseMain implements IMainFragment{
 
     @Override
     public void delete(Context context, BmobCost bmobCost, final OnDeleteItemListener listener) {
-        bmobCost.delete(context, new DeleteListener() {
+        bmobCost.delete(new UpdateListener() {
             @Override
-            public void onSuccess() {
-                if (listener != null) {
-                    listener.onDeleteSucess();
-                }
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                if (listener != null) {
-                    listener.onDeleteFail(s);
+            public void done(BmobException e) {
+                if (e == null) {
+                    if (listener != null) {
+                        listener.onDeleteSucess();
+                    }
+                } else {
+                    if (listener != null) {
+                        listener.onDeleteFail(e.getMessage());
+                    }
                 }
             }
         });
@@ -112,54 +110,54 @@ public class MainFragementService extends BaseMain implements IMainFragment{
         BmobQuery<BmobCost> bmobQuery = new BmobQuery<>();
         bmobQuery.addWhereEqualTo("clear", false);
         bmobQuery.order("-createDate");//按日期倒序排序
-        bmobQuery.findObjects(context, new FindListener<BmobCost>() {
+        bmobQuery.setLimit(1000);
+        bmobQuery.findObjects(new FindListener<BmobCost>() {
             @Override
-            public void onSuccess(List<BmobCost> list) {
-                Log.d("serverSize=" + list.size());
-                List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
-                Log.d("localSize=" + localList.size());
+            public void done(List<BmobCost> list, BmobException e) {
+                if (e == null) {
+                    Log.d("serverSize=" + list.size());
+                    List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
+                    Log.d("localSize=" + localList.size());
 
-                if (listener != null) {
-                    listener.onSuccess(list, localList);
-                }
-
-                if (list.size() + localList.size() == 0) {
                     if (listener != null) {
-                        listener.onUpdateMoney("");
+                        listener.onSuccess(list, localList);
+                    }
+
+                    if (list.size() + localList.size() == 0) {
+                        if (listener != null) {
+                            listener.onUpdateMoney("");
+                        }
+                    } else {
+                        //统计一下
+                        float liuchengPay = 0;
+                        float xiaofeiPay = 0;
+                        float yuriPay = 0;
+                        for (BmobCost cos : list) {
+                            liuchengPay += cos.payLC;
+                            xiaofeiPay += cos.payXF;
+                            yuriPay += cos.payYuri;
+                        }
+
+                        for (Cost cost : localList) {
+                            liuchengPay += cost.payLC;
+                            xiaofeiPay += cost.payXF;
+                            yuriPay += cost.payYuri;
+                        }
+
+                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("L:" + decimalFormat.format(liuchengPay) + ",");
+                        sb.append("X:" + decimalFormat.format(xiaofeiPay) + ",");
+                        sb.append("Y:" + decimalFormat.format(yuriPay));
+                        if (listener != null) {
+                            listener.onUpdateMoney(sb.toString());
+                        }
                     }
                 } else {
-                    //统计一下
-                    float liuchengPay = 0;
-                    float xiaofeiPay = 0;
-                    float yuriPay = 0;
-                    for (BmobCost cos : list) {
-                        liuchengPay += cos.payLC;
-                        xiaofeiPay += cos.payXF;
-                        yuriPay += cos.payYuri;
-                    }
-
-                    for (Cost cost : localList) {
-                        liuchengPay += cost.payLC;
-                        xiaofeiPay += cost.payXF;
-                        yuriPay += cost.payYuri;
-                    }
-
-                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("L:" + decimalFormat.format(liuchengPay) + ",");
-                    sb.append("X:" + decimalFormat.format(xiaofeiPay) + ",");
-                    sb.append("Y:" + decimalFormat.format(yuriPay));
+                    Log.d("onError.errorCode:" + e.getErrorCode() + ",errorMsg:" + e.getMessage());
                     if (listener != null) {
-                        listener.onUpdateMoney(sb.toString());
+                        listener.onFail(e.getMessage());
                     }
-                }
-            }
-
-            @Override
-            public void onError(int i, String s) {
-                Log.d("onError.errorCode:" + i + ",errorMsg:" + s);
-                if (listener != null) {
-                    listener.onFail(s);
                 }
             }
         });

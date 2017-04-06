@@ -10,6 +10,7 @@ import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.model.impl.IAddNew;
 import com.yuri.xlog.Log;
 
+import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
 
 /**
@@ -29,16 +30,13 @@ public class AddNew extends BaseMain implements IAddNew {
             title.save();
             BmobTitle bmobTitle = title.getBmobTitle();
             final Title finalTitle = title;
-            bmobTitle.save(context, new SaveListener() {
+            bmobTitle.save(new SaveListener<String>() {
                 @Override
-                public void onSuccess() {
-                    finalTitle.mHasCommited = true;
-                    finalTitle.save();
-                }
-
-                @Override
-                public void onFailure(int i, String s) {
-
+                public void done(String s, BmobException e) {
+                    if (e == null) {
+                        finalTitle.mHasCommited = true;
+                        finalTitle.save();
+                    }
                 }
             });
         }
@@ -51,21 +49,19 @@ public class AddNew extends BaseMain implements IAddNew {
         }
 
         final BmobCost bmobCost = cost.getCostBean();
-        bmobCost.save(context, new SaveListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d();
-                        saveNewTitle(context, cost.title);
-                        listener.onCommitSuccess();
-                    }
-
-                    @Override
-                    public void onFailure(int i, String s) {
-                        cost.save();
-                        listener.onCommitFail(i, s);
-                    }
+        bmobCost.save(new SaveListener<String>() {
+            @Override
+            public void done(String s, BmobException e) {
+                if (e == null) {
+                    Log.d();
+                    saveNewTitle(context, cost.title);
+                    listener.onCommitSuccess();
+                } else {
+                    cost.save();
+                    listener.onCommitFail(e.getErrorCode(), e.getMessage());
                 }
-        );
+            }
+        });
     }
 
 }

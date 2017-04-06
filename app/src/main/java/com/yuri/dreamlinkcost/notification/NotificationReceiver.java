@@ -8,12 +8,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.bmob.BmobProFile;
-import com.bmob.btp.callback.DownloadListener;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.notification.pendingintent.ClickPendingIntentBroadCast;
 import com.yuri.dreamlinkcost.utils.SharedPreferencesUtil;
 import com.yuri.xlog.Log;
+
+import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.DownloadFileListener;
 
 /**
  * 监听通知栏被点击，请清除
@@ -81,38 +83,38 @@ public class NotificationReceiver extends BroadcastReceiver {
         builder.setOnClickBroadCast(installApp);
         builder.setProgress(100, 0);
         builder.getSimpleNotification().build(false);
-        BmobProFile.getInstance(context).download(fileName, new DownloadListener() {
+        final BmobFile bmobFile = new BmobFile("test.apk", "", fileName);
+        bmobFile.download(new DownloadFileListener() {
             @Override
-            public void onSuccess(String s) {
-                Log.d("path:" + s);
-                builder.setContentTitle("下载完成，点击按钮");
-                builder.getSimpleNotification().build(true);
-                SharedPreferences sharedPreferences = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("apkPath", s);
-                editor.apply();
+            public void done(String s, BmobException e) {
+                if (e == null) {
+                    Log.d("path:" + s);
+                    builder.setContentTitle("下载完成，点击按钮");
+                    builder.getSimpleNotification().build(true);
+                    SharedPreferences sharedPreferences = context.getSharedPreferences(Constant.SHARED_NAME, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("apkPath", s);
+                    editor.apply();
 
-                Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                installIntent.setDataAndType(Uri.parse("file://" + s), "application/vnd.android.package-archive");
-                context.startActivity(installIntent);
-            }
-
-            @Override
-            public void onProgress(String s, int i) {
-                Log.d("path:" + s + ",progress:" + i);
-                if (i != mLastPercent) {
-                    mLastPercent = i;
-                    builder.setProgress(100, i);
-                    builder.getSimpleNotification().build(false);
+                    Intent installIntent = new Intent(Intent.ACTION_VIEW);
+                    installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    installIntent.setDataAndType(Uri.parse("file://" + s), "application/vnd.android.package-archive");
+                    context.startActivity(installIntent);
+                } else {
+                    Log.d("error:" + s);
+                    builder.setContentTitle("下载失败:" + s);
+                    builder.getSimpleNotification().build(true);
                 }
             }
 
             @Override
-            public void onError(int i, String s) {
-                Log.d("error:" + s);
-                builder.setContentTitle("下载失败:" + s);
-                builder.getSimpleNotification().build(true);
+            public void onProgress(Integer value, long newworkSpeed) {
+                Log.d("path:" + bmobFile.getFileUrl() + ",progress:" + value);
+                if (value != mLastPercent) {
+                    mLastPercent = value;
+                    builder.setProgress(100, value);
+                    builder.getSimpleNotification().build(false);
+                }
             }
         });
     }
