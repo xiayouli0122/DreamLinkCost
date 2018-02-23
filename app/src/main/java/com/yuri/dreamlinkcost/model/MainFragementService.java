@@ -109,7 +109,7 @@ public class MainFragementService extends BaseMain implements IMainFragment{
         Log.d();
         BmobQuery<BmobCost> bmobQuery = new BmobQuery<>();
         bmobQuery.addWhereEqualTo("clear", false);
-        bmobQuery.order("-createDate");//按日期倒序排序
+        bmobQuery.order("-createdAt");//按日期倒序排序
         bmobQuery.setLimit(1000);
         bmobQuery.findObjects(new FindListener<BmobCost>() {
             @Override
