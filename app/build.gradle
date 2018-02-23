@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 //butterknife need
-apply plugin: 'android-apt'
-//apply plugin: 'com.android.databinding'
+apply plugin: 'com.jakewharton.butterknife'
+//kotlin
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
-
+    compileSdkVersion 26
     defaultConfig {
         applicationId "com.yuri.dreamlinkcost"
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion 21
+        targetSdkVersion 26
         versionCode 62
         versionName "6.2"
         testApplicationId "com.yuri.test"
@@ -50,12 +50,12 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':bmoblib')
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support:recyclerview-v7:25.2.0'
-    compile 'com.android.support:cardview-v7:25.2.0'
-    compile 'com.android.support:design:25.2.0'
-    compile 'com.android.support:support-v4:25.2.0'
+//    compile project(':bmoblib')
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.support:cardview-v7:26.1.0'
+    compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support:support-v4:26.1.0'
     //日期选择库datetimepicker
     compile 'com.github.flavienlaurent.datetimepicker:library:0.0.2'
     //    compile 'com.facebook.fresco:fresco:0.6.1+'
@@ -71,10 +71,12 @@ dependencies {
     //爆炸效果
     compile 'tyrantgit:explosionfield:1.0.1'
     //butterknife
-    compile 'com.jakewharton:butterknife:8.1.0'
-    apt 'com.jakewharton:butterknife-compiler:8.1.0'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 //    compile 'io.reactivex:rxandroid:1.2.0'
     compile 'com.yuri.xlog:xlog:1.0.1'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+
+    compile 'cn.bmob.android:bmob-sdk:3.5.3'
 }
 
