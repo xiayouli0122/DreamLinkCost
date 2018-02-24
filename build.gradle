@@ -1,21 +1,24 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 println("I'm now compiling with gradle " + project.gradle.gradleVersion);
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.1.51'
+    ext.butterknife_version = '8.8.1'
     repositories {
         jcenter()
         google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
+
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 //        classpath 'com.android.databinding:dataBinder:1.0-rc0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
         // the latest version of the android-apt plugin
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         //butterknife need
-        classpath 'com.jakewharton:butterknife-gradle-plugin:8.4.0'
+//        classpath "com.jakewharton:butterknife-gradle-plugin:$butterknife_version"
     }
 }
 

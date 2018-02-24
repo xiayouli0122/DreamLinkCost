@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 //butterknife need
-apply plugin: 'com.jakewharton.butterknife'
+//apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'kotlin-kapt'
 //kotlin
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -71,8 +72,9 @@ dependencies {
     //爆炸效果
     compile 'tyrantgit:explosionfield:1.0.1'
     //butterknife
-    compile 'com.jakewharton:butterknife:8.4.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    implementation "com.jakewharton:butterknife:$butterknife_version"
+    kapt "com.jakewharton:butterknife-compiler:$butterknife_version"
+//    annotationProcessor "com.jakewharton:butterknife-compiler:$butterknife_version"
 //    compile 'io.reactivex:rxandroid:1.2.0'
     compile 'com.yuri.xlog:xlog:1.0.1'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
