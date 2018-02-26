@@ -69,7 +69,7 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
         setResult(Activity.RESULT_CANCELED)
 
         mProgressDialog = ProgressDialog(this)
-        mProgressDialog!!.setMessage("Commiting...")
+        mProgressDialog!!.setMessage("数据提交中...")
         mProgressDialog!!.setCanceledOnTouchOutside(false)
         mProgressDialog!!.setCancelable(false)
         mProgressDialog!!.setProgressStyle(ProgressDialog.STYLE_SPINNER)
@@ -154,7 +154,7 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
         cb_xiaofei!!.isChecked = true
         cb_yuri!!.isChecked = true
 
-        tv_date_picker!!.text = "Date:" + TimeUtil.getDate(System.currentTimeMillis())
+        tv_date_picker!!.text = "日期:" + TimeUtil.getDate(System.currentTimeMillis())
 
         cb_liucheng!!.setOnCheckedChangeListener(this)
         cb_xiaofei!!.setOnCheckedChangeListener(this)
@@ -359,8 +359,8 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
             AlertDialog.Builder(this)
                     .setTitle(cost.title)
                     .setMessage(sb.toString())
-                    .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Commit") { dialogInterface, which ->
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("提交") { dialogInterface, which ->
                         if (mProgressDialog != null) {
                             mProgressDialog!!.show()
                         }
@@ -395,7 +395,7 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
         AlertDialog.Builder(this)
                 .setMessage("放弃本次编辑？")
                 .setNegativeButton("取消", null)
-                .setPositiveButton("确定") { dialogInterface, i -> this@AddNewActivity.finish() }.create().show()
+                .setPositiveButton("确定") { _, _ -> this@AddNewActivity.finish() }.create().show()
     }
 
     override fun onClick(view: View) {

@@ -148,7 +148,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
      * @param serverList 服务端列表
      * @param localList 本地列表
      */
-    override fun updateList(result: Boolean, serverList: List<BmobCost>, localList: List<Cost>) {
+    override fun updateList(result: Boolean, serverList: List<BmobCost>?, localList: List<Cost>?) {
         if (!result) {
             Snackbar.make(my_recycler_view!!, "加载失败，请重试", Snackbar.LENGTH_LONG)
                     .setAction("重试") {
@@ -161,8 +161,8 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         }
 
         adapter!!.clearList()
-        mNetCostList = serverList
-        mLocalCostList = localList
+        mNetCostList = serverList!!
+        mLocalCostList = localList!!
         swipe_container!!.isRefreshing = false
 
         if (serverList.size + localList.size == 0) {
@@ -261,7 +261,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         })
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("resultCOde:" + resultCode)
         if (Activity.RESULT_OK == resultCode) {
