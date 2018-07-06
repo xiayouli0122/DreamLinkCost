@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.Constant;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.model.impl.IMainFragment;
 import com.yuri.xlog.Log;
@@ -27,7 +27,7 @@ public class MainFragementService extends BaseMain implements IMainFragment{
     @Override
     public void commitLocalData(Context context, CommitResultListener listener) {
         List<Cost> costs = new Select().from(Cost.class).where("status=?", Constant.STATUS_COMMIT_FAILURE).execute();
-        BmobCost bmobCost;
+        BmobCostYuri bmobCost;
         for (final Cost cost : costs) {
             bmobCost = cost.getCostBean();
             bmobCost.save(new SaveListener<String>() {
@@ -48,7 +48,7 @@ public class MainFragementService extends BaseMain implements IMainFragment{
     @Override
     public void commit(final Context context, long id, final CommitResultListener listener) {
         final Cost cost = Cost.load(Cost.class, id);
-        final BmobCost bmobCost = cost.getCostBean();
+        final BmobCostYuri bmobCost = cost.getCostBean();
         bmobCost.save(new SaveListener<String>() {
             @Override
             public void done(String objectId, BmobException e) {
@@ -82,7 +82,7 @@ public class MainFragementService extends BaseMain implements IMainFragment{
     }
 
     @Override
-    public void delete(Context context, BmobCost bmobCost, final OnDeleteItemListener listener) {
+    public void delete(Context context, BmobCostYuri bmobCost, final OnDeleteItemListener listener) {
         bmobCost.delete(new UpdateListener() {
             @Override
             public void done(BmobException e) {
@@ -107,48 +107,36 @@ public class MainFragementService extends BaseMain implements IMainFragment{
     @Override
     public void syncData(Context context, final SyncDataResultListener listener) {
         Log.d();
-        BmobQuery<BmobCost> bmobQuery = new BmobQuery<>();
+        BmobQuery<BmobCostYuri> bmobQuery = new BmobQuery<>();
         bmobQuery.addWhereEqualTo("clear", false);
         bmobQuery.order("-createdAt");//按日期倒序排序
         bmobQuery.setLimit(1000);
-        bmobQuery.findObjects(new FindListener<BmobCost>() {
+        bmobQuery.findObjects(new FindListener<BmobCostYuri>() {
             @Override
-            public void done(List<BmobCost> list, BmobException e) {
+            public void done(List<BmobCostYuri> list, BmobException e) {
                 if (e == null) {
                     Log.d("serverSize=" + list.size());
                     List<Cost> localList = new Select().from(Cost.class).where("clear=?", 0).orderBy("id desc").execute();
                     Log.d("localSize=" + localList.size());
-
                     if (listener != null) {
                         listener.onSuccess(list, localList);
                     }
-
                     if (list.size() + localList.size() == 0) {
                         if (listener != null) {
                             listener.onUpdateMoney("");
                         }
                     } else {
                         //统计一下
-                        float liuchengPay = 0;
-                        float xiaofeiPay = 0;
-                        float yuriPay = 0;
-                        for (BmobCost cos : list) {
-                            liuchengPay += cos.payLC;
-                            xiaofeiPay += cos.payXF;
-                            yuriPay += cos.payYuri;
+                        float totalPay = 0;
+                        for (BmobCostYuri cos : list) {
+                            totalPay += cos.totalPay;
                         }
-
                         for (Cost cost : localList) {
-                            liuchengPay += cost.payLC;
-                            xiaofeiPay += cost.payXF;
-                            yuriPay += cost.payYuri;
+                            totalPay += cost.totalPay;
                         }
-
                         DecimalFormat decimalFormat = new DecimalFormat("0.00");
                         StringBuilder sb = new StringBuilder();
-                        sb.append("L:" + decimalFormat.format(liuchengPay) + ",");
-                        sb.append("X:" + decimalFormat.format(xiaofeiPay) + ",");
-                        sb.append("Y:" + decimalFormat.format(yuriPay));
+                        sb.append("累计:¥" + decimalFormat.format(totalPay));
                         if (listener != null) {
                             listener.onUpdateMoney(sb.toString());
                         }

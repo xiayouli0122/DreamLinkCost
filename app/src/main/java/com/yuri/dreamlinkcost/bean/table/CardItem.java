@@ -3,9 +3,9 @@ package com.yuri.dreamlinkcost.bean.table;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
 import com.yuri.dreamlinkcost.R;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.utils.TimeUtil;
 
 import java.text.DecimalFormat;
@@ -24,21 +24,22 @@ public class CardItem {
         mContext = context;
     }
 
-    public CardItem getCardItem(BmobCost bmobCost) {
+    public CardItem getCardItem(BmobCostYuri bmobCost) {
         this.title = bmobCost.title;
-        String detail = "L:" + (bmobCost.payLC == 0 ? bmobCost.payLC + "" : mDecimalFormat.format(bmobCost.payLC))
-                + ", X:" + (bmobCost.payXF == 0 ? bmobCost.payXF + "" : mDecimalFormat.format(bmobCost.payXF))
-                + ", Y:" + (bmobCost.payYuri == 0 ? bmobCost.payYuri + "" : mDecimalFormat.format(bmobCost.payYuri));
-        this.info = "¥" + bmobCost.totalPay + "\n" + detail;
+//        String detail = "L:" + (bmobCost.payLC == 0 ? bmobCost.payLC + "" : mDecimalFormat.format(bmobCost.payLC))
+//                + ", X:" + (bmobCost.payXF == 0 ? bmobCost.payXF + "" : mDecimalFormat.format(bmobCost.payXF))
+//                + ", Y:" + (bmobCost.payYuri == 0 ? bmobCost.payYuri + "" : mDecimalFormat.format(bmobCost.payYuri));
+        this.info = "¥" + bmobCost.totalPay;
         this.isCommited = true;
         this.date = TimeUtil.getDate(bmobCost.createDate);
-        if (bmobCost.payLC > 0) {
-            this.header = Constant.Author.LIUCHENG;
-        } else if (bmobCost.payXF > 0) {
-            this.header = Constant.Author.XIAOFEI;
-        } else {
-            this.header = Constant.Author.YURI;
-        }
+        this.header = Constant.Author.YURI;
+//        if (bmobCost.payLC > 0) {
+//            this.header = Constant.Author.LIUCHENG;
+//        } else if (bmobCost.payXF > 0) {
+//            this.header = Constant.Author.XIAOFEI;
+//        } else {
+//            this.header = Constant.Author.YURI;
+//        }
         return this;
     }
 

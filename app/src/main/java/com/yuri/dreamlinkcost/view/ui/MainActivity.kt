@@ -31,7 +31,7 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.yuri.dreamlinkcost.BuildConfig
 import com.yuri.dreamlinkcost.Constant
 import com.yuri.dreamlinkcost.R
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri
 import com.yuri.dreamlinkcost.model.CommitResultListener
 import com.yuri.dreamlinkcost.model.Main
 import com.yuri.dreamlinkcost.notification.MMNotificationManager
@@ -83,23 +83,8 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
 
 
         //Bugly
-        val author = mMainPresenter!!.userId
-        val authorStr: String
-        authorStr = when (author) {
-            Constant.Author.LIUCHENG -> {
-                CrashReport.setUserId("LiuCheng")
-                "LIUCHENG"
-            }
-            Constant.Author.XIAOFEI -> {
-                CrashReport.setUserId("XiaoFei")
-                "XIAOFEI"
-            }
-            else -> {
-                CrashReport.setUserId("Yuri")
-                "YURI"
-            }
-        }
-        toolbar!!.title = getString(R.string.app_name) + "(" + authorStr + ")"
+        CrashReport.setUserId("Yuri")
+        toolbar!!.title = getString(R.string.app_name)
 
         init()
 
@@ -225,9 +210,6 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
         var yuriPay = 0f
         for (cos in list) {
             totalPay += cos.totalPay
-            liuchengPay += cos.payLC
-            xiaofeiPay += cos.payXF
-            yuriPay += cos.payYuri
         }
 
         val startTime = TimeUtil.getDate(list[list.size - 1].createDate)
@@ -293,7 +275,7 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
                 .create().show()
     }
 
-    private fun showJieSuanDialog(title: String, message: String, list: List<BmobCost>?) {
+    private fun showJieSuanDialog(title: String, message: String, list: List<BmobCostYuri>?) {
         AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
@@ -312,7 +294,7 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
                         return@OnClickListener
                     }
 
-                    var updateCost: BmobCost
+                    var updateCost: BmobCostYuri
                     for (bmobCost in list) {
                         updateCost = bmobCost
                         updateCost.clear = true
@@ -348,7 +330,7 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
      * @param index 当前更新最后一条记录在源list中的位置
      * @param srcList 源list
      */
-    private fun doUpdateBatch(updateList: List<BmobObject>, index: Int, srcList: List<BmobCost>?) {
+    private fun doUpdateBatch(updateList: List<BmobObject>, index: Int, srcList: List<BmobCostYuri>?) {
         Log.d("updateBatch.size:" + updateList.size)
         BmobBatch().updateBatch(updateList).doBatch(object : QueryListListener<BatchResult>() {
             override fun done(list: List<BatchResult>, e: BmobException?) {

@@ -7,7 +7,7 @@ import android.os.Message;
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.BuildConfig;
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.Bmob.Version;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
@@ -193,7 +193,7 @@ public class Main extends BaseMain implements IMain {
 
     @Override
     public void commitLocalData(Context context, List<Cost> costList, CommitResultListener listener) {
-        BmobCost bmobCost;
+        BmobCostYuri bmobCost;
         for (final Cost cost : costList) {
             bmobCost = cost.getCostBean();
             bmobCost.save(new SaveListener<String>() {

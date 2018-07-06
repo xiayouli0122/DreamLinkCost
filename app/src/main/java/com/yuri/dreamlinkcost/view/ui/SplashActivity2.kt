@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar
 import android.widget.ImageView
 
 import com.yuri.dreamlinkcost.R
+import com.yuri.dreamlinkcost.model.Main
 import com.yuri.dreamlinkcost.utils.permission.PermissionCallback
 import com.yuri.dreamlinkcost.utils.permission.PermissionManager
 
@@ -130,7 +131,7 @@ class SplashActivity2 : AppCompatActivity() {
         mHandler!!.removeMessages(MSG_START_ANIM)
         mHandler!!.removeMessages(MSG_END_SPLASH)
 
-        startActivity(Intent(this@SplashActivity2, LoginActivity::class.java))
+        startActivity(Intent(this@SplashActivity2, MainActivity::class.java))
 
         finish()
     }

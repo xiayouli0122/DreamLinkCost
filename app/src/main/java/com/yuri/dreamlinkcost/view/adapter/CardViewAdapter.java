@@ -9,13 +9,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yuri.dreamlinkcost.R;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.table.CardItem;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.xlog.Log;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,14 +23,14 @@ import butterknife.ButterKnife;
 
 public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.BindingHolder> {
 
-    private List<BmobCost> mCostList = new ArrayList<>();
-    private List<Cost> mLocalCostList = new ArrayList<>();
+    private List<BmobCostYuri> mCostList;
+    private List<Cost> mLocalCostList;
 
     private RecyclerViewClickListener mListener;
 
     private Context mContext;
 
-    public CardViewAdapter(Context context, List<Cost> localList, List<BmobCost> list) {
+    public CardViewAdapter(Context context, List<Cost> localList, List<BmobCostYuri> list) {
         mContext = context;
         this.mCostList = list;
         this.mLocalCostList = localList;
@@ -43,12 +42,12 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         mCostList.clear();
     }
 
-    public void setCostList(List<Cost> localList, List<BmobCost> list) {
+    public void setCostList(List<Cost> localList, List<BmobCostYuri> list) {
         this.mCostList = list;
         this.mLocalCostList = localList;
     }
 
-    public void addCostList(List<BmobCost> list) {
+    public void addCostList(List<BmobCostYuri> list) {
         for (int i = 0; i < list.size(); i++) {
             addItem(i, list.get(i));
         }
@@ -62,29 +61,29 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
 
     public void sortByPriceAsc() {
         Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.PRICE_ASC_COMPARATOR);
+        Collections.sort(mCostList, BmobCostYuri.PRICE_ASC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByPriceDesc() {
         Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.PRICE_DESC_COMPARATOR);
+        Collections.sort(mCostList, BmobCostYuri.PRICE_DESC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByDateAsc() {
         Collections.sort(mLocalCostList, Cost.DATE_ASC_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.DATE_ASC_COMPARATOR);
+        Collections.sort(mCostList, BmobCostYuri.DATE_ASC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByDateDesc() {
         Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR);
-        Collections.sort(mCostList, BmobCost.DATE_DESC_COMPARATOR);
+        Collections.sort(mCostList, BmobCostYuri.DATE_DESC_COMPARATOR);
         notifyDataSetChanged();
     }
 
-    public void addItem(int position, BmobCost cost) {
+    public void addItem(int position, BmobCostYuri cost) {
         mCostList.add(position, cost);
         notifyItemInserted(position);
     }
@@ -121,7 +120,7 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
     /**
      * 获取网络列表
      */
-    public List<BmobCost> getCostList() {
+    public List<BmobCostYuri> getCostList() {
         return this.mCostList;
     }
 
@@ -145,8 +144,8 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
     public void onBindViewHolder(BindingHolder holder, final int position) {
         Object object = getItem(position);
         CardItem cardItem;
-        if (object instanceof BmobCost) {
-            BmobCost bmobCost = (BmobCost) object;
+        if (object instanceof BmobCostYuri) {
+            BmobCostYuri bmobCost = (BmobCostYuri) object;
             cardItem = new CardItem(mContext).getCardItem(bmobCost);
         } else {
             Cost cost = (Cost) object;

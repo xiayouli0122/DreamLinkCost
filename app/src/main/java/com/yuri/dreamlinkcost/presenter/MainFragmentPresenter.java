@@ -3,6 +3,7 @@ package com.yuri.dreamlinkcost.presenter;
 import android.content.Context;
 
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.MainFragementService;
@@ -27,7 +28,7 @@ public class MainFragmentPresenter extends BasePresenter<IMainFragmentView> {
     public void syncData() {
         iMainFragment.syncData(mContext, new SyncDataResultListener() {
             @Override
-            public void onSuccess(List<BmobCost> serverList, List<Cost> localList) {
+            public void onSuccess(List<BmobCostYuri> serverList, List<Cost> localList) {
                 mView.updateList(true, serverList, localList);
             }
 
@@ -51,7 +52,7 @@ public class MainFragmentPresenter extends BasePresenter<IMainFragmentView> {
         iMainFragment.commit(mContext, id, listener);
     }
 
-    public void deleteItem(BmobCost bmobCost, OnDeleteItemListener listener) {
+    public void deleteItem(BmobCostYuri bmobCost, OnDeleteItemListener listener) {
         iMainFragment.delete(mContext, bmobCost, listener);
     }
 }

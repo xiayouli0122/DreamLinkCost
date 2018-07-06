@@ -1,6 +1,7 @@
 package com.yuri.dreamlinkcost.view.impl;
 
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 
 import java.util.List;
@@ -10,6 +11,6 @@ import java.util.List;
  */
 public interface IMainFragmentView extends IBaseView {
 
-    void updateList(boolean result, List<BmobCost> serverList, List<Cost> localList);
+    void updateList(boolean result, List<BmobCostYuri> serverList, List<Cost> localList);
     void updateTitleMoney(String result);
 }

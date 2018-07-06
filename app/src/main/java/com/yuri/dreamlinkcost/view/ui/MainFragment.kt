@@ -2,7 +2,6 @@ package com.yuri.dreamlinkcost.view.ui
 
 import android.app.Activity
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -15,7 +14,7 @@ import android.widget.Toast
 import com.yuri.dreamlinkcost.Constant
 import com.yuri.dreamlinkcost.ContextMenuRecyclerView
 import com.yuri.dreamlinkcost.R
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri
 import com.yuri.dreamlinkcost.bean.table.Cost
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener
 import com.yuri.dreamlinkcost.model.CommitResultListener
@@ -45,7 +44,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
     private var mListener: OnMainFragmentListener? = null
 
     /**云端列表 */
-    private var mNetCostList: List<BmobCost> = ArrayList()
+    private var mNetCostList: List<BmobCostYuri> = ArrayList()
     /**本地列表 */
     private var mLocalCostList: List<Cost> = ArrayList()
 
@@ -59,7 +58,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 //            adapter!!.costList
 //        } else null
 
-    fun getCostList() : List<BmobCost>? {
+    fun getCostList() : List<BmobCostYuri>? {
         if (adapter != null) {
             return  adapter!!.costList
         }
@@ -116,10 +115,6 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         adapter!!.setOnItemClickListener(this)
 
         my_recycler_view!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-            }
-
             override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 when (newState) {
@@ -148,7 +143,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
      * @param serverList 服务端列表
      * @param localList 本地列表
      */
-    override fun updateList(result: Boolean, serverList: List<BmobCost>?, localList: List<Cost>?) {
+    override fun updateList(result: Boolean, serverList: List<BmobCostYuri>?, localList: List<Cost>?) {
         if (!result) {
             Snackbar.make(my_recycler_view!!, "加载失败，请重试", Snackbar.LENGTH_LONG)
                     .setAction("重试") {
@@ -199,48 +194,24 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
     }
 
 
-    fun checkItem(`object`: Any) {
-        if (`object` is BmobCost) {
-            val title = `object`.title
+    fun checkItem(any: Any) {
+        if (any is BmobCostYuri) {
+            val title = any.title
             val status = "Commited"
-            val author: String
-            if (`object`.author == Constant.Author.LIUCHENG) {
-                author = "LiuCheng"
-            } else if (`object`.author == Constant.Author.XIAOFEI) {
-                author = "XiaoFei"
-            } else if (`object`.author == Constant.Author.YURI) {
-                author = "Yuri"
-            } else {
-                author = "UNKNOWN"
-            }
-            val message = ("TotalPay(¥):" + `object`.totalPay + "\n"
-                    + "LiuCheng(¥):" + `object`.payLC + "\n"
-                    + "XiaoFei(¥):" + `object`.payXF + "\n"
-                    + "Yuri(¥):" + `object`.payYuri + "\n\n"
+            val author: String = "Yuri"
+            val message = ("TotalPay(¥):" + any.totalPay + "\n"
                     + "Status:" + status + "\n"
-                    + "Date:" + TimeUtil.getDate(`object`.createDate) + "\n"
+                    + "Date:" + TimeUtil.getDate(any.createDate) + "\n"
                     + "Author:" + author)
             showDialog(title, message)
             return
         }
 
-        val cost = `object` as Cost
+        val cost = any as Cost
         val title = cost.title
         val status = "unCommited"
-        val author: String
-        if (cost.author == Constant.Author.LIUCHENG) {
-            author = "LiuCheng"
-        } else if (cost.author == Constant.Author.XIAOFEI) {
-            author = "XiaoFei"
-        } else if (cost.author == Constant.Author.YURI) {
-            author = "Yuri"
-        } else {
-            author = "UNKNOWN"
-        }
+        val author: String = "Yuri"
         val message = ("TotalPay(¥):" + cost.totalPay + "\n"
-                + "LiuCheng(¥):" + cost.payLC + "\n"
-                + "XiaoFei(¥):" + cost.payXF + "\n"
-                + "Yuri(¥):" + cost.payYuri + "\n\n"
                 + "Status:" + status + "\n"
                 + "Date:" + TimeUtil.getDate(cost.createDate) + "\n"
                 + "Author:" + author)
@@ -263,7 +234,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("resultCOde:" + resultCode)
+        Log.d("resultCOde:$resultCode")
         if (Activity.RESULT_OK == resultCode) {
             doGetDataFromNet()
         }
@@ -275,11 +246,6 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .create().show()
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-
     }
 
     override fun onAttach(activity: Activity) {
@@ -329,7 +295,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         val menuInfo = item.menuInfo as ContextMenuRecyclerView.RecyclerContextMenuInfo
         val position = menuInfo.position
         val `object` = adapter!!.getItem(position)
-        if (`object` is BmobCost) {
+        if (`object` is BmobCostYuri) {
             when (item.itemId) {
                 R.id.action_delete_all -> {
                     if (mProgressDialog != null) {
@@ -393,13 +359,13 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         val sort = SharedPreferencesUtil.get(activity, Constant.Extra.KEY_SORT, 0)
         if (sort == SORT_BY_DATE_DESC) {
             Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCost.DATE_DESC_COMPARATOR)
+            Collections.sort(mNetCostList, BmobCostYuri.DATE_DESC_COMPARATOR)
         } else if (sort == SORT_BY_PRICE_ASC) {
             Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCost.PRICE_ASC_COMPARATOR)
+            Collections.sort(mNetCostList, BmobCostYuri.PRICE_ASC_COMPARATOR)
         } else if (sort == SORT_BY_PRICE_DESC) {
             Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCost.PRICE_DESC_COMPARATOR)
+            Collections.sort(mNetCostList, BmobCostYuri.PRICE_DESC_COMPARATOR)
         }
         adapter!!.setCostList(mLocalCostList, mNetCostList)
         //这个方法有Bug
@@ -437,9 +403,9 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         return itemList
     }
 
-    fun getNetItemList(author: Int): List<BmobCost> {
-        val itemList = ArrayList<BmobCost>()
-        if (mNetCostList.size == 0) {
+    fun getNetItemList(author: Int): List<BmobCostYuri> {
+        val itemList = ArrayList<BmobCostYuri>()
+        if (mNetCostList.isEmpty()) {
             return itemList
         }
 
@@ -476,17 +442,18 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         //        });
 
         for (cost in mNetCostList) {
-            when (author) {
-                Constant.Author.LIUCHENG -> if (cost.payLC > 0) {
-                    itemList.add(cost)
-                }
-                Constant.Author.XIAOFEI -> if (cost.payXF > 0) {
-                    itemList.add(cost)
-                }
-                Constant.Author.YURI -> if (cost.payYuri > 0) {
-                    itemList.add(cost)
-                }
-            }
+            itemList.add(cost)
+//            when (author) {
+//                Constant.Author.LIUCHENG -> if (cost.payLC > 0) {
+//                    itemList.add(cost)
+//                }
+//                Constant.Author.XIAOFEI -> if (cost.payXF > 0) {
+//                    itemList.add(cost)
+//                }
+//                Constant.Author.YURI -> if (cost.payYuri > 0) {
+//                    itemList.add(cost)
+//                }
+//            }
         }
         return itemList
     }

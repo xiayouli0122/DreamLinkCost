@@ -25,7 +25,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/iv_logo"
         android:layout_marginTop="40dp"
-        android:text="不吹牛逼何以得天下 by 刘成"
+        android:text="不吹牛逼何以得天下 "
         />
 
 </RelativeLayout>

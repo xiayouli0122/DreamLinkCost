@@ -3,7 +3,7 @@ package com.yuri.dreamlinkcost.model;
 import android.content.Context;
 
 import com.activeandroid.query.Select;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
 import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
@@ -48,7 +48,7 @@ public class AddNew extends BaseMain implements IAddNew {
             throw new NullPointerException("CommitResultListener cannot be null");
         }
 
-        final BmobCost bmobCost = cost.getCostBean();
+        final BmobCostYuri bmobCost = cost.getCostBean();
         bmobCost.save(new SaveListener<String>() {
             @Override
             public void done(String s, BmobException e) {

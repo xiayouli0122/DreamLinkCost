@@ -3,8 +3,8 @@ package com.yuri.dreamlinkcost.bean.table;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.Constant;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -57,13 +57,10 @@ public class Cost extends Model {
                 '}';
     }
 
-    public BmobCost getCostBean() {
-        BmobCost costBean = new BmobCost();
+    public BmobCostYuri getCostBean() {
+        BmobCostYuri costBean = new BmobCostYuri();
         costBean.totalPay = this.totalPay;
         costBean.title = this.title;
-        costBean.payLC = this.payLC;
-        costBean.payXF = this.payXF;
-        costBean.payYuri = this.payYuri;
         costBean.author = this.author;
         costBean.createDate = this.createDate;
         costBean.clear = this.clear;
