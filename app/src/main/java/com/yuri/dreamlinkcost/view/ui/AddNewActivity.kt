@@ -19,7 +19,7 @@ import android.widget.Toast
 import com.fourmob.datetimepicker.date.DatePickerDialog
 import com.yuri.dreamlinkcost.Constant
 import com.yuri.dreamlinkcost.R
-import com.yuri.dreamlinkcost.bean.table.Cost
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri
 import com.yuri.dreamlinkcost.model.CommitResultListener
 import com.yuri.dreamlinkcost.presenter.AddNewPresenter
 import com.yuri.dreamlinkcost.utils.TimeUtil
@@ -261,7 +261,7 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
             }
         }
 
-        val cost = Cost()
+        val cost = BmobCostYuri()
         if (mCalendar != null) {
             cost.createDate = mCalendar!!.timeInMillis
         } else {
@@ -272,123 +272,51 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
         cost.title = titleStr
         cost.author = mAuthor
 
-        if (isAverage) {
-            val bili1: Float
-            val bili2: Float
-            if (selectCount == 2) {
-                bili1 = (1.0 / 2).toFloat()
-                bili2 = (1.0 / 2).toFloat()
-            } else {
-                bili1 = (2.0 / 3).toFloat()
-                bili2 = (1.0 / 3).toFloat()
-            }
-            Log.d("bili1:$bili1,bili2:$bili2")
-            when (rg_pay_person!!.checkedRadioButtonId) {
-                R.id.rb_liucheng -> {
-                    cost.payLC = cost.totalPay * bili1
-                    cost.payXF = if (hasXiaoFei) {-cost.totalPay * bili2} else { 0F }
-                    cost.payYuri = if (hasYuri) -cost.totalPay * bili2 else 0F
-                }
-                R.id.rb_xiaofei -> {
-                    cost.payXF = cost.totalPay * bili1
-                    cost.payLC = if (hasLiuCheng) -cost.totalPay * bili2 else 0F
-                    cost.payYuri = if (hasYuri) -cost.totalPay * bili2 else 0F
-                }
-                R.id.rb_yuri -> {
-                    cost.payYuri = cost.totalPay * bili1
-                    cost.payLC = if (hasLiuCheng) -cost.totalPay * bili2 else 0F
-                    cost.payXF = if (hasXiaoFei) -cost.totalPay * bili2 else 0F
-                }
-            }
+        setResult(Activity.RESULT_OK)
+        val author: String
+        if (cost.author == Constant.Author.LIUCHENG) {
+            author = "LiuCheng"
+        } else if (cost.author == Constant.Author.XIAOFEI) {
+            author = "XiaoFei"
+        } else if (cost.author == Constant.Author.YURI) {
+            author = "Yuri"
         } else {
-            var payLc = 0f
-            var payXf = 0f
-            var payYuri = 0f
-            if (hasLiuCheng) {
-                payLc = java.lang.Float.parseFloat(et_liucheng!!.text.toString().trim { it <= ' ' })
-            }
-
-            if (hasXiaoFei) {
-                payXf = java.lang.Float.parseFloat(et_xiaofei!!.text.toString().trim { it <= ' ' })
-            }
-
-            if (hasYuri) {
-                payYuri = java.lang.Float.parseFloat(et_yuri!!.text.toString().trim { it <= ' ' })
-            }
-
-            when (rg_pay_person!!.checkedRadioButtonId) {
-                R.id.rb_liucheng -> {
-                    cost.payLC = payLc
-                    cost.payXF = -payXf
-                    cost.payYuri = -payYuri
-                }
-                R.id.rb_xiaofei -> {
-                    cost.payXF = payXf
-                    cost.payLC = -payLc
-                    cost.payYuri = -payYuri
-                }
-                R.id.rb_yuri -> {
-                    cost.payYuri = payYuri
-                    cost.payLC = -payLc
-                    cost.payXF = -payXf
-                }
-            }
+            author = "UNKNOW"
         }
+        val sb = StringBuilder()
+        sb.append("Total(¥)：" + cost.totalPay + "\n")
+        sb.append("Editor：" + author + "\n")
+        sb.append("CreateDate：" + TimeUtil.getDate(cost.createDate) + "\n")
+        AlertDialog.Builder(this)
+                .setTitle(cost.title)
+                .setMessage(sb.toString())
+                .setNegativeButton("取消", null)
+                .setPositiveButton("提交") { dialogInterface, which ->
+                    if (mProgressDialog != null) {
+                        mProgressDialog!!.show()
+                    }
 
-        if (!isAverage && cost.payLC + cost.payXF + cost.payYuri != 0f) {
-            Toast.makeText(this, "Error.LC:" + cost.payLC + ",XF:" + cost.payXF + ",Yuri:" + cost.payYuri, Toast.LENGTH_SHORT).show()
-        } else {
-            setResult(Activity.RESULT_OK)
-            val author: String
-            if (cost.author == Constant.Author.LIUCHENG) {
-                author = "LiuCheng"
-            } else if (cost.author == Constant.Author.XIAOFEI) {
-                author = "XiaoFei"
-            } else if (cost.author == Constant.Author.YURI) {
-                author = "Yuri"
-            } else {
-                author = "UNKNOW"
-            }
-            val sb = StringBuilder()
-            sb.append("Total(¥)：" + cost.totalPay + "\n")
-            sb.append("LiuCheng(¥)：" + cost.payLC + "\n")
-            sb.append("XiaoFei(¥)：" + cost.payXF + "\n")
-            sb.append("Yuri(¥)：" + cost.payYuri + "\n\n\n")
-            sb.append("Editor：" + author + "\n")
-            sb.append("CreateDate：" + TimeUtil.getDate(cost.createDate) + "\n")
-            AlertDialog.Builder(this)
-                    .setTitle(cost.title)
-                    .setMessage(sb.toString())
-                    .setNegativeButton("取消", null)
-                    .setPositiveButton("提交") { dialogInterface, which ->
-                        if (mProgressDialog != null) {
-                            mProgressDialog!!.show()
+                    mAddNewPresenter!!.commit(cost, object : CommitResultListener {
+                        override fun onCommitSuccess() {
+                            Log.d(cost.toString())
+                            if (mProgressDialog != null) {
+                                mProgressDialog!!.cancel()
+                            }
+                            Toast.makeText(applicationContext, "upload success.", Toast.LENGTH_SHORT).show()
+                            setResult(Activity.RESULT_OK)
+                            this@AddNewActivity.finish()
                         }
 
-                        mAddNewPresenter!!.commit(cost, object : CommitResultListener {
-                            override fun onCommitSuccess() {
-                                Log.d(cost.toString())
-                                if (mProgressDialog != null) {
-                                    mProgressDialog!!.cancel()
-                                }
-                                Toast.makeText(applicationContext, "upload success.", Toast.LENGTH_SHORT).show()
-                                setResult(Activity.RESULT_OK)
-                                this@AddNewActivity.finish()
+                        override fun onCommitFail(errorCode: Int, msg: String) {
+                            if (mProgressDialog != null) {
+                                mProgressDialog!!.cancel()
                             }
-
-                            override fun onCommitFail(errorCode: Int, msg: String) {
-                                if (mProgressDialog != null) {
-                                    mProgressDialog!!.cancel()
-                                }
-                                setResult(Activity.RESULT_OK)
-                                Toast.makeText(applicationContext, "upload failure.errorCode:" + errorCode
-                                        + ",msg:" + msg, Toast.LENGTH_SHORT).show()
-                                this@AddNewActivity.finish()
-                            }
-                        })
-                    }
-                    .create().show()
-        }
+                            Toast.makeText(applicationContext, "upload failure.errorCode:" + errorCode
+                                    + ",msg:" + msg, Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
+                .create().show()
     }
 
     override fun onBackPressed() {

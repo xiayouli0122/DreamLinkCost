@@ -2,7 +2,7 @@ package com.yuri.dreamlinkcost.model.impl;
 
 import android.content.Context;
 
-import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 
 /**
@@ -13,5 +13,5 @@ public interface IAddNew extends IBaseMain{
 
     void saveNewTitle(Context context, String title);
 
-    void commit(Context context, Cost cost, CommitResultListener listener);
+    void commit(Context context, BmobCostYuri cost, CommitResultListener listener);
 }

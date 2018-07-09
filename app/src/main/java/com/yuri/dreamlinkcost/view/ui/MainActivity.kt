@@ -32,7 +32,6 @@ import com.yuri.dreamlinkcost.BuildConfig
 import com.yuri.dreamlinkcost.Constant
 import com.yuri.dreamlinkcost.R
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri
-import com.yuri.dreamlinkcost.model.CommitResultListener
 import com.yuri.dreamlinkcost.model.Main
 import com.yuri.dreamlinkcost.notification.MMNotificationManager
 import com.yuri.dreamlinkcost.notification.NotificationReceiver
@@ -177,7 +176,6 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
                 mainFragment!!.showAuthor(Constant.Author.YURI)
             }
             R.id.action_jiesuan -> doStatistics()
-            R.id.action_commit -> startCommit()
             R.id.action_about -> {
                 val title = "About"
                 val message = "Version:" + BuildConfig.VERSION_NAME
@@ -194,20 +192,12 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
     }
 
     private fun doStatistics() {
-        val localList1 = mainFragment!!.localList
-        if (localList1 != null && localList1.isNotEmpty()) {
-            Toast.makeText(this, "本地有未提交的数据，请先提交本地数据", Toast.LENGTH_SHORT).show()
-            return
-        }
         val list = mainFragment!!.getCostList()
         if (list!!.isEmpty()) {
             Toast.makeText(applicationContext, "暂无记录", Toast.LENGTH_LONG).show()
             return
         }
         var totalPay = 0f
-        var liuchengPay = 0f
-        var xiaofeiPay = 0f
-        var yuriPay = 0f
         for (cos in list) {
             totalPay += cos.totalPay
         }
@@ -220,9 +210,6 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
         sb.append("开始日期:" + startTime + "\n")
         sb.append("结束日期:" + endTime + "\n\n")
         sb.append("总共消费(¥):" + totalPay + "\n")
-        sb.append("LiuCheng(¥):" + liuchengPay + "\n")
-        sb.append("XiaoFei(¥):" + xiaofeiPay + "\n")
-        sb.append("Yuri(¥):" + yuriPay + "\n\n")
 
         sb.append("(注：结算后本地将不再显示已结算的数据，请确认后再操作)")
         showJieSuanDialog("账单结算", sb.toString(), list)
@@ -244,27 +231,6 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
                 }
                 .setNegativeButton("稍后再说", null)
                 .create().show()
-    }
-
-    private fun startCommit() {
-        val localList = mainFragment!!.localList
-        if (localList == null || localList.size == 0) {
-            Toast.makeText(this, "本地没有需要提交的数据", Toast.LENGTH_SHORT).show()
-        } else {
-            val progressDialog = ProgressDialog(this@MainActivity)
-            progressDialog.setMessage("提交本地数据中...")
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-            progressDialog.show()
-            mMainPresenter!!.doCommit(localList, object : CommitResultListener {
-                override fun onCommitSuccess() {
-                    mainFragment!!.refresh()
-                }
-
-                override fun onCommitFail(errorCode: Int, msg: String) {
-
-                }
-            })
-        }
     }
 
     private fun showDialog(title: String, message: String) {
@@ -290,7 +256,7 @@ class MainActivity : AppCompatActivity(), MainFragment.OnMainFragmentListener, V
 
                     val updateList = ArrayList<BmobObject>()
                     //服务器结算
-                    if (list!!.size == 0) {
+                    if (list!!.isEmpty()) {
                         return@OnClickListener
                     }
 

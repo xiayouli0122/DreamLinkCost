@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.Main;
 import com.yuri.dreamlinkcost.model.impl.IMain;
@@ -72,9 +71,5 @@ public class MainPresenter extends BasePresenter<IMainView>{
 
     public void doUpload(String filePath, Main.OnUploadListener listener) {
         iMain.uploadNewApk(mContext, filePath, listener);
-    }
-
-    public void doCommit(List<Cost> costList, CommitResultListener listener) {
-        iMain.commitLocalData(mContext, costList, listener);
     }
 }

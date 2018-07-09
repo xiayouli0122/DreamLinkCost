@@ -2,7 +2,7 @@ package com.yuri.dreamlinkcost.presenter;
 
 import android.content.Context;
 
-import com.yuri.dreamlinkcost.bean.table.Cost;
+import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.model.AddNew;
 import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.impl.IAddNew;
@@ -31,7 +31,7 @@ public class AddNewPresenter extends BasePresenter{
         iAddNew.saveNewTitle(mContext, title);
     }
 
-    public void commit(final Cost cost, CommitResultListener listener) {
+    public void commit(final BmobCostYuri cost, CommitResultListener listener) {
         iAddNew.commit(mContext, cost, listener);
     }
 }

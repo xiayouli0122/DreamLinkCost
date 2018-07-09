@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.table.CardItem;
-import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener;
 import com.yuri.xlog.Log;
 
@@ -24,27 +23,22 @@ import butterknife.ButterKnife;
 public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.BindingHolder> {
 
     private List<BmobCostYuri> mCostList;
-    private List<Cost> mLocalCostList;
-
     private RecyclerViewClickListener mListener;
 
     private Context mContext;
 
-    public CardViewAdapter(Context context, List<Cost> localList, List<BmobCostYuri> list) {
+    public CardViewAdapter(Context context, List<BmobCostYuri> list) {
         mContext = context;
         this.mCostList = list;
-        this.mLocalCostList = localList;
     }
 
     public void clearList() {
         Log.d();
-        mLocalCostList.clear();
         mCostList.clear();
     }
 
-    public void setCostList(List<Cost> localList, List<BmobCostYuri> list) {
+    public void setCostList(List<BmobCostYuri> list) {
         this.mCostList = list;
-        this.mLocalCostList = localList;
     }
 
     public void addCostList(List<BmobCostYuri> list) {
@@ -53,32 +47,22 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         }
     }
 
-    public void addLocalCostList(List<Cost> list) {
-        for (int i = 0; i < list.size(); i++) {
-            addLocalItem(i, list.get(i));
-        }
-    }
-
     public void sortByPriceAsc() {
-        Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR);
         Collections.sort(mCostList, BmobCostYuri.PRICE_ASC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByPriceDesc() {
-        Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR);
         Collections.sort(mCostList, BmobCostYuri.PRICE_DESC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByDateAsc() {
-        Collections.sort(mLocalCostList, Cost.DATE_ASC_COMPARATOR);
         Collections.sort(mCostList, BmobCostYuri.DATE_ASC_COMPARATOR);
         notifyDataSetChanged();
     }
 
     public void sortByDateDesc() {
-        Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR);
         Collections.sort(mCostList, BmobCostYuri.DATE_DESC_COMPARATOR);
         notifyDataSetChanged();
     }
@@ -86,11 +70,6 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
     public void addItem(int position, BmobCostYuri cost) {
         mCostList.add(position, cost);
         notifyItemInserted(position);
-    }
-
-    public void addLocalItem(int position, Cost cost) {
-        mLocalCostList.add(position, cost);
-        notifyItemChanged(position);
     }
 
     public void remove(int position) {
@@ -108,13 +87,8 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         mListener = listener;
     }
 
-    public Object getItem(int position) {
-        int localListCount = mLocalCostList.size();
-        if (position < localListCount) {
-            //本地数据在前面
-            return mLocalCostList.get(position);
-        }
-        return mCostList.get(position - localListCount);
+    public BmobCostYuri getItem(int position) {
+        return mCostList.get(position);
     }
 
     /**
@@ -122,13 +96,6 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
      */
     public List<BmobCostYuri> getCostList() {
         return this.mCostList;
-    }
-
-    /**
-     * 获取本地列表
-     */
-    public List<Cost> getLocalList() {
-        return this.mLocalCostList;
     }
 
     @Override
@@ -142,23 +109,14 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
 
     @Override
     public void onBindViewHolder(BindingHolder holder, final int position) {
-        Object object = getItem(position);
-        CardItem cardItem;
-        if (object instanceof BmobCostYuri) {
-            BmobCostYuri bmobCost = (BmobCostYuri) object;
-            cardItem = new CardItem(mContext).getCardItem(bmobCost);
-        } else {
-            Cost cost = (Cost) object;
-            cardItem = new CardItem(mContext).getCardItem(cost);
-        }
+        BmobCostYuri item = getItem(position);
+        CardItem cardItem = new CardItem(mContext).getCardItem(item);
 
         holder.mTitleView.setText(cardItem.title);
         holder.mTotalPayView.setText(cardItem.info);
         holder.mHeaderView.setText(CardItem.getHeaderText(cardItem.header));
         holder.mHeaderView.setBackgroundDrawable(cardItem.getItemBackgroudRes());
         holder.mDateView.setText(cardItem.date);
-        holder.mCommitStatus.setText(cardItem.isCommited ? "Commited" : "UnCommited");
-        holder.mCommitStatus.setTextColor(cardItem.isCommited ? Color.GREEN : Color.RED);
 
         if (mOnScrollIdle) {
             showItemAnim(holder.itemView, position);
@@ -167,7 +125,7 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
 
     @Override
     public int getItemCount() {
-        return mLocalCostList.size() + mCostList.size();
+        return mCostList.size();
     }
 
     private boolean mOnScrollIdle = true;
@@ -184,8 +142,6 @@ public class CardViewAdapter extends AnimRecyclerViewAdapter<CardViewAdapter.Bin
         TextView mTitleView;
         @BindView(R.id.totalPayView)
         TextView mTotalPayView;
-        @BindView(R.id.commit_status)
-        TextView mCommitStatus;
         @BindView(R.id.dateView)
         TextView mDateView;
 

@@ -2,10 +2,7 @@ package com.yuri.dreamlinkcost.presenter;
 
 import android.content.Context;
 
-import com.yuri.dreamlinkcost.bean.Bmob.BmobCost;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
-import com.yuri.dreamlinkcost.bean.table.Cost;
-import com.yuri.dreamlinkcost.model.CommitResultListener;
 import com.yuri.dreamlinkcost.model.MainFragementService;
 import com.yuri.dreamlinkcost.model.OnDeleteItemListener;
 import com.yuri.dreamlinkcost.model.SyncDataResultListener;
@@ -28,8 +25,8 @@ public class MainFragmentPresenter extends BasePresenter<IMainFragmentView> {
     public void syncData() {
         iMainFragment.syncData(mContext, new SyncDataResultListener() {
             @Override
-            public void onSuccess(List<BmobCostYuri> serverList, List<Cost> localList) {
-                mView.updateList(true, serverList, localList);
+            public void onSuccess(List<BmobCostYuri> serverList) {
+                mView.updateList(true, serverList);
             }
 
             @Override
@@ -39,17 +36,9 @@ public class MainFragmentPresenter extends BasePresenter<IMainFragmentView> {
 
             @Override
             public void onFail(String msg) {
-                mView.updateList(false, null, null);
+                mView.updateList(false, null);
             }
         });
-    }
-
-    public void commitLocalData() {
-        iMainFragment.commitLocalData(mContext, null);
-    }
-
-    public void commitItem(long id, CommitResultListener listener) {
-        iMainFragment.commit(mContext, id, listener);
     }
 
     public void deleteItem(BmobCostYuri bmobCost, OnDeleteItemListener listener) {

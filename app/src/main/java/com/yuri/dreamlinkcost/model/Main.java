@@ -9,7 +9,6 @@ import com.yuri.dreamlinkcost.BuildConfig;
 import com.yuri.dreamlinkcost.R;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.Bmob.Version;
-import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.model.impl.IMain;
 import com.yuri.dreamlinkcost.utils.NetUtil;
@@ -189,30 +188,6 @@ public class Main extends BaseMain implements IMain {
 
             }
         });
-    }
-
-    @Override
-    public void commitLocalData(Context context, List<Cost> costList, CommitResultListener listener) {
-        BmobCostYuri bmobCost;
-        for (final Cost cost : costList) {
-            bmobCost = cost.getCostBean();
-            bmobCost.save(new SaveListener<String>() {
-                @Override
-                public void done(String objectId, BmobException e) {
-                    if (e == null) {
-                        Log.d("upload success:" + cost.title);
-                        //上传成功后，删除本地数据
-                        cost.delete();
-                    } else {
-                        Log.d("upload failure:" + cost.title);
-                    }
-                }
-            });
-        }
-
-        if (listener != null) {
-            listener.onCommitSuccess();
-        }
     }
 
     public static class UpdateStatus{

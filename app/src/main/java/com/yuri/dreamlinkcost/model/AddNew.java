@@ -5,7 +5,6 @@ import android.content.Context;
 import com.activeandroid.query.Select;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri;
 import com.yuri.dreamlinkcost.bean.Bmob.BmobTitle;
-import com.yuri.dreamlinkcost.bean.table.Cost;
 import com.yuri.dreamlinkcost.bean.table.Title;
 import com.yuri.dreamlinkcost.model.impl.IAddNew;
 import com.yuri.xlog.Log;
@@ -43,13 +42,12 @@ public class AddNew extends BaseMain implements IAddNew {
     }
 
     @Override
-    public void commit(final Context context, final Cost cost, final CommitResultListener listener) {
+    public void commit(final Context context, final BmobCostYuri cost, final CommitResultListener listener) {
         if (listener == null) {
             throw new NullPointerException("CommitResultListener cannot be null");
         }
 
-        final BmobCostYuri bmobCost = cost.getCostBean();
-        bmobCost.save(new SaveListener<String>() {
+        cost.save(new SaveListener<String>() {
             @Override
             public void done(String s, BmobException e) {
                 if (e == null) {
@@ -57,7 +55,6 @@ public class AddNew extends BaseMain implements IAddNew {
                     saveNewTitle(context, cost.title);
                     listener.onCommitSuccess();
                 } else {
-                    cost.save();
                     listener.onCommitFail(e.getErrorCode(), e.getMessage());
                 }
             }

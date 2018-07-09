@@ -15,9 +15,7 @@ import com.yuri.dreamlinkcost.Constant
 import com.yuri.dreamlinkcost.ContextMenuRecyclerView
 import com.yuri.dreamlinkcost.R
 import com.yuri.dreamlinkcost.bean.Bmob.BmobCostYuri
-import com.yuri.dreamlinkcost.bean.table.Cost
 import com.yuri.dreamlinkcost.interfaces.RecyclerViewClickListener
-import com.yuri.dreamlinkcost.model.CommitResultListener
 import com.yuri.dreamlinkcost.model.OnDeleteItemListener
 import com.yuri.dreamlinkcost.presenter.MainFragmentPresenter
 import com.yuri.dreamlinkcost.rx.RxBus
@@ -45,8 +43,6 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 
     /**云端列表 */
     private var mNetCostList: List<BmobCostYuri> = ArrayList()
-    /**本地列表 */
-    private var mLocalCostList: List<Cost> = ArrayList()
 
     private var mSortObservable: Observable<Int>? = null
 
@@ -58,18 +54,12 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 //            adapter!!.costList
 //        } else null
 
-    fun getCostList() : List<BmobCostYuri>? {
+    fun getCostList(): List<BmobCostYuri>? {
         if (adapter != null) {
-            return  adapter!!.costList
+            return adapter!!.costList
         }
         return null
     }
-
-    val localList: List<Cost>?
-        get() = if (adapter != null) {
-            adapter!!.localList
-        } else null
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +100,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         Log.d()
         // Handle Toolbar
         my_recycler_view!!.layoutManager = mLayoutManager
-        adapter = CardViewAdapter(activity, ArrayList(), ArrayList())
+        adapter = CardViewAdapter(activity, ArrayList())
         my_recycler_view!!.adapter = adapter
         adapter!!.setOnItemClickListener(this)
 
@@ -143,7 +133,7 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
      * @param serverList 服务端列表
      * @param localList 本地列表
      */
-    override fun updateList(result: Boolean, serverList: List<BmobCostYuri>?, localList: List<Cost>?) {
+    override fun updateList(result: Boolean, serverList: List<BmobCostYuri>?) {
         if (!result) {
             Snackbar.make(my_recycler_view!!, "加载失败，请重试", Snackbar.LENGTH_LONG)
                     .setAction("重试") {
@@ -157,10 +147,9 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 
         adapter!!.clearList()
         mNetCostList = serverList!!
-        mLocalCostList = localList!!
         swipe_container!!.isRefreshing = false
 
-        if (serverList.size + localList.size == 0) {
+        if (serverList.isEmpty()) {
             emptyView!!.visibility = View.VISIBLE
             emptyView!!.text = "记录为空"
             adapter!!.notifyDataSetChanged()
@@ -182,54 +171,21 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
         mPresenter!!.syncData()
     }
 
-    override fun onResume() {
-        super.onResume()
-        //提交本地数据到服务器
-        mPresenter!!.commitLocalData()
-    }
-
     fun refresh() {
         Log.d()
         doGetDataFromNet()
     }
 
 
-    fun checkItem(any: Any) {
-        if (any is BmobCostYuri) {
-            val title = any.title
-            val status = "Commited"
-            val author: String = "Yuri"
-            val message = ("TotalPay(¥):" + any.totalPay + "\n"
-                    + "Status:" + status + "\n"
-                    + "Date:" + TimeUtil.getDate(any.createDate) + "\n"
-                    + "Author:" + author)
-            showDialog(title, message)
-            return
-        }
-
-        val cost = any as Cost
+    fun checkItem(cost: BmobCostYuri) {
         val title = cost.title
-        val status = "unCommited"
-        val author: String = "Yuri"
+        val status = "Commited"
+        val author = "Yuri"
         val message = ("TotalPay(¥):" + cost.totalPay + "\n"
                 + "Status:" + status + "\n"
                 + "Date:" + TimeUtil.getDate(cost.createDate) + "\n"
                 + "Author:" + author)
         showDialog(title, message)
-
-    }
-
-    fun doCommit(id: Long) {
-        mPresenter!!.commitItem(id, object : CommitResultListener {
-            override fun onCommitSuccess() {
-                Toast.makeText(activity.applicationContext, "upload success", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onCommitFail(errorCode: Int, msg: String) {
-                Toast.makeText(activity.applicationContext, "upload failure.errorCode:" + errorCode
-                        + ",msg:" + msg, Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -279,63 +235,39 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        val adapterContextMenuInfo = menuInfo as ContextMenuRecyclerView.RecyclerContextMenuInfo
-        Log.d("adapterContextMenuInfo:" + adapterContextMenuInfo)
         //获取弹出菜单时，用户选择的ListView的位置
-        val position = adapterContextMenuInfo.position
-        val `object` = adapter!!.getItem(position)
-        if (`object` is Cost) {
-            activity.menuInflater.inflate(R.menu.menu_main_context2, menu)
-        } else {
-            activity.menuInflater.inflate(R.menu.menu_main_context, menu)
-        }
+        activity.menuInflater.inflate(R.menu.menu_main_context, menu)
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val menuInfo = item.menuInfo as ContextMenuRecyclerView.RecyclerContextMenuInfo
         val position = menuInfo.position
-        val `object` = adapter!!.getItem(position)
-        if (`object` is BmobCostYuri) {
-            when (item.itemId) {
-                R.id.action_delete_all -> {
-                    if (mProgressDialog != null) {
-                        mProgressDialog!!.setMessage("删除中...")
-                        mProgressDialog!!.show()
+        val costItem = adapter!!.getItem(position)
+        when (item.itemId) {
+            R.id.action_delete_all -> {
+                if (mProgressDialog != null) {
+                    mProgressDialog!!.setMessage("删除中...")
+                    mProgressDialog!!.show()
+                }
+
+                mPresenter!!.deleteItem(costItem, object : OnDeleteItemListener {
+                    override fun onDeleteSucess() {
+                        adapter!!.remove(position)
+                        adapter!!.notifyDataSetChanged()
+                        Toast.makeText(activity, "删除成功", Toast.LENGTH_SHORT).show()
+                        if (mProgressDialog != null) {
+                            mProgressDialog!!.cancel()
+                        }
+                        refresh()
                     }
 
-                    mPresenter!!.deleteItem(`object`, object : OnDeleteItemListener {
-                        override fun onDeleteSucess() {
-                            adapter!!.remove(position)
-                            adapter!!.notifyDataSetChanged()
-                            Toast.makeText(activity, "删除成功", Toast.LENGTH_SHORT).show()
-                            if (mProgressDialog != null) {
-                                mProgressDialog!!.cancel()
-                            }
-                            refresh()
+                    override fun onDeleteFail(msg: String) {
+                        Toast.makeText(activity, "删除失败", Toast.LENGTH_SHORT).show()
+                        if (mProgressDialog != null) {
+                            mProgressDialog!!.cancel()
                         }
-
-                        override fun onDeleteFail(msg: String) {
-                            Toast.makeText(activity, "删除失败", Toast.LENGTH_SHORT).show()
-                            if (mProgressDialog != null) {
-                                mProgressDialog!!.cancel()
-                            }
-                        }
-                    })
-                }
-            }
-        } else {
-            val cost = `object` as Cost
-            when (item.itemId) {
-                R.id.action_delete_local -> AlertDialog.Builder(activity)
-                        .setTitle(cost.title)
-                        .setMessage("将从本地数据移除")
-                        .setNegativeButton("Cancel", null)
-                        .setPositiveButton("OK") { dialogInterface, i ->
-                            cost.delete()
-                            adapter!!.remove(position)
-                        }
-                        .create().show()
-                R.id.action_commit -> doCommit(cost.id!!)
+                    }
+                })
             }
         }
         return super.onContextItemSelected(item)
@@ -357,17 +289,17 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
             return
         }
         val sort = SharedPreferencesUtil.get(activity, Constant.Extra.KEY_SORT, 0)
-        if (sort == SORT_BY_DATE_DESC) {
-            Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCostYuri.DATE_DESC_COMPARATOR)
-        } else if (sort == SORT_BY_PRICE_ASC) {
-            Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCostYuri.PRICE_ASC_COMPARATOR)
-        } else if (sort == SORT_BY_PRICE_DESC) {
-            Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR)
-            Collections.sort(mNetCostList, BmobCostYuri.PRICE_DESC_COMPARATOR)
-        }
-        adapter!!.setCostList(mLocalCostList, mNetCostList)
+//        if (sort == SORT_BY_DATE_DESC) {
+//            Collections.sort(mLocalCostList, Cost.DATE_DESC_COMPARATOR)
+//            Collections.sort(mNetCostList, BmobCostYuri.DATE_DESC_COMPARATOR)
+//        } else if (sort == SORT_BY_PRICE_ASC) {
+//            Collections.sort(mLocalCostList, Cost.PRICE_ASC_COMPARATOR)
+//            Collections.sort(mNetCostList, BmobCostYuri.PRICE_ASC_COMPARATOR)
+//        } else if (sort == SORT_BY_PRICE_DESC) {
+//            Collections.sort(mLocalCostList, Cost.PRICE_DESC_COMPARATOR)
+//            Collections.sort(mNetCostList, BmobCostYuri.PRICE_DESC_COMPARATOR)
+//        }
+        adapter!!.costList = mNetCostList
         //这个方法有Bug
         //java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder{2f92781d position=16 id=-1, oldPos=0, pLpos:0 scrap tmpDetached not recyclable(1) no parent}
         //                    mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount() - 1);
@@ -375,32 +307,9 @@ class MainFragment : Fragment(), RecyclerViewClickListener, IMainFragmentView {
     }
 
     fun showAuthor(author: Int) {
-        val localList = getItemLocalList(author)
         val list = getNetItemList(author)
-        adapter!!.setCostList(localList, list)
+        adapter!!.setCostList(list)
         adapter!!.notifyDataSetChanged()
-    }
-
-    fun getItemLocalList(author: Int): List<Cost> {
-        val itemList = ArrayList<Cost>()
-        if (mLocalCostList.size == 0) {
-            return itemList
-        }
-
-        for (cost in mLocalCostList) {
-            when (author) {
-                Constant.Author.LIUCHENG -> if (cost.payLC > 0) {
-                    itemList.add(cost)
-                }
-                Constant.Author.XIAOFEI -> if (cost.payXF > 0) {
-                    itemList.add(cost)
-                }
-                Constant.Author.YURI -> if (cost.payYuri > 0) {
-                    itemList.add(cost)
-                }
-            }
-        }
-        return itemList
     }
 
     fun getNetItemList(author: Int): List<BmobCostYuri> {

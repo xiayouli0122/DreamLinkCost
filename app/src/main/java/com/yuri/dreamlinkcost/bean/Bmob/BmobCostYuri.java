@@ -1,8 +1,5 @@
 package com.yuri.dreamlinkcost.bean.Bmob;
 
-import com.yuri.dreamlinkcost.Constant;
-import com.yuri.dreamlinkcost.bean.table.Cost;
-
 import java.util.Comparator;
 
 import cn.bmob.v3.BmobObject;
@@ -20,18 +17,6 @@ public class BmobCostYuri extends BmobObject{
     public boolean clear;
 
     public long createDate;
-
-    public Cost getCost() {
-        Cost cost = new Cost();
-        cost.author = this.author;
-        cost.objectId = getObjectId();
-        cost.status = Constant.STATUS_COMMIT_SUCCESS;
-        cost.createDate = this.createDate;
-        cost.title = this.title;
-        cost.totalPay = this.totalPay;
-        cost.clear = this.clear;
-        return cost;
-    }
 
     @Override
     public String toString() {

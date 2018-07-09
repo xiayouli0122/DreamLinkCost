@@ -43,24 +43,6 @@ public class CardItem {
         return this;
     }
 
-    public CardItem getCardItem(Cost cost) {
-        this.title = cost.title;
-        String detail = "L:" + (cost.payLC == 0 ? cost.payLC + "" : mDecimalFormat.format(cost.payLC))
-                + ", X:" + (cost.payXF == 0 ? cost.payXF + "" : mDecimalFormat.format(cost.payXF))
-                + ", Y:" + (cost.payYuri == 0 ? cost.payYuri + "" : mDecimalFormat.format(cost.payYuri));
-        this.info = "¥" + cost.totalPay + "\n" + detail;
-        this.isCommited = false;
-        this.date = TimeUtil.getDate(cost.createDate);
-        if (cost.payLC > 0) {
-            this.header = Constant.Author.LIUCHENG;
-        } else if (cost.payXF > 0) {
-            this.header = Constant.Author.XIAOFEI;
-        } else {
-            this.header = Constant.Author.YURI;
-        }
-        return this;
-    }
-
     public static String getHeaderText(int header) {
         if (header == Constant.Author.LIUCHENG) {
             return "L";
