@@ -242,25 +242,6 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
             return
         }
 
-        val isAverage = rb_average!!.isChecked
-        Log.d("isAverage:" + isAverage)
-        if (!isAverage) {
-            if (hasLiuCheng && TextUtils.isEmpty(et_liucheng!!.text.toString().trim { it <= ' ' })) {
-                Toast.makeText(applicationContext, "LiuCheng Pay cannot be empty.", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            if (hasXiaoFei && TextUtils.isEmpty(et_xiaofei!!.text.toString().trim { it <= ' ' })) {
-                Toast.makeText(applicationContext, "XiaoFei Pay cannot be empty.", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            if (hasYuri && TextUtils.isEmpty(et_yuri!!.toString().trim { it <= ' ' })) {
-                Toast.makeText(applicationContext, "Yuri Pay cannot be empty.", Toast.LENGTH_SHORT).show()
-                return
-            }
-        }
-
         val cost = BmobCostYuri()
         if (mCalendar != null) {
             cost.createDate = mCalendar!!.timeInMillis
@@ -273,16 +254,7 @@ class AddNewActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListen
         cost.author = mAuthor
 
         setResult(Activity.RESULT_OK)
-        val author: String
-        if (cost.author == Constant.Author.LIUCHENG) {
-            author = "LiuCheng"
-        } else if (cost.author == Constant.Author.XIAOFEI) {
-            author = "XiaoFei"
-        } else if (cost.author == Constant.Author.YURI) {
-            author = "Yuri"
-        } else {
-            author = "UNKNOW"
-        }
+        val author = "Yuri"
         val sb = StringBuilder()
         sb.append("Total(¥)：" + cost.totalPay + "\n")
         sb.append("Editor：" + author + "\n")

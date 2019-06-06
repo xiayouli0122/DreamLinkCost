@@ -55,6 +55,7 @@ public class AddNew extends BaseMain implements IAddNew {
                     saveNewTitle(context, cost.title);
                     listener.onCommitSuccess();
                 } else {
+                    Log.e(e);
                     listener.onCommitFail(e.getErrorCode(), e.getMessage());
                 }
             }
